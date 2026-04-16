@@ -18,6 +18,25 @@
     });
   }
 
+  function getPointedSlot(controller) {
+    if (!controller || !controller.components || !controller.components.raycaster) {
+      return null;
+    }
+
+    const raycaster = controller.components.raycaster;
+    if (!raycaster.intersectedEls || !raycaster.intersectedEls.length) {
+      return null;
+    }
+
+    return raycaster.intersectedEls
+      .map(function (element) {
+        return findClosestWithClass(element, "color-slot");
+      })
+      .find(function (slot) {
+        return slot && isVisible(slot) && slot.dataset.occupied !== "true";
+      }) || null;
+  }
+
   AFRAME.registerComponent("snap-to-slot", {
     schema: {
       snapDistance: { type: "number", default: APP_CONFIG.snapDistance },
@@ -26,6 +45,7 @@
     init: function init() {
       this.dropHandler = this.onDrop.bind(this);
       this.grabHandler = this.onGrabStart.bind(this);
+      this.activeController = null;
       this.el.addEventListener("grab-end", this.dropHandler);
       this.el.addEventListener("grab-start", this.grabHandler);
     },
@@ -35,13 +55,14 @@
       this.el.removeEventListener("grab-start", this.grabHandler);
     },
 
-    onGrabStart: function onGrabStart() {
+    onGrabStart: function onGrabStart(event) {
+      this.activeController = event && event.detail ? event.detail.controller || null : null;
       if (this.el.dataset.slotId) {
         this.releaseCurrentSlot();
       }
     },
 
-    onDrop: function onDrop() {
+    onDrop: function onDrop(event) {
       if (this.el.dataset.locked === "true") {
         return;
       }
@@ -53,9 +74,33 @@
       }
 
       const ballData = this.el.getAttribute("color-ball");
+      const controller = event && event.detail ? event.detail.controller || this.activeController : this.activeController;
+      const pointedSlot = getPointedSlot(controller);
       const ballPosition = getWorldPosition(this.el);
+      const snapDistance = event && event.detail && event.detail.desktop ? this.data.snapDistance : APP_CONFIG.vrSnapDistance;
+
+      if (pointedSlot) {
+        const isFreePlay = window.FreePlayManager && FreePlayManager.active;
+        const isCorrect = pointedSlot.dataset.targetColor === ballData.colorHex;
+        this.activeController = null;
+
+        if (isFreePlay) {
+          this.snapSuccess(pointedSlot, isCorrect, true);
+          return;
+        }
+
+        if (isCorrect) {
+          this.snapSuccess(pointedSlot, true, false);
+          return;
+        }
+
+        this.snapFail();
+        return;
+      }
+
       const match = this.findClosestSlot(slots, ballPosition);
-      if (!match || match.distance > this.data.snapDistance) {
+      this.activeController = null;
+      if (!match || match.distance > snapDistance) {
         this.returnToShelf();
         return;
       }
@@ -98,7 +143,7 @@
       const ballColor = this.el.getAttribute("color-ball").colorHex;
 
       slot.object3D.attach(this.el.object3D);
-      this.el.object3D.position.set(0, 0, APP_CONFIG.slotDepthOffset);
+      this.el.object3D.position.set(0, 0, APP_CONFIG.placedBallDepthOffset);
       this.el.object3D.rotation.set(0, 0, 0);
 
       this.el.dataset.slotId = slot.id;

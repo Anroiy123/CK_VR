@@ -3,6 +3,30 @@
     return;
   }
 
+  let activeTooltipComponent = null;
+
+  function promoteTooltipObject(rootObject3D) {
+    if (!rootObject3D) {
+      return;
+    }
+
+    rootObject3D.traverse(function (object3D) {
+      if (!object3D.material) {
+        return;
+      }
+
+      const materials = Array.isArray(object3D.material) ? object3D.material : [object3D.material];
+      materials.forEach(function (material) {
+        material.depthTest = false;
+        material.depthWrite = false;
+        material.transparent = true;
+        material.needsUpdate = true;
+      });
+
+      object3D.renderOrder = 1000;
+    });
+  }
+
   AFRAME.registerComponent("billboard", {
     tick: (function () {
       const cameraPosition = new THREE.Vector3();
@@ -24,6 +48,7 @@
     schema: {
       colorHex: { type: "string" },
       yOffset: { type: "number", default: 0.42 },
+      zOffset: { type: "number", default: 0.18 },
       width: { type: "number", default: 1.38 },
       height: { type: "number", default: 0.72 },
     },
@@ -32,7 +57,7 @@
       this.hideTimer = null;
       this.tooltipEl = document.createElement("a-entity");
       this.tooltipEl.setAttribute("visible", false);
-      this.tooltipEl.setAttribute("position", "0 " + this.data.yOffset + " 0");
+      this.tooltipEl.setAttribute("position", "0 " + this.data.yOffset + " " + this.data.zOffset);
       this.tooltipEl.setAttribute("billboard", "");
 
       const background = document.createElement("a-plane");
@@ -40,7 +65,7 @@
       background.setAttribute("height", this.data.height);
       background.setAttribute("color", "#0f1729");
       background.setAttribute("opacity", "0.94");
-      background.setAttribute("material", "shader: flat");
+      background.setAttribute("material", "shader: flat; depthTest: false; depthWrite: false; transparent: true");
       this.tooltipEl.appendChild(background);
 
       this.titleEl = document.createElement("a-text");
@@ -48,6 +73,7 @@
       this.titleEl.setAttribute("align", "center");
       this.titleEl.setAttribute("color", "#ffd43b");
       this.titleEl.setAttribute("width", "1.55");
+      this.titleEl.setAttribute("material", "shader: flat; depthTest: false; depthWrite: false; transparent: true");
       this.tooltipEl.appendChild(this.titleEl);
 
       this.theoryEl = document.createElement("a-text");
@@ -55,9 +81,16 @@
       this.theoryEl.setAttribute("align", "center");
       this.theoryEl.setAttribute("color", "#e9ecef");
       this.theoryEl.setAttribute("width", "1.26");
+      this.theoryEl.setAttribute("material", "shader: flat; depthTest: false; depthWrite: false; transparent: true");
       this.tooltipEl.appendChild(this.theoryEl);
 
       this.el.appendChild(this.tooltipEl);
+      this.tooltipEl.addEventListener("loaded", function () {
+        promoteTooltipObject(this.tooltipEl.object3D);
+      }.bind(this));
+      this.tooltipEl.addEventListener("object3dset", function () {
+        promoteTooltipObject(this.tooltipEl.object3D);
+      }.bind(this));
 
       this.boundShow = this.show.bind(this);
       this.boundHide = this.hide.bind(this);
@@ -71,6 +104,11 @@
     },
 
     show: function show() {
+      if (this.el.dataset.held === "true") {
+        this.hideImmediate();
+        return;
+      }
+
       if (this.hideTimer) {
         clearTimeout(this.hideTimer);
         this.hideTimer = null;
@@ -81,11 +119,16 @@
         return;
       }
 
+      if (activeTooltipComponent && activeTooltipComponent !== this) {
+        activeTooltipComponent.hideImmediate();
+      }
+
       this.titleEl.setAttribute("value", color.name + " (" + color.type + ")");
       this.theoryEl.setAttribute("value", color.theory);
       this.tooltipEl.setAttribute("visible", true);
       this.tooltipEl.setAttribute("scale", "0.85 0.85 0.85");
       this.tooltipEl.setAttribute("animation__tooltip", "property: scale; from: 0.85 0.85 0.85; to: 1 1 1; dur: 180; easing: easeOutQuad");
+      activeTooltipComponent = this;
     },
 
     hide: function hide() {
@@ -94,7 +137,22 @@
       }
       this.hideTimer = setTimeout(function () {
         this.tooltipEl.setAttribute("visible", false);
+        if (activeTooltipComponent === this) {
+          activeTooltipComponent = null;
+        }
       }.bind(this), 90);
+    },
+
+    hideImmediate: function hideImmediate() {
+      if (this.hideTimer) {
+        clearTimeout(this.hideTimer);
+        this.hideTimer = null;
+      }
+      this.tooltipEl.removeAttribute("animation__tooltip");
+      this.tooltipEl.setAttribute("visible", false);
+      if (activeTooltipComponent === this) {
+        activeTooltipComponent = null;
+      }
     },
 
     showTemporary: function showTemporary(duration) {

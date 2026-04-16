@@ -2,6 +2,7 @@
   const UIManager = {
     panels: {},
     refs: {},
+    world: {},
     statusTimer: null,
 
     init: function init() {
@@ -25,6 +26,12 @@
         gameoverLevel: document.getElementById("gameover-level"),
         gameoverMode: document.getElementById("gameover-mode"),
         statusText: document.getElementById("status-text"),
+      };
+
+      this.world = {
+        wheel: document.getElementById("color-wheel"),
+        shelf: document.getElementById("shelf"),
+        balls: document.getElementById("balls-container"),
       };
 
       const scene = document.querySelector("a-scene");
@@ -55,6 +62,7 @@
     showLeaderboard: function showLeaderboard() {
       Leaderboard.renderToPanel();
       this.hideAll();
+      this.setGameplayWorldVisible(false);
       this.setVisible("leaderboard", true);
     },
 
@@ -86,20 +94,35 @@
       }
     },
 
+    setWorldVisible: function setWorldVisible(name, visible) {
+      if (this.world[name]) {
+        this.world[name].setAttribute("visible", visible);
+      }
+    },
+
+    setGameplayWorldVisible: function setGameplayWorldVisible(visible) {
+      this.setWorldVisible("wheel", visible);
+      this.setWorldVisible("shelf", visible);
+      this.setWorldVisible("balls", visible);
+    },
+
     showMenu: function showMenu() {
       this.hideAll();
+      this.setGameplayWorldVisible(false);
       this.setVisible("menu", true);
       this.updateTimer("--", false);
     },
 
     showGameHUD: function showGameHUD(mode) {
       this.hideAll();
+      this.setGameplayWorldVisible(true);
       this.setVisible("hud", true);
       this.setVisible("timer", mode === "hard");
     },
 
     showFreePlay: function showFreePlay() {
       this.hideAll();
+      this.setGameplayWorldVisible(true);
       this.setVisible("hud", true);
       this.setVisible("freeplay", true);
       this.setVisible("timer", false);
@@ -107,6 +130,7 @@
 
     showVictory: function showVictory(totalTime, mode) {
       this.hideAll();
+      this.setGameplayWorldVisible(false);
       this.refs.victoryTime.setAttribute("value", "Total Time: " + totalTime.toFixed(1) + "s");
       this.refs.victoryMode.setAttribute("value", "Mode: " + mode.toUpperCase());
       this.setVisible("victory", true);
@@ -114,6 +138,7 @@
 
     showGameOver: function showGameOver(level, mode) {
       this.hideAll();
+      this.setGameplayWorldVisible(false);
       this.refs.gameoverLevel.setAttribute("value", "Level: " + level);
       this.refs.gameoverMode.setAttribute("value", "Mode: " + mode.toUpperCase());
       this.setVisible("gameover", true);
@@ -121,7 +146,10 @@
 
     updateHUD: function updateHUD(levelLabel, progressLabel, detailLabel) {
       this.refs.hudLevel.setAttribute("value", String(levelLabel));
-      this.refs.hudProgress.setAttribute("value", detailLabel ? progressLabel + " | " + detailLabel : progressLabel);
+      this.refs.hudProgress.setAttribute(
+        "value",
+        detailLabel ? progressLabel + " | " + detailLabel : progressLabel
+      );
     },
 
     updateTimer: function updateTimer(value, urgent) {
@@ -133,6 +161,7 @@
       if (this.statusTimer) {
         clearTimeout(this.statusTimer);
       }
+
       this.refs.statusText.setAttribute("value", message);
       this.setVisible("status", true);
       this.statusTimer = setTimeout(function () {

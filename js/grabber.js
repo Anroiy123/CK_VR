@@ -18,6 +18,10 @@
     return Math.min(max, Math.max(min, value));
   }
 
+  function getVrHoldOffset() {
+    return toVector3(APP_CONFIG.vrGrab && APP_CONFIG.vrGrab.holdOffset);
+  }
+
   AFRAME.registerComponent("grabber", {
     init: function init() {
       this.grabbed = null;
@@ -48,7 +52,7 @@
       this.grabbed = target;
       target.emit("grab-start", { controller: this.el });
       this.el.object3D.attach(target.object3D);
-      target.object3D.position.set(0, -0.02, -0.18);
+      target.object3D.position.copy(getVrHoldOffset());
       target.object3D.rotation.set(0, 0, 0);
 
       if (window.SoundManager) {

@@ -83,9 +83,10 @@
 
     <a-entity
       id="color-wheel"
-      color-wheel="radius: 1.28; level: 1"
-      position="0 1.56 -2.72"
-      rotation="-2 0 0"
+      color-wheel="radius: 1.12; level: 1"
+      position="0 1.34 -2.22"
+      rotation="-1 0 0"
+      visible="false"
     >
       <a-entity id="diegetic-hud" position="0 0.34 0" visible="false">
         <a-text
@@ -109,7 +110,7 @@
       </a-entity>
     </a-entity>
 
-    <a-entity id="timer-display" position="-1.24 2.08 -2.42" visible="false" billboard>
+    <a-entity id="timer-display" position="-0.96 1.96 -2.06" visible="false" billboard>
       <a-plane
         width="0.52"
         height="0.22"
@@ -127,13 +128,13 @@
       ></a-text>
     </a-entity>
 
-    <a-entity id="shelf" color-shelf position="0 0 -1.18"></a-entity>
-    <a-entity id="balls-container"></a-entity>
+    <a-entity id="shelf" color-shelf position="0 0 -0.98" visible="false"></a-entity>
+    <a-entity id="balls-container" visible="false"></a-entity>
     <a-entity id="particle-pool"></a-entity>
 
     <a-entity id="ui-container">
       <a-entity id="menu-panel" position="0 1.72 -2.45" visible="true" billboard>
-        <a-plane width="3.2" height="2.65" color="#12192f" opacity="0.94" material="shader: flat"></a-plane>
+        <a-plane width="3.2" height="2.65" color="#12192f" opacity="1" material="shader: flat"></a-plane>
         <a-text
           value="VR COLOR CIRCLE"
           position="0 0.92 0.01"
@@ -156,7 +157,7 @@
       </a-entity>
 
       <a-entity id="leaderboard-panel" position="0 1.72 -2.45" visible="false" billboard>
-        <a-plane width="3.55" height="2.7" color="#102247" opacity="0.95" material="shader: flat"></a-plane>
+        <a-plane width="3.55" height="2.7" color="#102247" opacity="1" material="shader: flat"></a-plane>
         <a-text value="LEADERBOARD" position="0 0.98 0.01" align="center" color="#ffd43b" width="3.1"></a-text>
         <a-text id="lb-easy-scores" value="EASY&#10;---" position="-0.82 0.25 0.01" align="left" color="#51cf66" width="1.7"></a-text>
         <a-text id="lb-hard-scores" value="HARD&#10;---" position="0.82 0.25 0.01" align="left" color="#ff6b6b" width="1.7"></a-text>
@@ -164,7 +165,7 @@
       </a-entity>
 
       <a-entity id="victory-panel" position="0 1.82 -2.55" visible="false" billboard>
-        <a-plane width="3.2" height="2.25" color="#0b3658" opacity="0.95" material="shader: flat"></a-plane>
+        <a-plane width="3.2" height="2.25" color="#0b3658" opacity="1" material="shader: flat"></a-plane>
         <a-text value="CONGRATULATIONS!" position="0 0.72 0.01" align="center" color="#ffd43b" width="3.2"></a-text>
         <a-text id="victory-time" value="Total Time: --" position="0 0.22 0.01" align="center" color="#ffffff" width="2.2"></a-text>
         <a-text id="victory-mode" value="Mode: --" position="0 -0.08 0.01" align="center" color="#d0d7ff" width="2"></a-text>
@@ -173,7 +174,7 @@
       </a-entity>
 
       <a-entity id="gameover-panel" position="0 1.82 -2.55" visible="false" billboard>
-        <a-plane width="3.2" height="2.15" color="#4a0d0d" opacity="0.95" material="shader: flat"></a-plane>
+        <a-plane width="3.2" height="2.15" color="#4a0d0d" opacity="1" material="shader: flat"></a-plane>
         <a-text value="TIME'S UP!" position="0 0.7 0.01" align="center" color="#ff8787" width="3.4"></a-text>
         <a-text id="gameover-level" value="Level: --" position="0 0.18 0.01" align="center" color="#ffffff" width="2.2"></a-text>
         <a-text id="gameover-mode" value="Mode: --" position="0 -0.1 0.01" align="center" color="#d0d7ff" width="2"></a-text>
@@ -181,7 +182,7 @@
         <a-entity id="btn-gameover-menu" position="0.56 -0.72 0.02" vr-button="label: MENU; action: back-menu; bgColor: #495057"></a-entity>
       </a-entity>
 
-      <a-entity id="freeplay-panel" position="2.35 1.8 -2.7" visible="false" billboard>
+      <a-entity id="freeplay-panel" position="1.98 1.66 -2.28" visible="false" billboard>
         <a-plane width="1.45" height="1.12" color="#15233f" opacity="0.92" material="shader: flat"></a-plane>
         <a-text value="FREE PLAY" position="0 0.34 0.01" align="center" color="#74c0fc" width="1.6"></a-text>
         <a-text value="Explore all 12 colors" position="0 0.08 0.01" align="center" color="#e7f5ff" width="1.1"></a-text>

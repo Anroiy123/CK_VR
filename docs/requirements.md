@@ -36,16 +36,3 @@ https://jgbarah.github.io/aframe-playground/interaction-02/?fbclid=IwY2xjawQ8HA5
 
 https://www.youtube.com/watch?v=PQ2bQRERePo
 
-
-1. Cơ chế tương tác : tôi muốn grab & drop
-2. Color wheel nên đặt Dạng 3D ring lơ lửng
-3. Vị trí bi/thẻ màu nguồn sẽ ở mặt bàn kệ phía trước 
-4. 
-  Level 1 (3 màu): 30s
-  Level 2 (3 màu): 25s
-  Level 3 (6 màu): 45s
-5. thêm 1 vài tính năng mở rộng sau : 
-- Bảng xếp hạng thời gian
-- Hiệu ứng particle khi đúng
-- Tooltip giải thích lý thuyết màu
-- Mode "Free play" để tự khám phá color wheel

@@ -55,9 +55,13 @@
     },
 
     onGrabStart: function onGrabStart() {
+      const tooltip = this.el.components["color-tooltip"];
       this.el.dataset.held = "true";
       this.el.object3D.scale.set(1.06, 1.06, 1.06);
       this.el.setAttribute("material", "emissiveIntensity", 0.34);
+      if (tooltip) {
+        tooltip.hideImmediate();
+      }
     },
 
     onGrabEnd: function onGrabEnd() {
