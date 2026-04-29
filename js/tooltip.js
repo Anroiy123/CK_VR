@@ -47,8 +47,9 @@
   AFRAME.registerComponent("color-tooltip", {
     schema: {
       colorHex: { type: "string" },
-      yOffset: { type: "number", default: 0.42 },
-      zOffset: { type: "number", default: 0.18 },
+      xOffset: { type: "number", default: -0.62 },
+      yOffset: { type: "number", default: -0.12 },
+      zOffset: { type: "number", default: -1.1 },
       width: { type: "number", default: 1.38 },
       height: { type: "number", default: 0.72 },
     },
@@ -57,8 +58,7 @@
       this.hideTimer = null;
       this.tooltipEl = document.createElement("a-entity");
       this.tooltipEl.setAttribute("visible", false);
-      this.tooltipEl.setAttribute("position", "0 " + this.data.yOffset + " " + this.data.zOffset);
-      this.tooltipEl.setAttribute("billboard", "");
+      this.tooltipEl.setAttribute("position", this.data.xOffset + " " + this.data.yOffset + " " + this.data.zOffset);
 
       const background = document.createElement("a-plane");
       background.setAttribute("width", this.data.width);
@@ -69,22 +69,23 @@
       this.tooltipEl.appendChild(background);
 
       this.titleEl = document.createElement("a-text");
-      this.titleEl.setAttribute("position", "0 0.18 0.01");
+      this.titleEl.setAttribute("position", "0 " + (this.data.height * 0.24) + " 0.01");
       this.titleEl.setAttribute("align", "center");
       this.titleEl.setAttribute("color", "#ffd43b");
-      this.titleEl.setAttribute("width", "1.55");
+      this.titleEl.setAttribute("width", String(this.data.width * 1.18));
       this.titleEl.setAttribute("material", "shader: flat; depthTest: false; depthWrite: false; transparent: true");
       this.tooltipEl.appendChild(this.titleEl);
 
       this.theoryEl = document.createElement("a-text");
-      this.theoryEl.setAttribute("position", "0 -0.08 0.01");
+      this.theoryEl.setAttribute("position", "0 " + (-this.data.height * 0.12) + " 0.01");
       this.theoryEl.setAttribute("align", "center");
       this.theoryEl.setAttribute("color", "#e9ecef");
-      this.theoryEl.setAttribute("width", "1.26");
+      this.theoryEl.setAttribute("width", String(this.data.width * 1.02));
       this.theoryEl.setAttribute("material", "shader: flat; depthTest: false; depthWrite: false; transparent: true");
       this.tooltipEl.appendChild(this.theoryEl);
 
-      this.el.appendChild(this.tooltipEl);
+      const cameraEl = document.querySelector("#camera");
+      (cameraEl || this.el).appendChild(this.tooltipEl);
       this.tooltipEl.addEventListener("loaded", function () {
         promoteTooltipObject(this.tooltipEl.object3D);
       }.bind(this));

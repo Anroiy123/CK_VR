@@ -262,7 +262,6 @@
         slot.setAttribute("geometry", "primitive: cylinder; radius: 0.14; height: 0.1");
         slot.setAttribute("material", "color: #ffffff; opacity: 0.01; transparent: true; side: double");
         slot.setAttribute("visible", false);
-        slot.setAttribute("color-tooltip", { colorHex: color.hex, yOffset: 0.24, width: 1 });
         slot.__segmentLayers = self.segmentLayersByHex[color.hex] || [];
 
         const visual = document.createElement("a-cylinder");

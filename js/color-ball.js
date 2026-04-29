@@ -30,8 +30,11 @@
       });
       this.el.setAttribute("color-tooltip", {
         colorHex: this.data.colorHex,
-        yOffset: 0.28,
-        width: 1,
+        xOffset: -1.15,
+        yOffset: -0.18,
+        zOffset: -1.05,
+        width: 0.62,
+        height: 0.34,
       });
 
       this.el.addEventListener("mouseenter", this.onEnter.bind(this));
