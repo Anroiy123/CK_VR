@@ -19,7 +19,7 @@
 
       GameManager.spawnBalls(getAllColors(), "freeplay");
       UIManager.showFreePlay();
-      UIManager.updateHUD("Free Play", "12 colors", "Explore the full wheel");
+      UIManager.updateHUD("Free Play", "12 colors", "");
       Timer.clearDisplay();
       SoundManager.startBGM();
     },

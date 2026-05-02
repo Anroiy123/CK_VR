@@ -88,7 +88,7 @@
       this.spawnBalls(levelColors, "game");
 
       UIManager.showGameHUD(this.mode);
-      UIManager.updateHUD("Level " + level + ": " + LEVEL_CONFIG[level].label, "0/" + this.totalForLevel, this.mode.toUpperCase());
+      UIManager.updateHUD("Level " + level, "0/" + this.totalForLevel, this.mode.toUpperCase());
 
       if (this.mode === "hard") {
         Timer.start(LEVEL_CONFIG[level].timer);
@@ -124,7 +124,7 @@
       }
 
       this.placedCount += 1;
-      UIManager.updateHUD("Level " + this.currentLevel + ": " + LEVEL_CONFIG[this.currentLevel].label, this.placedCount + "/" + this.totalForLevel, this.mode.toUpperCase());
+      UIManager.updateHUD("Level " + this.currentLevel, this.placedCount + "/" + this.totalForLevel, this.mode.toUpperCase());
 
       if (this.placedCount < this.totalForLevel) {
         return;

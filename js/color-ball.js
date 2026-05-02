@@ -18,8 +18,8 @@
       this.el.setAttribute("geometry", {
         primitive: "sphere",
         radius: 0.09,
-        segmentsWidth: 16,
-        segmentsHeight: 12,
+        segmentsWidth: 24,
+        segmentsHeight: 18,
       });
       this.el.setAttribute("material", {
         color: this.data.colorHex,
@@ -27,6 +27,38 @@
         roughness: 0.5,
         emissive: this.data.colorHex,
         emissiveIntensity: 0,
+      });
+
+      var self = this;
+      this.el.addEventListener("object3dset", function () {
+        self.el.object3D.traverse(function (node) {
+          if (node.isMesh && node.material) {
+            var oldMat = node.material;
+            var newMat = new THREE.MeshPhysicalMaterial({
+              color: oldMat.color,
+              metalness: 0.45,
+              roughness: 0.28,
+              emissive: oldMat.emissive,
+              emissiveIntensity: oldMat.emissiveIntensity,
+              transparent: oldMat.transparent,
+              opacity: oldMat.opacity,
+              side: oldMat.side,
+              depthWrite: oldMat.depthWrite,
+              clearcoat: 0.4,
+              clearcoatRoughness: 0.15,
+              iridescence: 0.8,
+              iridescenceIOR: 1.3,
+              iridescenceThicknessRange: [300, 500],
+            });
+            node.material = newMat;
+            // Sync the A-Frame material component's internal reference so
+            // setAttribute("material", "emissiveIntensity", ...) updates the right object.
+            var matComp = self.el.components && self.el.components.material;
+            if (matComp) {
+              matComp.material = newMat;
+            }
+          }
+        });
       });
       this.el.setAttribute("color-tooltip", {
         colorHex: this.data.colorHex,
@@ -47,7 +79,7 @@
       if (this.el.dataset.locked === "true") {
         return;
       }
-      this.el.setAttribute("material", "emissiveIntensity", 0.22);
+      this.el.setAttribute("material", "emissiveIntensity", 0.4);
     },
 
     onLeave: function onLeave() {
@@ -61,7 +93,7 @@
       const tooltip = this.el.components["color-tooltip"];
       this.el.dataset.held = "true";
       this.el.object3D.scale.set(1.06, 1.06, 1.06);
-      this.el.setAttribute("material", "emissiveIntensity", 0.34);
+      this.el.setAttribute("material", "emissiveIntensity", 0.55);
       if (tooltip) {
         tooltip.hideImmediate();
       }
@@ -79,7 +111,7 @@
     setSelected: function setSelected(isSelected) {
       if (isSelected) {
         this.el.dataset.selected = "true";
-        this.el.setAttribute("material", "emissiveIntensity", 0.34);
+        this.el.setAttribute("material", "emissiveIntensity", 0.55);
         return;
       }
       delete this.el.dataset.selected;

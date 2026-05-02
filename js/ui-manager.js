@@ -14,12 +14,13 @@
         freeplay: document.getElementById("freeplay-panel"),
         status: document.getElementById("status-panel"),
         hud: document.getElementById("diegetic-hud"),
-        timer: document.getElementById("timer-display"),
+        timer: document.getElementById("hud-timer-row"),
       };
 
       this.refs = {
         hudLevel: document.getElementById("hud-level"),
         hudProgress: document.getElementById("hud-progress"),
+        hudMode: document.getElementById("hud-mode"),
         timerText: document.getElementById("timer-text"),
         victoryTime: document.getElementById("victory-time"),
         victoryMode: document.getElementById("victory-mode"),
@@ -110,6 +111,7 @@
       this.hideAll();
       this.setGameplayWorldVisible(false);
       this.setVisible("menu", true);
+      this.setVisible("timer", false);
       this.updateTimer("--", false);
     },
 
@@ -144,17 +146,17 @@
       this.setVisible("gameover", true);
     },
 
-    updateHUD: function updateHUD(levelLabel, progressLabel, detailLabel) {
+    updateHUD: function updateHUD(levelLabel, progressLabel, modeLabel) {
       this.refs.hudLevel.setAttribute("value", String(levelLabel));
-      this.refs.hudProgress.setAttribute(
-        "value",
-        detailLabel ? progressLabel + " | " + detailLabel : progressLabel
-      );
+      this.refs.hudProgress.setAttribute("value", String(progressLabel));
+      if (modeLabel && this.refs.hudMode) {
+        this.refs.hudMode.setAttribute("value", String(modeLabel));
+      }
     },
 
     updateTimer: function updateTimer(value, urgent) {
       this.refs.timerText.setAttribute("value", String(value));
-      this.refs.timerText.setAttribute("color", urgent ? "#ff6b6b" : "#48e5a0");
+      this.refs.timerText.setAttribute("color", urgent ? "#ff1744" : "#00ffff");
     },
 
     showTransientMessage: function showTransientMessage(message, duration) {

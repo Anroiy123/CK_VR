@@ -56,12 +56,16 @@
         options.sweepDeg
       )
     );
-    const material = new THREE.MeshBasicMaterial({
+    const material = new THREE.MeshStandardMaterial({
       color: options.color,
       transparent: true,
       opacity: options.opacity,
       side: THREE.DoubleSide,
       depthWrite: false,
+      emissive: new THREE.Color(options.color),
+      emissiveIntensity: 0,
+      roughness: 0.5,
+      metalness: 0.1,
     });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.z = options.zOffset || 0;
@@ -141,11 +145,13 @@
 
   function getActiveLayerStyle(fillColorHex, layerIndex) {
     const tintByLayer = [0, 0.28, 0.52, 0.74];
-    const opacityByLayer = [0.98, 0.94, 0.9, 0.86];
+    const opacityByLayer = [1.0, 0.96, 0.92, 0.88];
 
     return {
       color: mixHexColors(fillColorHex, "#ffffff", tintByLayer[layerIndex] || 0),
-      opacity: opacityByLayer[layerIndex] || 0.86,
+      opacity: opacityByLayer[layerIndex] || 0.88,
+      emissive: fillColorHex,
+      emissiveIntensity: 0.15,
     };
   }
 
@@ -156,6 +162,13 @@
 
     layerEl.__sectorMaterial.color.set(style.color);
     layerEl.__sectorMaterial.opacity = style.opacity;
+    if (style.emissive) {
+      layerEl.__sectorMaterial.emissive.set(style.emissive);
+      layerEl.__sectorMaterial.emissiveIntensity = style.emissiveIntensity || 0;
+    } else {
+      layerEl.__sectorMaterial.emissive.setHex(0x000000);
+      layerEl.__sectorMaterial.emissiveIntensity = 0;
+    }
     layerEl.__sectorMaterial.needsUpdate = true;
   }
 
@@ -195,7 +208,7 @@
       outerRing.setAttribute("radius-tubular", "0.045");
       outerRing.setAttribute("segments-radial", "12");
       outerRing.setAttribute("segments-tubular", "24");
-      outerRing.setAttribute("material", "color: #d0d7ff; opacity: 0.34; transparent: true; emissive: #3b5bdb; emissiveIntensity: 0.22");
+      outerRing.setAttribute("material", "color: #d0d7ff; opacity: 0.34; transparent: true; emissive: #3b5bdb; emissiveIntensity: 0.45");
       this.ringRoot.appendChild(outerRing);
 
       const innerRing = document.createElement("a-torus");
@@ -203,8 +216,17 @@
       innerRing.setAttribute("radius-tubular", "0.018");
       innerRing.setAttribute("segments-radial", "10");
       innerRing.setAttribute("segments-tubular", "24");
-      innerRing.setAttribute("material", "color: #4dabf7; opacity: 0.2; transparent: true; emissive: #4dabf7; emissiveIntensity: 0.18");
+      innerRing.setAttribute("material", "color: #4dabf7; opacity: 0.2; transparent: true; emissive: #4dabf7; emissiveIntensity: 0.35");
       this.ringRoot.appendChild(innerRing);
+
+      const haloRing = document.createElement("a-torus");
+      const haloRadius = this.data.radius + 0.02;
+      haloRing.setAttribute("radius", String(haloRadius));
+      haloRing.setAttribute("radius-tubular", "0.015");
+      haloRing.setAttribute("segments-radial", "16");
+      haloRing.setAttribute("segments-tubular", "24");
+      haloRing.setAttribute("material", "color: #4dabf7; opacity: 0.1; transparent: true; emissive: #4dabf7; emissiveIntensity: 0.08; depthTest: false");
+      this.ringRoot.appendChild(haloRing);
     },
 
     createSegments: function createSegments() {
@@ -354,7 +376,7 @@
       if (isOccupied) {
         slot.classList.add("occupied");
         slot.dataset.occupied = "true";
-        visual.setAttribute("material", "color: " + (options.colorHex || targetColor) + "; opacity: 0.24; transparent: true; shader: flat; emissive: " + (options.colorHex || targetColor) + "; emissiveIntensity: 0.12");
+        visual.setAttribute("material", "color: " + (options.colorHex || targetColor) + "; opacity: 0.24; transparent: true; shader: flat; emissive: " + (options.colorHex || targetColor) + "; emissiveIntensity: 0.24");
         label.setAttribute("value", targetName);
         segmentLayers.forEach(function (segmentLayer, layerIndex) {
           applyLayerStyle(segmentLayer, getActiveLayerStyle(options.colorHex || targetColor, layerIndex));

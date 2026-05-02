@@ -60,27 +60,52 @@
       this.tooltipEl.setAttribute("visible", false);
       this.tooltipEl.setAttribute("position", this.data.xOffset + " " + this.data.yOffset + " " + this.data.zOffset);
 
+      // Clean, very dark glass background for high contrast
       const background = document.createElement("a-plane");
       background.setAttribute("width", this.data.width);
       background.setAttribute("height", this.data.height);
-      background.setAttribute("color", "#0f1729");
-      background.setAttribute("opacity", "0.94");
+      background.setAttribute("position", "0 0 0");
+      background.setAttribute("color", "#0b1120"); // Deep dark navy/obsidian
+      background.setAttribute("opacity", "0.95");
       background.setAttribute("material", "shader: flat; depthTest: false; depthWrite: false; transparent: true");
       this.tooltipEl.appendChild(background);
 
+      // Sleek top neon accent line (adjusted to not overlap with left bar)
+      const topBar = document.createElement("a-plane");
+      topBar.setAttribute("width", String(this.data.width - 0.02));
+      topBar.setAttribute("height", "0.02");
+      topBar.setAttribute("position", "0.01 " + (this.data.height / 2 - 0.01) + " 0.01");
+      topBar.setAttribute("color", "#00d4ff");
+      topBar.setAttribute("material", "shader: flat; depthTest: false; depthWrite: false; emissive: #00d4ff; emissiveIntensity: 0.8");
+      this.tooltipEl.appendChild(topBar);
+
+      // Sleek left neon accent line
+      const leftBar = document.createElement("a-plane");
+      leftBar.setAttribute("width", "0.02");
+      leftBar.setAttribute("height", this.data.height);
+      leftBar.setAttribute("position", (-this.data.width / 2 + 0.01) + " 0 0.01");
+      leftBar.setAttribute("color", "#ff00ff");
+      leftBar.setAttribute("material", "shader: flat; depthTest: false; depthWrite: false; emissive: #ff00ff; emissiveIntensity: 0.8");
+      this.tooltipEl.appendChild(leftBar);
+
       this.titleEl = document.createElement("a-text");
-      this.titleEl.setAttribute("position", "0 " + (this.data.height * 0.24) + " 0.01");
+      this.titleEl.setAttribute("position", "0 " + (this.data.height * 0.22) + " 0.02");
       this.titleEl.setAttribute("align", "center");
-      this.titleEl.setAttribute("color", "#ffd43b");
-      this.titleEl.setAttribute("width", String(this.data.width * 1.18));
+      this.titleEl.setAttribute("color", "#ffff00"); // Pure bold yellow
+      this.titleEl.setAttribute("width", String(this.data.width * 0.9)); // Keep inside box (padding)
+      this.titleEl.setAttribute("wrap-count", "22"); // Make font larger
+      this.titleEl.setAttribute("font", "https://cdn.aframe.io/fonts/Exo2Bold.fnt");
       this.titleEl.setAttribute("material", "shader: flat; depthTest: false; depthWrite: false; transparent: true");
       this.tooltipEl.appendChild(this.titleEl);
 
       this.theoryEl = document.createElement("a-text");
-      this.theoryEl.setAttribute("position", "0 " + (-this.data.height * 0.12) + " 0.01");
+      this.theoryEl.setAttribute("position", "0 " + (-this.data.height * 0.1) + " 0.02");
       this.theoryEl.setAttribute("align", "center");
-      this.theoryEl.setAttribute("color", "#e9ecef");
-      this.theoryEl.setAttribute("width", String(this.data.width * 1.02));
+      this.theoryEl.setAttribute("color", "#ffffff"); // Pure white
+      this.theoryEl.setAttribute("width", String(this.data.width * 0.85)); // Generous padding so text never overflows
+      this.theoryEl.setAttribute("wrap-count", "35"); // Makes theory text bigger
+      this.theoryEl.setAttribute("font", "https://cdn.aframe.io/fonts/Exo2Bold.fnt"); // Use bold font for readability
+      this.theoryEl.setAttribute("line-height", "60"); // Better spacing between lines
       this.theoryEl.setAttribute("material", "shader: flat; depthTest: false; depthWrite: false; transparent: true");
       this.tooltipEl.appendChild(this.theoryEl);
 

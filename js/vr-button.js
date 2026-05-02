@@ -16,6 +16,21 @@
     init: function init() {
       this.el.classList.add("interactive", "vr-button-root");
 
+      this.isHovering = false;
+      this.glowPulseTime = 0;
+      this.glowPulseActive = false;
+
+      // Glow plane behind button
+      this.glow = document.createElement("a-plane");
+      this.glow.setAttribute("width", this.data.width + 0.06);
+      this.glow.setAttribute("height", this.data.height + 0.06);
+      this.glow.setAttribute("position", "0 0 -0.008");
+      this.glow.setAttribute("color", this.data.bgColor);
+      this.glow.setAttribute("opacity", "0.12");
+      this.glow.setAttribute("material", "shader: flat; transparent: true");
+      this.glow.classList.add("interactive");
+      this.el.appendChild(this.glow);
+
       this.background = document.createElement("a-plane");
       this.background.setAttribute("width", this.data.width);
       this.background.setAttribute("height", this.data.height);
@@ -24,7 +39,7 @@
       this.background.classList.add("interactive");
       this.el.appendChild(this.background);
 
-      const border = document.createElement("a-plane");
+      var border = document.createElement("a-plane");
       border.setAttribute("width", this.data.width + 0.04);
       border.setAttribute("height", this.data.height + 0.04);
       border.setAttribute("position", "0 0 -0.005");
@@ -47,13 +62,24 @@
     },
 
     onEnter: function onEnter() {
+      this.isHovering = true;
       this.background.setAttribute("color", this.data.hoverColor);
-      this.el.object3D.scale.set(1.04, 1.04, 1.04);
+      this.el.object3D.scale.set(1.08, 1.08, 1.08);
+      this.glow.setAttribute("opacity", "0.25");
+
+      if (!this.glowPulseActive) {
+        this.glowPulseActive = true;
+        this.glowPulseTime = 0;
+        this.pulseGlow();
+      }
     },
 
     onLeave: function onLeave() {
+      this.isHovering = false;
+      this.glowPulseActive = false;
       this.background.setAttribute("color", this.data.bgColor);
       this.el.object3D.scale.set(1, 1, 1);
+      this.glow.setAttribute("opacity", "0.12");
     },
 
     onClick: function onClick() {
@@ -62,6 +88,26 @@
       }
       if (this.data.action) {
         this.el.sceneEl.emit(this.data.action);
+      }
+    },
+
+    pulseGlow: function pulseGlow() {
+      if (!this.glowPulseActive) {
+        return;
+      }
+
+      this.glowPulseTime += 0.016;
+      var cycle = Math.sin(this.glowPulseTime * Math.PI * 2 / 0.8);
+      var pulseOpacity = 0.12 + (cycle + 1) * 0.05;
+      if (pulseOpacity > 0.25) {
+        pulseOpacity = 0.25;
+      }
+      this.glow.setAttribute("opacity", String(pulseOpacity));
+
+      if (this.isHovering) {
+        requestAnimationFrame(this.pulseGlow.bind(this));
+      } else {
+        this.glowPulseActive = false;
       }
     },
   });
