@@ -9,6 +9,14 @@
     return Math.PI / 2 - (angleDeg * Math.PI) / 180;
   }
 
+  function getLabelOffset(slotPosition) {
+    if (slotPosition.x === 0 && slotPosition.y === 0) {
+      return new THREE.Vector3(0, -0.12, 0.08);
+    }
+    const radialDirection = new THREE.Vector3(slotPosition.x, slotPosition.y, 0).normalize();
+    return radialDirection.multiplyScalar(0.16).add(new THREE.Vector3(0, 0, 0.08));
+  }
+
   function getArcPoint(radius, radians) {
     return new THREE.Vector2(
       Math.cos(radians) * radius,
@@ -112,9 +120,7 @@
     });
   }
 
-  function buildSegmentLayerDefinitions(radius) {
-    const outerEdge = radius - 0.004;
-    const innerEdge = 0.11;
+  function buildSegmentLayerDefinitions(innerEdge, outerEdge) {
     const layerCount = 4;
     const layerThickness = (outerEdge - innerEdge) / layerCount;
     const layerDefinitions = [];
@@ -135,23 +141,23 @@
     return layerDefinitions;
   }
 
-  function getInactiveLayerStyle(layerIndex) {
+  function getInactiveLayerStyle(layerIndex, isTint) {
     const opacityByLayer = [0.34, 0.28, 0.24, 0.2];
     return {
-      color: mixHexColors("#24324f", "#ffffff", layerIndex * 0.08),
-      opacity: opacityByLayer[layerIndex] || 0.2,
+      color: mixHexColors(isTint ? "#ffffff" : "#24324f", "#ffffff", layerIndex * 0.08),
+      opacity: (opacityByLayer[layerIndex] || 0.2) * (isTint ? 0.4 : 1),
     };
   }
 
-  function getActiveLayerStyle(fillColorHex, layerIndex) {
+  function getActiveLayerStyle(fillColorHex, layerIndex, isTint) {
     const tintByLayer = [0, 0.28, 0.52, 0.74];
     const opacityByLayer = [1.0, 0.96, 0.92, 0.88];
 
     return {
       color: mixHexColors(fillColorHex, "#ffffff", tintByLayer[layerIndex] || 0),
-      opacity: opacityByLayer[layerIndex] || 0.88,
+      opacity: (opacityByLayer[layerIndex] || 0.88) * (isTint ? 0.7 : 1),
       emissive: fillColorHex,
-      emissiveIntensity: 0.15,
+      emissiveIntensity: isTint ? 0.08 : 0.15,
     };
   }
 
@@ -227,15 +233,42 @@
       haloRing.setAttribute("segments-tubular", "24");
       haloRing.setAttribute("material", "color: #4dabf7; opacity: 0.1; transparent: true; emissive: #4dabf7; emissiveIntensity: 0.08; depthTest: false");
       this.ringRoot.appendChild(haloRing);
+
+      const tintRing = document.createElement("a-torus");
+      tintRing.setAttribute("radius", "0.58");
+      tintRing.setAttribute("radius-tubular", "0.015");
+      tintRing.setAttribute("segments-radial", "10");
+      tintRing.setAttribute("segments-tubular", "24");
+      tintRing.setAttribute("material", "color: #ffffff; opacity: 0.15; transparent: true; emissive: #ffffff; emissiveIntensity: 0.2");
+      this.ringRoot.appendChild(tintRing);
+      this.tintRingEl = tintRing;
+      
+      const centerRing = document.createElement("a-torus");
+      centerRing.setAttribute("radius", "0.08");
+      centerRing.setAttribute("radius-tubular", "0.008");
+      centerRing.setAttribute("segments-radial", "8");
+      centerRing.setAttribute("segments-tubular", "16");
+      centerRing.setAttribute("material", "color: #ffffff; opacity: 0.8; transparent: true; emissive: #ffffff; emissiveIntensity: 0.5");
+      this.ringRoot.appendChild(centerRing);
+      this.centerRingEl = centerRing;
     },
 
     createSegments: function createSegments() {
       const self = this;
-      const layerDefinitions = buildSegmentLayerDefinitions(this.data.radius);
 
       getAllColors().forEach(function (color) {
+        if (color.type === "Base") return;
+
+        const isTint = color.type === "Tint";
+        let layerDefinitions;
+        if (isTint) {
+          layerDefinitions = buildSegmentLayerDefinitions(0.12, 0.56);
+        } else {
+          layerDefinitions = buildSegmentLayerDefinitions(0.60, self.data.radius - 0.004);
+        }
+
         const segmentLayers = layerDefinitions.map(function (layerDefinition, layerIndex) {
-          const inactiveStyle = getInactiveLayerStyle(layerIndex);
+          const inactiveStyle = getInactiveLayerStyle(layerIndex, isTint);
           const segmentLayer = createSectorEntity({
             innerRadius: layerDefinition.innerRadius,
             outerRadius: layerDefinition.outerRadius,
@@ -258,7 +291,7 @@
     createCenterLabel: function createCenterLabel() {
       const label = document.createElement("a-text");
       label.setAttribute("value", "Color Wheel");
-      label.setAttribute("position", "0 0 0.06");
+      label.setAttribute("position", "0 1.3 0.06");
       label.setAttribute("align", "center");
       label.setAttribute("color", "#f8f9ff");
       label.setAttribute("width", "1.15");
@@ -268,17 +301,23 @@
 
     createSlots: function createSlots() {
       const self = this;
-      const slotRadius = this.data.radius - 0.02;
 
       getAllColors().forEach(function (color) {
-        const slotPosition = getSlotPosition(color.angle, slotRadius);
+        let slotRadius = self.data.radius - 0.02;
+        if (color.type === "Tint") {
+          slotRadius = 0.58;
+        } else if (color.type === "Base") {
+          slotRadius = 0;
+        }
+
+        const slotPosition = getSlotPosition(color.angle || 0, slotRadius);
         const labelOffset = getLabelOffset(slotPosition);
         const slot = document.createElement("a-entity");
-        slot.id = "slot-" + color.angle;
+        slot.id = "slot-" + (color.type === "Base" ? "center" : color.angle);
         slot.classList.add("color-slot", "interactive");
         slot.dataset.targetColor = color.hex;
         slot.dataset.targetName = color.name;
-        slot.dataset.angle = String(color.angle);
+        slot.dataset.angle = String(color.angle || 0);
         slot.dataset.type = color.type;
         slot.setAttribute("position", vec3ToString(new THREE.Vector3(slotPosition.x, slotPosition.y, slotPosition.z)));
         slot.setAttribute("geometry", "primitive: cylinder; radius: 0.14; height: 0.1");
@@ -288,7 +327,7 @@
 
         const visual = document.createElement("a-cylinder");
         visual.classList.add("slot-visual");
-        visual.setAttribute("radius", "0.052");
+        visual.setAttribute("radius", color.type === "Base" ? "0.065" : "0.052");
         visual.setAttribute("height", "0.024");
         visual.setAttribute("rotation", "90 0 0");
         visual.setAttribute("position", "0 0 -0.01");
@@ -327,6 +366,27 @@
 
     prepareGameLevel: function prepareGameLevel(level) {
       this.updateVisibleSlots(getVisibleColorsForGame(level), false);
+      if (this.tintRingEl) this.tintRingEl.setAttribute("visible", false);
+      if (this.centerRingEl) this.centerRingEl.setAttribute("visible", false);
+    },
+
+    prepareMixingLevel: function prepareMixingLevel(level) {
+      const config = MIX_LEVEL_CONFIG[level];
+      if (!config) return;
+      const targetHexes = new Set(config.targets);
+      targetHexes.add("#FFFFFF");
+      const visibleColors = getAllColors().filter(function(c) {
+        return targetHexes.has(c.hex);
+      });
+      this.updateVisibleSlots(visibleColors, false);
+      
+      const hasTints = level >= 3;
+      if (this.tintRingEl) {
+        this.tintRingEl.setAttribute("visible", hasTints);
+      }
+      if (this.centerRingEl) {
+        this.centerRingEl.setAttribute("visible", true);
+      }
     },
 
     prepareFreePlay: function prepareFreePlay() {
@@ -373,13 +433,15 @@
       const isOccupied = Boolean(options && options.occupied);
       const revealName = Boolean(options && options.revealName);
 
+      const isTint = slot.dataset.type === "Tint";
+      
       if (isOccupied) {
         slot.classList.add("occupied");
         slot.dataset.occupied = "true";
         visual.setAttribute("material", "color: " + (options.colorHex || targetColor) + "; opacity: 0.24; transparent: true; shader: flat; emissive: " + (options.colorHex || targetColor) + "; emissiveIntensity: 0.24");
         label.setAttribute("value", targetName);
         segmentLayers.forEach(function (segmentLayer, layerIndex) {
-          applyLayerStyle(segmentLayer, getActiveLayerStyle(options.colorHex || targetColor, layerIndex));
+          applyLayerStyle(segmentLayer, getActiveLayerStyle(options.colorHex || targetColor, layerIndex, isTint));
         });
         return;
       }
@@ -389,7 +451,7 @@
       visual.setAttribute("material", "color: #d0d7ff; opacity: 0.16; transparent: true; shader: flat");
       label.setAttribute("value", revealName ? targetName : "?");
       segmentLayers.forEach(function (segmentLayer, layerIndex) {
-        applyLayerStyle(segmentLayer, getInactiveLayerStyle(layerIndex));
+        applyLayerStyle(segmentLayer, getInactiveLayerStyle(layerIndex, isTint));
       });
     },
 

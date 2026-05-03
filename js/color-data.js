@@ -18,12 +18,56 @@
       { name: "Blue-Purple", hex: "#0040FF", angle: 270, level: 3, type: "Tertiary", theory: "Blue-Purple sits between blue and purple." },
       { name: "Red-Purple", hex: "#FF0080", angle: 330, level: 3, type: "Tertiary", theory: "Red-Purple sits between red and purple." },
     ],
+    base: [
+      { name: "White", hex: "#FFFFFF", type: "Base", targetSlot: "center", theory: "Base color for creating tints." }
+    ]
   };
+
+  const MIXING_RECIPES = {
+    "#FF0000,#FFFF00": "#FF8000",
+    "#0000FF,#FFFF00": "#00FF00",
+    "#0000FF,#FF0000": "#8000FF",
+    "#FF0000,#FF8000": "#FF4000",
+    "#FF8000,#FFFF00": "#FFBF00",
+    "#00FF00,#FFFF00": "#80FF00",
+    "#0000FF,#00FF00": "#00FF80",
+    "#0000FF,#8000FF": "#0040FF",
+    "#FF0000,#8000FF": "#FF0080",
+  };
+
+  const TINT_VARIANTS = [
+    { name: "Tinted Red", hex: "#FF8080", angle: 0, type: "Tint", parentHex: "#FF0000" },
+    { name: "Tinted Yellow", hex: "#FFFF80", angle: 120, type: "Tint", parentHex: "#FFFF00" },
+    { name: "Tinted Blue", hex: "#8080FF", angle: 240, type: "Tint", parentHex: "#0000FF" },
+    { name: "Tinted Orange", hex: "#FFC080", angle: 60, type: "Tint", parentHex: "#FF8000" },
+    { name: "Tinted Green", hex: "#80FF80", angle: 180, type: "Tint", parentHex: "#00FF00" },
+    { name: "Tinted Purple", hex: "#C080FF", angle: 300, type: "Tint", parentHex: "#8000FF" },
+    { name: "Tinted Red-Orange", hex: "#FFA080", angle: 30, type: "Tint", parentHex: "#FF4000" },
+    { name: "Tinted Yellow-Orange", hex: "#FFDF80", angle: 90, type: "Tint", parentHex: "#FFBF00" },
+    { name: "Tinted Yellow-Green", hex: "#C0FF80", angle: 150, type: "Tint", parentHex: "#80FF00" },
+    { name: "Tinted Blue-Green", hex: "#80FFC0", angle: 210, type: "Tint", parentHex: "#00FF80" },
+    { name: "Tinted Blue-Purple", hex: "#80A0FF", angle: 270, type: "Tint", parentHex: "#0040FF" },
+    { name: "Tinted Red-Purple", hex: "#FF80C0", angle: 330, type: "Tint", parentHex: "#FF0080" },
+  ];
+
+  const TINT_BY_PARENT = TINT_VARIANTS.reduce(function(acc, tint) {
+    acc[tint.parentHex] = tint.hex;
+    return acc;
+  }, {});
 
   const LEVEL_CONFIG = {
     1: { colors: "primary", timer: 30, label: "Primary Colors" },
     2: { colors: "secondary", timer: 25, label: "Secondary Colors" },
     3: { colors: "tertiary", timer: 45, label: "Tertiary Colors" },
+  };
+
+  const MIX_LEVEL_CONFIG = {
+    1: { targets: ["#FF8000", "#00FF00", "#8000FF"], timer: 60, label: "Mix Secondary Colors" },
+    2: { targets: ["#FF4000", "#FFBF00", "#80FF00", "#00FF80", "#0040FF", "#FF0080"], timer: 90, label: "Mix Tertiary Colors" },
+    3: { targets: ["#FF8080", "#FFFF80", "#8080FF"], timer: 60, label: "Mix Primary Tints" },
+    4: { targets: ["#FFC080", "#80FF80", "#C080FF"], timer: 90, label: "Mix Secondary Tints" },
+    5: { targets: ["#FF8000", "#00FF00", "#8000FF", "#FF8080", "#FFFF80", "#8080FF"], timer: 120, label: "Secondary & Primary Tints" },
+    6: { targets: ["#FF4000", "#00FF80", "#FF0080", "#FFA080", "#80FFC0", "#FF80C0"], timer: 150, label: "Master Mixer" }
   };
 
   const APP_CONFIG = {
@@ -54,8 +98,11 @@
     },
   };
 
-  const COLOR_LIST = [...COLOR_DATA.primary, ...COLOR_DATA.secondary, ...COLOR_DATA.tertiary].sort(function (left, right) {
-    return left.angle - right.angle;
+  const COLOR_LIST = [...COLOR_DATA.primary, ...COLOR_DATA.secondary, ...COLOR_DATA.tertiary, ...COLOR_DATA.base, ...TINT_VARIANTS].sort(function (left, right) {
+    if (left.angle !== undefined && right.angle !== undefined) {
+      return left.angle - right.angle;
+    }
+    return 0;
   });
 
   const COLOR_BY_HEX = COLOR_LIST.reduce(function (accumulator, color) {
@@ -101,7 +148,20 @@
   }
 
   function getColorByHex(hex) {
+    if (hex === "#8B7355") {
+      return { name: "Waste", hex: "#8B7355", type: "Waste" };
+    }
     return COLOR_BY_HEX[hex] ? cloneColor(COLOR_BY_HEX[hex]) : null;
+  }
+
+  function getMixingRecipe(hex1, hex2) {
+    const key1 = hex1 + "," + hex2;
+    const key2 = hex2 + "," + hex1;
+    return MIXING_RECIPES[key1] || MIXING_RECIPES[key2] || null;
+  }
+
+  function getTintForColor(hex) {
+    return TINT_BY_PARENT[hex] || null;
   }
 
   function getSlotPosition(angleDeg, radius) {
@@ -180,11 +240,17 @@
   window.COLOR_LIST = COLOR_LIST;
   window.COLOR_BY_HEX = COLOR_BY_HEX;
   window.LEVEL_CONFIG = LEVEL_CONFIG;
+  window.MIXING_RECIPES = MIXING_RECIPES;
+  window.TINT_VARIANTS = TINT_VARIANTS;
+  window.TINT_BY_PARENT = TINT_BY_PARENT;
+  window.MIX_LEVEL_CONFIG = MIX_LEVEL_CONFIG;
   window.cloneColor = cloneColor;
   window.findClosestWithClass = findClosestWithClass;
   window.getAllColors = getAllColors;
   window.getColorByHex = getColorByHex;
   window.getColorsForLevel = getColorsForLevel;
+  window.getMixingRecipe = getMixingRecipe;
+  window.getTintForColor = getTintForColor;
   window.getSlotPosition = getSlotPosition;
   window.getVisibleColorsForGame = getVisibleColorsForGame;
   window.getWorldPosition = getWorldPosition;

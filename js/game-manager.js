@@ -54,15 +54,27 @@
     },
 
     startGame: function startGame(mode) {
-      FreePlayManager.stop();
+      if (window.FreePlayManager) FreePlayManager.stop();
       this.stopActiveRun();
       this.mode = mode;
       this.state = "PLAYING";
       this.currentLevel = 1;
       this.runStartedAt = performance.now();
       this.resetBoard();
-      SoundManager.startBGM();
+      if (window.SoundManager) SoundManager.startBGM();
       this.initLevel(1);
+    },
+
+    startMixingGame: function startMixingGame() {
+      if (window.FreePlayManager) FreePlayManager.stop();
+      this.stopActiveRun();
+      this.mode = "mix";
+      this.state = "PLAYING";
+      this.currentLevel = 1;
+      this.runStartedAt = performance.now();
+      this.resetBoard();
+      if (window.SoundManager) SoundManager.startBGM();
+      this.initMixingLevel(1);
     },
 
     stopActiveRun: function stopActiveRun() {
@@ -112,6 +124,66 @@
       }
     },
 
+    initMixingLevel: function initMixingLevel(level) {
+      this.state = "PLAYING";
+      this.currentLevel = level;
+      this.placedCount = 0;
+      this.mixingShelfUsed = 4;
+
+      const config = MIX_LEVEL_CONFIG[level];
+      if (!config) return;
+
+      this.totalForLevel = config.targets.length;
+      this.clearLooseBalls();
+
+      const wheel = this.wheelEl.components["color-wheel"];
+      if (wheel) wheel.prepareMixingLevel(level);
+
+      const initialColors = [
+        getColorByHex("#FF0000"),
+        getColorByHex("#FFFF00"),
+        getColorByHex("#0000FF"),
+        getColorByHex("#FFFFFF"),
+      ].filter(Boolean);
+
+      this.spawnBalls(initialColors, "mix");
+
+      if (window.UIManager) {
+        UIManager.showGameHUD(this.mode);
+        UIManager.updateHUD("Level " + level, "0/" + this.totalForLevel, "MIXING");
+        if (UIManager.updateShelfCounter) UIManager.updateShelfCounter(this.mixingShelfUsed);
+        if (UIManager.updateHintPanel) UIManager.updateHintPanel(level);
+      }
+
+      if (window.Timer) {
+        Timer.start(config.timer);
+      }
+    },
+
+    getNextShelfPosition: function getNextShelfPosition() {
+      const index = this.mixingShelfUsed || 0;
+      return getShelfBallPosition(index, 10);
+    },
+
+    incrementShelfCounter: function incrementShelfCounter() {
+      this.mixingShelfUsed = (this.mixingShelfUsed || 0) + 1;
+      if (window.UIManager && UIManager.updateShelfCounter) {
+        UIManager.updateShelfCounter(this.mixingShelfUsed);
+      }
+      if (this.mixingShelfUsed >= 10) {
+        this.checkMixingGameOver();
+      }
+    },
+
+    checkMixingGameOver: function checkMixingGameOver() {
+      if (this.mixingShelfUsed >= 10 && this.placedCount < this.totalForLevel) {
+        if (window.UIManager) UIManager.showTransientMessage("Shelf Full! Game Over in 3s...", 3000);
+        setTimeout(function () {
+          if (this.state === "PLAYING") this.onTimeUp();
+        }.bind(this), 3000);
+      }
+    },
+
     spawnBalls: function spawnBalls(colors, modeTag) {
       const shuffledColors = shuffleColors(colors);
 
@@ -142,12 +214,21 @@
         return;
       }
 
+      if (this.mode === "mix") {
+        this.mixingShelfUsed = Math.max(0, (this.mixingShelfUsed || 0) - 1);
+        if (window.UIManager && UIManager.updateShelfCounter) {
+          UIManager.updateShelfCounter(this.mixingShelfUsed);
+        }
+      }
+
       this.placedCount += 1;
-      UIManager.updateHUD(
-        "Level " + this.currentLevel,
-        this.placedCount + "/" + this.totalForLevel,
-        this.mode.toUpperCase(),
-      );
+      if (window.UIManager) {
+        UIManager.updateHUD(
+          "Level " + this.currentLevel,
+          this.placedCount + "/" + this.totalForLevel,
+          this.mode === "mix" ? "MIXING" : this.mode.toUpperCase(),
+        );
+      }
 
       if (this.placedCount < this.totalForLevel) {
         return;
@@ -158,8 +239,24 @@
 
     levelComplete: function levelComplete() {
       this.state = "LEVEL_COMPLETE";
-      Timer.stop();
-      SoundManager.play("levelup");
+      if (window.Timer) Timer.stop();
+      if (window.SoundManager) SoundManager.play("levelup");
+
+      if (this.mode === "mix") {
+        if (this.currentLevel >= 6) {
+          const totalTime = (performance.now() - this.runStartedAt) / 1000;
+          this.victory(totalTime);
+          return;
+        }
+        if (window.UIManager) {
+          UIManager.showGameHUD(this.mode);
+          UIManager.showTransientMessage("Level " + this.currentLevel + " Complete", 2300);
+        }
+        this.transitionTimer = setTimeout(function () {
+          this.initMixingLevel(this.currentLevel + 1);
+        }.bind(this), 2400);
+        return;
+      }
 
       if (this.currentLevel >= 3) {
         const totalTime = (performance.now() - this.runStartedAt) / 1000;
@@ -167,11 +264,13 @@
         return;
       }
 
-      UIManager.showGameHUD(this.mode);
-      UIManager.showTransientMessage(
-        "Level " + this.currentLevel + " Complete",
-        2300,
-      );
+      if (window.UIManager) {
+        UIManager.showGameHUD(this.mode);
+        UIManager.showTransientMessage(
+          "Level " + this.currentLevel + " Complete",
+          2300,
+        );
+      }
       this.transitionTimer = setTimeout(
         function () {
           this.initLevel(this.currentLevel + 1);
@@ -203,15 +302,25 @@
 
       this.clearLevelPlacements(this.currentLevel);
       this.clearLooseBalls();
-      this.initLevel(this.currentLevel);
+      if (this.mode === "mix") {
+        this.initMixingLevel(this.currentLevel);
+      } else {
+        this.initLevel(this.currentLevel);
+      }
     },
 
     clearLevelPlacements: function clearLevelPlacements(level) {
-      const levelHexes = new Set(
-        getColorsForLevel(level).map(function (color) {
-          return color.hex;
-        }),
-      );
+      let levelHexes;
+      if (this.mode === "mix") {
+        const config = MIX_LEVEL_CONFIG[level];
+        levelHexes = new Set(config ? config.targets : []);
+      } else {
+        levelHexes = new Set(
+          getColorsForLevel(level).map(function (color) {
+            return color.hex;
+          }),
+        );
+      }
 
       document.querySelectorAll(".color-ball-entity").forEach(function (ball) {
         const ballData = ball.getAttribute("color-ball");
@@ -222,9 +331,18 @@
       });
 
       const wheel = this.wheelEl.components["color-wheel"];
-      getColorsForLevel(level).forEach(function (color) {
-        wheel.clearColor(color.hex, false);
-      });
+      if (this.mode === "mix") {
+        const config = MIX_LEVEL_CONFIG[level];
+        if (config) {
+          config.targets.forEach(function (hex) {
+            wheel.clearColor(hex, false);
+          });
+        }
+      } else {
+        getColorsForLevel(level).forEach(function (color) {
+          wheel.clearColor(color.hex, false);
+        });
+      }
     },
 
     clearLooseBalls: function clearLooseBalls() {
@@ -241,14 +359,31 @@
 
     backToMenu: function backToMenu(silent) {
       this.stopActiveRun();
-      FreePlayManager.stop();
+      if (window.FreePlayManager) FreePlayManager.stop();
       this.state = "MENU";
       this.mode = "easy";
       this.currentLevel = 1;
+      this.mixingShelfUsed = 0;
       this.resetBoard();
-      UIManager.showMenu();
-      Leaderboard.renderToPanel();
-      if (!silent) {
+      
+      const station = document.querySelector('[mixing-station]');
+      if (station && station.components['mixing-station']) {
+        const comp = station.components['mixing-station'];
+        if (comp.heldBallEl && comp.heldBallEl.parentNode) comp.heldBallEl.parentNode.removeChild(comp.heldBallEl);
+        if (comp.resultBallEl && comp.resultBallEl.parentNode) comp.resultBallEl.parentNode.removeChild(comp.resultBallEl);
+        comp.state = 'EMPTY';
+        comp.heldBallEl = null;
+        comp.resultBallEl = null;
+        comp.setIndicatorState('empty');
+      }
+
+      if (window.UIManager) {
+        UIManager.showMenu();
+        if (UIManager.updateShelfCounter) UIManager.updateShelfCounter(0);
+        if (UIManager.updateHintPanel) UIManager.updateHintPanel(0);
+      }
+      if (window.Leaderboard) Leaderboard.renderToPanel();
+      if (!silent && window.SoundManager) {
         SoundManager.stopBGM();
       }
     },

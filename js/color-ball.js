@@ -9,11 +9,13 @@
       colorName: { type: "string" },
       targetAngle: { type: "number" },
       originalPosition: { type: "vec3" },
+      isWaste: { type: "boolean", default: false },
     },
 
     init: function init() {
       this.el.classList.add("color-ball-entity", "grabbable", "interactive");
       this.el.dataset.colorHex = this.data.colorHex;
+      this.el.dataset.waste = String(this.data.isWaste);
 
       this.el.setAttribute("geometry", {
         primitive: "sphere",
@@ -36,17 +38,17 @@
             var oldMat = node.material;
             var newMat = new THREE.MeshPhysicalMaterial({
               color: oldMat.color,
-              metalness: 0.45,
-              roughness: 0.28,
+              metalness: self.data.isWaste ? 0.1 : 0.45,
+              roughness: self.data.isWaste ? 0.9 : 0.28,
               emissive: oldMat.emissive,
               emissiveIntensity: oldMat.emissiveIntensity,
               transparent: oldMat.transparent,
               opacity: oldMat.opacity,
               side: oldMat.side,
               depthWrite: oldMat.depthWrite,
-              clearcoat: 0.4,
-              clearcoatRoughness: 0.15,
-              iridescence: 0.8,
+              clearcoat: self.data.isWaste ? 0.0 : 0.4,
+              clearcoatRoughness: self.data.isWaste ? 0.8 : 0.15,
+              iridescence: self.data.isWaste ? 0.0 : 0.8,
               iridescenceIOR: 1.3,
               iridescenceThicknessRange: [300, 500],
             });
@@ -94,6 +96,13 @@
       this.el.dataset.held = "true";
       this.el.object3D.scale.set(1.06, 1.06, 1.06);
       this.el.setAttribute("material", "emissiveIntensity", 0.55);
+      
+      this.el.object3D.traverse(function(node) {
+        if (node.isMesh && node.material) {
+          node.material.depthTest = false;
+        }
+      });
+      
       if (tooltip) {
         tooltip.hideImmediate();
       }
@@ -106,6 +115,12 @@
       if (this.el.dataset.locked !== "true") {
         this.el.setAttribute("material", "emissiveIntensity", 0);
       }
+      
+      this.el.object3D.traverse(function(node) {
+        if (node.isMesh && node.material) {
+          node.material.depthTest = true;
+        }
+      });
     },
 
     setSelected: function setSelected(isSelected) {
@@ -117,6 +132,12 @@
       delete this.el.dataset.selected;
       if (this.el.dataset.held !== "true") {
         this.el.setAttribute("material", "emissiveIntensity", 0);
+      }
+    },
+
+    removeBall: function removeBall() {
+      if (this.el.parentNode) {
+        this.el.parentNode.removeChild(this.el);
       }
     },
   });

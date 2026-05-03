@@ -15,6 +15,7 @@
         status: document.getElementById("status-panel"),
         hud: document.getElementById("diegetic-hud"),
         timer: document.getElementById("hud-timer-row"),
+        mixingHint: document.getElementById("mixing-hint-panel"),
       };
 
       this.refs = {
@@ -27,17 +28,21 @@
         gameoverLevel: document.getElementById("gameover-level"),
         gameoverMode: document.getElementById("gameover-mode"),
         statusText: document.getElementById("status-text"),
+        mixingHintText: document.getElementById("mixing-hint-text"),
+        shelfCounter: document.getElementById("shelf-counter"),
       };
 
       this.world = {
         wheel: document.getElementById("color-wheel"),
         shelf: document.getElementById("shelf"),
         balls: document.getElementById("balls-container"),
+        mixingStation: document.getElementById("mixing-station"),
       };
 
       const scene = document.querySelector("a-scene");
       scene.addEventListener("start-easy", this.startEasy.bind(this));
       scene.addEventListener("start-hard", this.startHard.bind(this));
+      scene.addEventListener("start-mix", this.startMix.bind(this));
       scene.addEventListener("start-freeplay", this.startFreePlay.bind(this));
       scene.addEventListener(
         "show-leaderboard",
@@ -57,6 +62,10 @@
 
     startHard: function startHard() {
       GameManager.startGame("hard");
+    },
+
+    startMix: function startMix() {
+      GameManager.startMixingGame();
     },
 
     startFreePlay: function startFreePlay() {
@@ -112,6 +121,11 @@
       this.setWorldVisible("wheel", visible);
       this.setWorldVisible("shelf", visible);
       this.setWorldVisible("balls", visible);
+      const isMix = window.GameManager && window.GameManager.mode === "mix";
+      this.setWorldVisible("mixingStation", visible && isMix);
+      if (!visible && this.refs.shelfCounter) {
+        this.refs.shelfCounter.setAttribute("visible", false);
+      }
     },
 
     showMenu: function showMenu() {
@@ -173,6 +187,38 @@
     updateTimer: function updateTimer(value, urgent) {
       this.refs.timerText.setAttribute("value", String(value));
       this.refs.timerText.setAttribute("color", urgent ? "#ff1744" : "#00ffff");
+    },
+
+    updateShelfCounter: function updateShelfCounter(count) {
+      if (!this.refs.shelfCounter) return;
+      this.refs.shelfCounter.setAttribute("value", "Slots: " + count + "/10");
+      if (count >= 9) {
+        this.refs.shelfCounter.setAttribute("color", "#e03131");
+      } else if (count >= 8) {
+        this.refs.shelfCounter.setAttribute("color", "#ffd43b");
+      } else {
+        this.refs.shelfCounter.setAttribute("color", "#51cf66");
+      }
+      this.refs.shelfCounter.setAttribute("visible", true);
+    },
+
+    updateHintPanel: function updateHintPanel(level) {
+      if (level >= 4) {
+        this.setVisible("mixingHint", false);
+        return;
+      }
+      
+      let hintText = "";
+      if (level === 1) {
+        hintText = "Red + Yellow = Orange\nYellow + Blue = Green\nBlue + Red = Purple";
+      } else if (level === 2 || level === 3) {
+        hintText = "Primary + Adj. Secondary = Tertiary\nColor + White = Tint";
+      }
+      
+      if (this.refs.mixingHintText) {
+        this.refs.mixingHintText.setAttribute("value", hintText);
+      }
+      this.setVisible("mixingHint", true);
     },
 
     showTransientMessage: function showTransientMessage(message, duration) {

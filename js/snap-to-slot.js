@@ -68,15 +68,65 @@
       }
 
       const slots = getAvailableSlots();
+      const ballData = this.el.getAttribute("color-ball");
+      const controller = event && event.detail ? event.detail.controller || this.activeController : this.activeController;
+      const ballPosition = getWorldPosition(this.el);
+
+      const stations = Array.from(document.querySelectorAll(".mixing-station-hitbox"));
+      const isDesktop = event && event.detail && event.detail.desktop;
+      const pointedStation = stations.find(function (element) {
+        if (!element || !isVisible(element.parentNode)) return false;
+        const stationPos = getWorldPosition(element);
+        stationPos.y -= 0.2; // Adjust to match visual cup position
+        
+        if (isDesktop) {
+          const cameraEl = document.getElementById("camera");
+          if (cameraEl && cameraEl.getObject3D("camera")) {
+             const camera = cameraEl.getObject3D("camera");
+             const ballScreen = ballPosition.clone().project(camera);
+             const stationScreen = stationPos.clone().project(camera);
+             const dx = ballScreen.x - stationScreen.x;
+             const dy = ballScreen.y - stationScreen.y;
+             return Math.sqrt(dx*dx + dy*dy) < 0.8;
+          }
+        }
+        
+        return ballPosition.distanceTo(stationPos) < 0.8;
+      });
+
+      if (pointedStation) {
+        this.activeController = null;
+        let successAction = 'rejected';
+        this.el.sceneEl.emit("ball-dropped-on-station", {
+          ballEl: this.el,
+          stationEl: pointedStation.parentNode,
+          callback: function (action) {
+            successAction = action;
+          },
+        });
+        
+        if (successAction === 'held') {
+          return;
+        } else if (successAction === 'mixed') {
+          this.returnToShelf();
+          return;
+        } else if (successAction === 'destroyed') {
+          if (this.el.parentNode) {
+            this.el.parentNode.removeChild(this.el);
+          }
+          return;
+        } else {
+          this.snapFail();
+          return;
+        }
+      }
+
       if (!slots.length) {
         this.returnToShelf();
         return;
       }
 
-      const ballData = this.el.getAttribute("color-ball");
-      const controller = event && event.detail ? event.detail.controller || this.activeController : this.activeController;
       const pointedSlot = getPointedSlot(controller);
-      const ballPosition = getWorldPosition(this.el);
       const snapDistance = event && event.detail && event.detail.desktop ? this.data.snapDistance : APP_CONFIG.vrSnapDistance;
 
       if (pointedSlot) {
