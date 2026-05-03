@@ -1,18 +1,26 @@
 (function () {
   function getShelfBallPosition(index, totalCount) {
-    const columnCount = Math.max(1, Math.min(APP_CONFIG.shelfBallColumns, totalCount));
+    const columnCount = Math.max(
+      1,
+      Math.min(APP_CONFIG.shelfBallColumns, totalCount),
+    );
     const rowCount = Math.max(1, Math.ceil(totalCount / columnCount));
     const rowIndex = Math.floor(index / columnCount);
     const columnIndex = index % columnCount;
-    const columnsInRow = rowIndex === rowCount - 1
-      ? totalCount - rowIndex * columnCount
-      : columnCount;
-    const rowSpan = APP_CONFIG.shelfBallSpacingX * Math.max(0, columnsInRow - 1);
-    const x = columnsInRow === 1
-      ? 0
-      : -rowSpan / 2 + APP_CONFIG.shelfBallSpacingX * columnIndex;
+    const columnsInRow =
+      rowIndex === rowCount - 1
+        ? totalCount - rowIndex * columnCount
+        : columnCount;
+    const rowSpan =
+      APP_CONFIG.shelfBallSpacingX * Math.max(0, columnsInRow - 1);
+    const x =
+      columnsInRow === 1
+        ? 0
+        : -rowSpan / 2 + APP_CONFIG.shelfBallSpacingX * columnIndex;
     const rowCenterOffset = (rowCount - 1) / 2;
-    const z = APP_CONFIG.shelfZ + (rowCenterOffset - rowIndex) * APP_CONFIG.shelfBallRowDepth;
+    const z =
+      APP_CONFIG.shelfZ +
+      (rowCenterOffset - rowIndex) * APP_CONFIG.shelfBallRowDepth;
     const y = APP_CONFIG.shelfY + rowIndex * APP_CONFIG.shelfBallRowLift;
 
     return { x: x, y: y, z: z };
@@ -32,12 +40,15 @@
       this.wheelEl = document.getElementById("color-wheel");
       this.ballsContainer = document.getElementById("balls-container");
 
-      this.sceneEl.addEventListener("color-placed", function (event) {
-        if (event.detail.mode !== "game") {
-          return;
-        }
-        this.onColorPlaced();
-      }.bind(this));
+      this.sceneEl.addEventListener(
+        "color-placed",
+        function (event) {
+          if (event.detail.mode !== "game") {
+            return;
+          }
+          this.onColorPlaced();
+        }.bind(this),
+      );
 
       this.backToMenu(true);
     },
@@ -88,7 +99,11 @@
       this.spawnBalls(levelColors, "game");
 
       UIManager.showGameHUD(this.mode);
-      UIManager.updateHUD("Level " + level, "0/" + this.totalForLevel, this.mode.toUpperCase());
+      UIManager.updateHUD(
+        "Level " + level,
+        "0/" + this.totalForLevel,
+        this.mode.toUpperCase(),
+      );
 
       if (this.mode === "hard") {
         Timer.start(LEVEL_CONFIG[level].timer);
@@ -100,22 +115,26 @@
     spawnBalls: function spawnBalls(colors, modeTag) {
       const shuffledColors = shuffleColors(colors);
 
-      shuffledColors.forEach(function (color, index) {
-        const ball = document.createElement("a-entity");
-        const position = getShelfBallPosition(index, shuffledColors.length);
+      shuffledColors.forEach(
+        function (color, index) {
+          const ball = document.createElement("a-entity");
+          const position = getShelfBallPosition(index, shuffledColors.length);
 
-        ball.setAttribute("position", vec3ToString(toVector3(position)));
-        ball.setAttribute("color-ball", {
-          colorHex: color.hex,
-          colorName: color.name,
-          targetAngle: color.angle,
-          originalPosition: position,
-        });
-        ball.setAttribute("snap-to-slot", { snapDistance: APP_CONFIG.snapDistance });
-        ball.setAttribute("ball-respawn", { minY: -1, checkInterval: 500 });
-        ball.dataset.modeTag = modeTag;
-        this.ballsContainer.appendChild(ball);
-      }.bind(this));
+          ball.setAttribute("position", vec3ToString(toVector3(position)));
+          ball.setAttribute("color-ball", {
+            colorHex: color.hex,
+            colorName: color.name,
+            targetAngle: color.angle,
+            originalPosition: position,
+          });
+          ball.setAttribute("snap-to-slot", {
+            snapDistance: APP_CONFIG.snapDistance,
+          });
+          ball.setAttribute("ball-respawn", { minY: -1, checkInterval: 500 });
+          ball.dataset.modeTag = modeTag;
+          this.ballsContainer.appendChild(ball);
+        }.bind(this),
+      );
     },
 
     onColorPlaced: function onColorPlaced() {
@@ -124,7 +143,11 @@
       }
 
       this.placedCount += 1;
-      UIManager.updateHUD("Level " + this.currentLevel, this.placedCount + "/" + this.totalForLevel, this.mode.toUpperCase());
+      UIManager.updateHUD(
+        "Level " + this.currentLevel,
+        this.placedCount + "/" + this.totalForLevel,
+        this.mode.toUpperCase(),
+      );
 
       if (this.placedCount < this.totalForLevel) {
         return;
@@ -145,10 +168,16 @@
       }
 
       UIManager.showGameHUD(this.mode);
-      UIManager.showTransientMessage("Level " + this.currentLevel + " Complete", 2300);
-      this.transitionTimer = setTimeout(function () {
-        this.initLevel(this.currentLevel + 1);
-      }.bind(this), 2400);
+      UIManager.showTransientMessage(
+        "Level " + this.currentLevel + " Complete",
+        2300,
+      );
+      this.transitionTimer = setTimeout(
+        function () {
+          this.initLevel(this.currentLevel + 1);
+        }.bind(this),
+        2400,
+      );
     },
 
     victory: function victory(totalTime) {
@@ -178,9 +207,11 @@
     },
 
     clearLevelPlacements: function clearLevelPlacements(level) {
-      const levelHexes = new Set(getColorsForLevel(level).map(function (color) {
-        return color.hex;
-      }));
+      const levelHexes = new Set(
+        getColorsForLevel(level).map(function (color) {
+          return color.hex;
+        }),
+      );
 
       document.querySelectorAll(".color-ball-entity").forEach(function (ball) {
         const ballData = ball.getAttribute("color-ball");

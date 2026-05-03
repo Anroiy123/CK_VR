@@ -39,7 +39,10 @@
       scene.addEventListener("start-easy", this.startEasy.bind(this));
       scene.addEventListener("start-hard", this.startHard.bind(this));
       scene.addEventListener("start-freeplay", this.startFreePlay.bind(this));
-      scene.addEventListener("show-leaderboard", this.showLeaderboard.bind(this));
+      scene.addEventListener(
+        "show-leaderboard",
+        this.showLeaderboard.bind(this),
+      );
       scene.addEventListener("back-menu", this.backToMenu.bind(this));
       scene.addEventListener("replay", this.replay.bind(this));
       scene.addEventListener("retry-level", this.retryLevel.bind(this));
@@ -68,7 +71,9 @@
     },
 
     replay: function replay() {
-      GameManager.startGame(GameManager.mode === "freeplay" ? "easy" : GameManager.mode);
+      GameManager.startGame(
+        GameManager.mode === "freeplay" ? "easy" : GameManager.mode,
+      );
     },
 
     retryLevel: function retryLevel() {
@@ -84,9 +89,11 @@
     },
 
     hideAll: function hideAll() {
-      Object.keys(this.panels).forEach(function (name) {
-        this.setVisible(name, false);
-      }.bind(this));
+      Object.keys(this.panels).forEach(
+        function (name) {
+          this.setVisible(name, false);
+        }.bind(this),
+      );
     },
 
     setVisible: function setVisible(name, visible) {
@@ -133,8 +140,14 @@
     showVictory: function showVictory(totalTime, mode) {
       this.hideAll();
       this.setGameplayWorldVisible(false);
-      this.refs.victoryTime.setAttribute("value", "Total Time: " + totalTime.toFixed(1) + "s");
-      this.refs.victoryMode.setAttribute("value", "Mode: " + mode.toUpperCase());
+      this.refs.victoryTime.setAttribute(
+        "value",
+        "Total Time: " + totalTime.toFixed(1) + "s",
+      );
+      this.refs.victoryMode.setAttribute(
+        "value",
+        "Mode: " + mode.toUpperCase(),
+      );
       this.setVisible("victory", true);
     },
 
@@ -142,7 +155,10 @@
       this.hideAll();
       this.setGameplayWorldVisible(false);
       this.refs.gameoverLevel.setAttribute("value", "Level: " + level);
-      this.refs.gameoverMode.setAttribute("value", "Mode: " + mode.toUpperCase());
+      this.refs.gameoverMode.setAttribute(
+        "value",
+        "Mode: " + mode.toUpperCase(),
+      );
       this.setVisible("gameover", true);
     },
 
@@ -166,9 +182,12 @@
 
       this.refs.statusText.setAttribute("value", message);
       this.setVisible("status", true);
-      this.statusTimer = setTimeout(function () {
-        this.setVisible("status", false);
-      }.bind(this), duration || 2200);
+      this.statusTimer = setTimeout(
+        function () {
+          this.setVisible("status", false);
+        }.bind(this),
+        duration || 2200,
+      );
     },
   };
 

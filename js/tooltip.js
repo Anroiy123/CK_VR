@@ -15,7 +15,9 @@
         return;
       }
 
-      const materials = Array.isArray(object3D.material) ? object3D.material : [object3D.material];
+      const materials = Array.isArray(object3D.material)
+        ? object3D.material
+        : [object3D.material];
       materials.forEach(function (material) {
         material.depthTest = false;
         material.depthWrite = false;
@@ -58,7 +60,10 @@
       this.hideTimer = null;
       this.tooltipEl = document.createElement("a-entity");
       this.tooltipEl.setAttribute("visible", false);
-      this.tooltipEl.setAttribute("position", this.data.xOffset + " " + this.data.yOffset + " " + this.data.zOffset);
+      this.tooltipEl.setAttribute(
+        "position",
+        this.data.xOffset + " " + this.data.yOffset + " " + this.data.zOffset,
+      );
 
       // Clean, very dark glass background for high contrast
       const background = document.createElement("a-plane");
@@ -67,56 +72,92 @@
       background.setAttribute("position", "0 0 0");
       background.setAttribute("color", "#0b1120"); // Deep dark navy/obsidian
       background.setAttribute("opacity", "0.95");
-      background.setAttribute("material", "shader: flat; depthTest: false; depthWrite: false; transparent: true");
+      background.setAttribute(
+        "material",
+        "shader: flat; depthTest: false; depthWrite: false; transparent: true",
+      );
       this.tooltipEl.appendChild(background);
 
       // Sleek top neon accent line (adjusted to not overlap with left bar)
       const topBar = document.createElement("a-plane");
       topBar.setAttribute("width", String(this.data.width - 0.02));
       topBar.setAttribute("height", "0.02");
-      topBar.setAttribute("position", "0.01 " + (this.data.height / 2 - 0.01) + " 0.01");
+      topBar.setAttribute(
+        "position",
+        "0.01 " + (this.data.height / 2 - 0.01) + " 0.01",
+      );
       topBar.setAttribute("color", "#00d4ff");
-      topBar.setAttribute("material", "shader: flat; depthTest: false; depthWrite: false; emissive: #00d4ff; emissiveIntensity: 0.8");
+      topBar.setAttribute(
+        "material",
+        "shader: flat; depthTest: false; depthWrite: false; emissive: #00d4ff; emissiveIntensity: 0.8",
+      );
       this.tooltipEl.appendChild(topBar);
 
       // Sleek left neon accent line
       const leftBar = document.createElement("a-plane");
       leftBar.setAttribute("width", "0.02");
       leftBar.setAttribute("height", this.data.height);
-      leftBar.setAttribute("position", (-this.data.width / 2 + 0.01) + " 0 0.01");
+      leftBar.setAttribute("position", -this.data.width / 2 + 0.01 + " 0 0.01");
       leftBar.setAttribute("color", "#ff00ff");
-      leftBar.setAttribute("material", "shader: flat; depthTest: false; depthWrite: false; emissive: #ff00ff; emissiveIntensity: 0.8");
+      leftBar.setAttribute(
+        "material",
+        "shader: flat; depthTest: false; depthWrite: false; emissive: #ff00ff; emissiveIntensity: 0.8",
+      );
       this.tooltipEl.appendChild(leftBar);
 
       this.titleEl = document.createElement("a-text");
-      this.titleEl.setAttribute("position", "0 " + (this.data.height * 0.22) + " 0.02");
+      this.titleEl.setAttribute(
+        "position",
+        "0 " + this.data.height * 0.22 + " 0.02",
+      );
       this.titleEl.setAttribute("align", "center");
       this.titleEl.setAttribute("color", "#ffff00"); // Pure bold yellow
       this.titleEl.setAttribute("width", String(this.data.width * 0.9)); // Keep inside box (padding)
       this.titleEl.setAttribute("wrap-count", "22"); // Make font larger
-      this.titleEl.setAttribute("font", "https://cdn.aframe.io/fonts/Exo2Bold.fnt");
-      this.titleEl.setAttribute("material", "shader: flat; depthTest: false; depthWrite: false; transparent: true");
+      this.titleEl.setAttribute(
+        "font",
+        "https://cdn.aframe.io/fonts/Exo2Bold.fnt",
+      );
+      this.titleEl.setAttribute(
+        "material",
+        "shader: flat; depthTest: false; depthWrite: false; transparent: true",
+      );
       this.tooltipEl.appendChild(this.titleEl);
 
       this.theoryEl = document.createElement("a-text");
-      this.theoryEl.setAttribute("position", "0 " + (-this.data.height * 0.1) + " 0.02");
+      this.theoryEl.setAttribute(
+        "position",
+        "0 " + -this.data.height * 0.1 + " 0.02",
+      );
       this.theoryEl.setAttribute("align", "center");
       this.theoryEl.setAttribute("color", "#ffffff"); // Pure white
       this.theoryEl.setAttribute("width", String(this.data.width * 0.85)); // Generous padding so text never overflows
       this.theoryEl.setAttribute("wrap-count", "35"); // Makes theory text bigger
-      this.theoryEl.setAttribute("font", "https://cdn.aframe.io/fonts/Exo2Bold.fnt"); // Use bold font for readability
+      this.theoryEl.setAttribute(
+        "font",
+        "https://cdn.aframe.io/fonts/Exo2Bold.fnt",
+      ); // Use bold font for readability
       this.theoryEl.setAttribute("line-height", "60"); // Better spacing between lines
-      this.theoryEl.setAttribute("material", "shader: flat; depthTest: false; depthWrite: false; transparent: true");
+      this.theoryEl.setAttribute(
+        "material",
+        "shader: flat; depthTest: false; depthWrite: false; transparent: true",
+      );
       this.tooltipEl.appendChild(this.theoryEl);
 
       const cameraEl = document.querySelector("#camera");
       (cameraEl || this.el).appendChild(this.tooltipEl);
-      this.tooltipEl.addEventListener("loaded", function () {
-        promoteTooltipObject(this.tooltipEl.object3D);
-      }.bind(this));
-      this.tooltipEl.addEventListener("object3dset", function () {
-        promoteTooltipObject(this.tooltipEl.object3D);
-      }.bind(this));
+      this.tooltipEl.addEventListener(
+        "loaded",
+        function () {
+          promoteTooltipObject(this.tooltipEl.object3D);
+        }.bind(this),
+      );
+      this.tooltipEl.addEventListener(
+        "object3dset",
+        function () {
+          promoteTooltipObject(this.tooltipEl.object3D);
+        }.bind(this),
+      );
 
       this.boundShow = this.show.bind(this);
       this.boundHide = this.hide.bind(this);
@@ -153,7 +194,10 @@
       this.theoryEl.setAttribute("value", color.theory);
       this.tooltipEl.setAttribute("visible", true);
       this.tooltipEl.setAttribute("scale", "0.85 0.85 0.85");
-      this.tooltipEl.setAttribute("animation__tooltip", "property: scale; from: 0.85 0.85 0.85; to: 1 1 1; dur: 180; easing: easeOutQuad");
+      this.tooltipEl.setAttribute(
+        "animation__tooltip",
+        "property: scale; from: 0.85 0.85 0.85; to: 1 1 1; dur: 180; easing: easeOutQuad",
+      );
       activeTooltipComponent = this;
     },
 
@@ -161,12 +205,15 @@
       if (this.hideTimer) {
         clearTimeout(this.hideTimer);
       }
-      this.hideTimer = setTimeout(function () {
-        this.tooltipEl.setAttribute("visible", false);
-        if (activeTooltipComponent === this) {
-          activeTooltipComponent = null;
-        }
-      }.bind(this), 90);
+      this.hideTimer = setTimeout(
+        function () {
+          this.tooltipEl.setAttribute("visible", false);
+          if (activeTooltipComponent === this) {
+            activeTooltipComponent = null;
+          }
+        }.bind(this),
+        90,
+      );
     },
 
     hideImmediate: function hideImmediate() {
@@ -183,9 +230,12 @@
 
     showTemporary: function showTemporary(duration) {
       this.show();
-      this.hideTimer = setTimeout(function () {
-        this.tooltipEl.setAttribute("visible", false);
-      }.bind(this), duration || 1800);
+      this.hideTimer = setTimeout(
+        function () {
+          this.tooltipEl.setAttribute("visible", false);
+        }.bind(this),
+        duration || 1800,
+      );
     },
   });
 })();

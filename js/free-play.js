@@ -14,7 +14,8 @@
       GameManager.currentLevel = 3;
       GameManager.resetBoard();
 
-      const wheel = document.getElementById("color-wheel").components["color-wheel"];
+      const wheel =
+        document.getElementById("color-wheel").components["color-wheel"];
       wheel.prepareFreePlay();
 
       GameManager.spawnBalls(getAllColors(), "freeplay");
