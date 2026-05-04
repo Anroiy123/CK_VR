@@ -48,8 +48,9 @@
       inputCup.setAttribute('radius', '0.15');
       inputCup.setAttribute('height', '0.1');
       inputCup.setAttribute('position', '0 0.05 0');
-      inputCup.setAttribute('material', 'color: #582f8c; metalness: 0.7; roughness: 0.3');
+      inputCup.setAttribute('material', 'color: #582f8c; emissive: #2a1740; emissiveIntensity: 0.25; metalness: 0.7; roughness: 0.3');
       this.el.appendChild(inputCup);
+      this.inputCup = inputCup;
       
       this.indicator = document.createElement('a-torus');
       this.indicator.setAttribute('radius', '0.15');
@@ -62,6 +63,7 @@
 
     setIndicatorState: function(stateName) {
       if (!this.indicator) return;
+      this.feedbackActive = false;
       if (stateName === 'empty') {
         this.indicator.setAttribute('material', 'color: #4dabf7; emissive: #4dabf7; emissiveIntensity: 0.5');
       } else if (stateName === 'holding') {
@@ -70,6 +72,21 @@
         this.indicator.setAttribute('material', 'color: #ffd43b; emissive: #ffd43b; emissiveIntensity: 1.0');
       } else if (stateName === 'waste') {
         this.indicator.setAttribute('material', 'color: #e03131; emissive: #e03131; emissiveIntensity: 0.8');
+      }
+      if (this.inputCup) {
+        this.inputCup.setAttribute('material', 'color: #582f8c; emissive: #2a1740; emissiveIntensity: 0.25; metalness: 0.7; roughness: 0.3');
+      }
+    },
+
+    setProximityFeedback: function(active) {
+      if (!this.indicator || !this.inputCup) return;
+      if (this.feedbackActive === active) return;
+      this.feedbackActive = active;
+      if (active) {
+        this.indicator.setAttribute('material', 'color: #38d9a9; emissive: #38d9a9; emissiveIntensity: 0.95');
+        this.inputCup.setAttribute('material', 'color: #2b8a3e; emissive: #38d9a9; emissiveIntensity: 0.55; metalness: 0.7; roughness: 0.3');
+      } else {
+        this.setIndicatorState('empty');
       }
     },
 
@@ -81,6 +98,21 @@
       } else {
         this.indicator.setAttribute('scale', '1 1 1');
       }
+
+      if (this.state === STATE_EMPTY && this.el.sceneEl && this.el.sceneEl.components && this.el.sceneEl.components['desktop-grabber']) {
+        const grabber = this.el.sceneEl.components['desktop-grabber'];
+        const held = grabber.draggedBall;
+        if (held && held.classList && held.classList.contains('color-ball-entity')) {
+          const worldPos = window.getWorldPosition(held);
+          const localPos = this.el.object3D.worldToLocal(worldPos.clone());
+          const dx = localPos.x;
+          const dz = localPos.z;
+          const inRange = Math.sqrt(dx * dx + dz * dz) <= 0.36 && localPos.y >= -0.08 && localPos.y <= 0.45;
+          this.setProximityFeedback(inRange);
+          return;
+        }
+      }
+      this.setProximityFeedback(false);
     },
 
     onBallDropped: function(event) {
@@ -207,20 +239,33 @@
       }
 
       let shelfPosStr = "0 0 0";
-      if (window.GameManager && window.GameManager.mode === 'mix') {
-        const shelfPos = window.GameManager.getNextShelfPosition();
-        shelfPosStr = `${shelfPos.x} ${shelfPos.y} ${shelfPos.z}`;
-        window.GameManager.incrementShelfCounter();
+      let reservedShelfSlotIndex = -1;
+      let reservedBallId = null;
+      if (window.GameManager && window.GameManager.isMixingMode && window.GameManager.isMixingMode()) {
+        reservedBallId = window.GameManager.createMixBallId ? window.GameManager.createMixBallId() : null;
+        reservedShelfSlotIndex = window.GameManager.reserveMixingShelfSlot ? window.GameManager.reserveMixingShelfSlot(reservedBallId) : -1;
+        if (reservedShelfSlotIndex >= 0 && window.GameManager.getShelfPositionForSlotIndex) {
+          const shelfPos = window.GameManager.getShelfPositionForSlotIndex(reservedShelfSlotIndex);
+          shelfPosStr = `${shelfPos.x} ${shelfPos.y} ${shelfPos.z}`;
+        }
       }
 
       const ballEl = document.createElement('a-entity');
       ballEl.setAttribute('color-ball', `colorHex: ${hex}; isWaste: ${isWaste}; originalPosition: ${shelfPosStr}`);
       ballEl.setAttribute('snap-to-slot', '');
       ballEl.dataset.isMixedResult = 'true';
+      ballEl.dataset.onShelf = 'false';
+      if (reservedBallId) {
+        ballEl.dataset.ballId = reservedBallId;
+        ballEl.dataset.stableBallId = reservedBallId;
+      }
+      if (reservedShelfSlotIndex >= 0) {
+        ballEl.dataset.shelfSlotIndex = String(reservedShelfSlotIndex);
+      }
       ballEl.classList.add('grabbable', 'interactive');
       
       this.el.appendChild(ballEl);
-      ballEl.object3D.position.copy(window.toVector3(this.data.outputPosition));
+      ballEl.object3D.position.copy(window.toVector3(this.data.inputPosition));
 
       this.resultBallEl = ballEl;
       

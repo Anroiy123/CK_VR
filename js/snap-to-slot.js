@@ -57,6 +57,16 @@
 
     onGrabStart: function onGrabStart(event) {
       this.activeController = event && event.detail ? event.detail.controller || null : null;
+      if (window.GameManager && window.GameManager.isMixingMode && window.GameManager.isMixingMode()) {
+        const ballId = this.el.dataset.stableBallId || this.el.dataset.ballId || null;
+        const slotIndex = Number(this.el.dataset.shelfSlotIndex);
+        if (this.el.dataset.onShelf === "true") {
+          if (window.GameManager.markMixingShelfOffShelf) {
+            window.GameManager.markMixingShelfOffShelf(slotIndex, ballId);
+          }
+          this.el.dataset.onShelf = "false";
+        }
+      }
       if (this.el.dataset.slotId) {
         this.releaseCurrentSlot();
       }
@@ -71,6 +81,40 @@
       const ballData = this.el.getAttribute("color-ball");
       const controller = event && event.detail ? event.detail.controller || this.activeController : this.activeController;
       const ballPosition = getWorldPosition(this.el);
+      const isFreePlay = window.FreePlayManager && FreePlayManager.active;
+      const pointedSlot = getPointedSlot(controller);
+      const snapDistance = event && event.detail && event.detail.desktop ? this.data.snapDistance : APP_CONFIG.vrSnapDistance;
+
+      if (pointedSlot) {
+        const isCorrectPointedSlot = pointedSlot.dataset.targetColor === ballData.colorHex;
+        this.activeController = null;
+
+        if (isFreePlay) {
+          this.snapSuccess(pointedSlot, isCorrectPointedSlot, true);
+          return;
+        }
+
+        if (isCorrectPointedSlot) {
+          this.snapSuccess(pointedSlot, true, false);
+          return;
+        }
+      }
+
+      const match = slots.length ? this.findClosestSlot(slots, ballPosition) : null;
+      if (match && match.distance <= snapDistance) {
+        const isCorrectClosestSlot = match.slot.dataset.targetColor === ballData.colorHex;
+        this.activeController = null;
+
+        if (isFreePlay) {
+          this.snapSuccess(match.slot, isCorrectClosestSlot, true);
+          return;
+        }
+
+        if (isCorrectClosestSlot) {
+          this.snapSuccess(match.slot, true, false);
+          return;
+        }
+      }
 
       const stations = Array.from(document.querySelectorAll(".mixing-station-hitbox"));
       const isDesktop = event && event.detail && event.detail.desktop;
@@ -78,7 +122,7 @@
         if (!element || !isVisible(element.parentNode)) return false;
         const stationPos = getWorldPosition(element);
         stationPos.y -= 0.2; // Adjust to match visual cup position
-        
+
         if (isDesktop) {
           const cameraEl = document.getElementById("camera");
           if (cameraEl && cameraEl.getObject3D("camera")) {
@@ -90,7 +134,7 @@
              return Math.sqrt(dx*dx + dy*dy) < 0.8;
           }
         }
-        
+
         return ballPosition.distanceTo(stationPos) < 0.8;
       });
 
@@ -104,7 +148,7 @@
             successAction = action;
           },
         });
-        
+
         if (successAction === 'held') {
           return;
         } else if (successAction === 'mixed') {
@@ -121,50 +165,20 @@
         }
       }
 
+      this.activeController = null;
+
       if (!slots.length) {
         this.returnToShelf();
         return;
       }
 
-      const pointedSlot = getPointedSlot(controller);
-      const snapDistance = event && event.detail && event.detail.desktop ? this.data.snapDistance : APP_CONFIG.vrSnapDistance;
-
       if (pointedSlot) {
-        const isFreePlay = window.FreePlayManager && FreePlayManager.active;
-        const isCorrect = pointedSlot.dataset.targetColor === ballData.colorHex;
-        this.activeController = null;
-
-        if (isFreePlay) {
-          this.snapSuccess(pointedSlot, isCorrect, true);
-          return;
-        }
-
-        if (isCorrect) {
-          this.snapSuccess(pointedSlot, true, false);
-          return;
-        }
-
         this.snapFail();
         return;
       }
 
-      const match = this.findClosestSlot(slots, ballPosition);
-      this.activeController = null;
       if (!match || match.distance > snapDistance) {
         this.returnToShelf();
-        return;
-      }
-
-      const isFreePlay = window.FreePlayManager && FreePlayManager.active;
-      const isCorrect = match.slot.dataset.targetColor === ballData.colorHex;
-
-      if (isFreePlay) {
-        this.snapSuccess(match.slot, isCorrect, true);
-        return;
-      }
-
-      if (isCorrect) {
-        this.snapSuccess(match.slot, true, false);
         return;
       }
 
@@ -237,6 +251,13 @@
       this.el.classList.remove("grabbable", "interactive");
       this.el.removeAttribute("ball-respawn");
 
+      if (window.GameManager && window.GameManager.isMixingMode && window.GameManager.isMixingMode()) {
+        if (window.GameManager.releaseMixingShelfSlot) {
+          const ballId = this.el.dataset.stableBallId || this.el.dataset.ballId || null;
+          window.GameManager.releaseMixingShelfSlot(Number(this.el.dataset.shelfSlotIndex), ballId);
+        }
+      }
+
       if (window.SoundManager) {
         SoundManager.play("correct");
       }
@@ -287,14 +308,31 @@
 
       const container = getBallsContainer();
       const originalPosition = this.el.getAttribute("color-ball").originalPosition;
+      let targetPosition = originalPosition;
+      if (window.GameManager && window.GameManager.isMixingMode && window.GameManager.isMixingMode()) {
+        const slotIndex = Number(this.el.dataset.shelfSlotIndex);
+        if (!isNaN(slotIndex) && window.GameManager.getShelfPositionForSlotIndex) {
+          targetPosition = window.GameManager.getShelfPositionForSlotIndex(slotIndex);
+        }
+      }
       reparentObject3D(this.el, container);
-      this.el.object3D.position.copy(toVector3(originalPosition));
+      this.el.object3D.position.copy(toVector3(targetPosition));
       this.el.object3D.rotation.set(0, 0, 0);
       delete this.el.dataset.held;
       delete this.el.dataset.selected;
       if (this.el.dataset.locked !== "true") {
         this.el.classList.add("grabbable", "interactive");
         this.el.setAttribute("material", "emissiveIntensity", 0);
+      }
+
+      if (window.GameManager && window.GameManager.isMixingMode && window.GameManager.isMixingMode()) {
+        if (this.el.dataset.onShelf !== "true") {
+          if (window.GameManager.markMixingShelfOccupied) {
+            const ballId = this.el.dataset.stableBallId || this.el.dataset.ballId || null;
+            window.GameManager.markMixingShelfOccupied(Number(this.el.dataset.shelfSlotIndex), ballId);
+          }
+          this.el.dataset.onShelf = "true";
+        }
       }
     },
   });

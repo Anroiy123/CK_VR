@@ -75,11 +75,11 @@
     vrSnapDistance: 0.72,
     shelfY: 0.84,
     shelfZ: -0.98,
-    shelfWidth: 1.22,
-    shelfBallColumns: 6,
-    shelfBallSpacingX: 0.24,
-    shelfBallRowLift: 0.09,
-    shelfBallRowDepth: 0.16,
+    shelfWidth: 1.44,
+    shelfBallColumns: 5,
+    shelfBallSpacingX: 0.22,
+    shelfBallRowLift: 0.085,
+    shelfBallRowDepth: 0.14,
     wheelRadius: 1.12,
     slotDepthOffset: 0.08,
     placedBallDepthOffset: 0.18,
@@ -218,7 +218,15 @@
   }
 
   function isVisible(element) {
-    return element && element.getAttribute("visible") !== false;
+    if (!element) return false;
+    let current = element;
+    while (current && current !== document.body) {
+      if (current.getAttribute && current.getAttribute("visible") === false) {
+        return false;
+      }
+      current = current.parentElement;
+    }
+    return true;
   }
 
   function onSceneReady(callback) {

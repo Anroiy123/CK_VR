@@ -6,11 +6,15 @@
   AFRAME.registerComponent("vr-button", {
     schema: {
       label: { type: "string", default: "BUTTON" },
+      helper: { type: "string", default: "" },
       action: { type: "string", default: "" },
       width: { type: "number", default: 0.92 },
       height: { type: "number", default: 0.32 },
       bgColor: { type: "string", default: "#e64980" },
       hoverColor: { type: "string", default: "#f06595" },
+      labelColor: { type: "string", default: "#ffffff" },
+      helperColor: { type: "string", default: "#e9ecef" },
+      helperWidth: { type: "number", default: 2.0 },
     },
 
     init: function init() {
@@ -50,11 +54,22 @@
 
       this.label = document.createElement("a-text");
       this.label.setAttribute("value", this.data.label);
-      this.label.setAttribute("position", "0 0 0.01");
+      this.label.setAttribute("position", this.data.helper ? "0 0.05 0.01" : "0 0 0.01");
       this.label.setAttribute("align", "center");
-      this.label.setAttribute("color", "#ffffff");
+      this.label.setAttribute("color", this.data.labelColor);
       this.label.setAttribute("width", String(this.data.width * 2.2));
       this.el.appendChild(this.label);
+
+      if (this.data.helper) {
+        this.helper = document.createElement("a-text");
+        this.helper.setAttribute("value", this.data.helper);
+        this.helper.setAttribute("position", "0 -0.06 0.01");
+        this.helper.setAttribute("align", "center");
+        this.helper.setAttribute("color", this.data.helperColor);
+        this.helper.setAttribute("width", String(this.data.helperWidth));
+        this.helper.setAttribute("opacity", "0.92");
+        this.el.appendChild(this.helper);
+      }
 
       this.el.addEventListener("mouseenter", this.onEnter.bind(this));
       this.el.addEventListener("mouseleave", this.onLeave.bind(this));

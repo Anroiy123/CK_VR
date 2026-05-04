@@ -26,9 +26,33 @@
     return { x: x, y: y, z: z };
   }
 
+  function getMixingShelfSlotPosition(slotIndex) {
+    const capacity = 10;
+    const safeIndex = Math.max(0, Math.min(capacity - 1, Number(slotIndex) || 0));
+    const columns = 5;
+    const rowIndex = Math.floor(safeIndex / columns);
+    const columnIndex = safeIndex % columns;
+    const spacingX = 0.21;
+    const rowDepth = 0.22;
+    const rowLift = 0.015;
+    const backRowXOffset = 0.035;
+    const centerOffset = (columns - 1) / 2;
+
+    return {
+      x: (columnIndex - centerOffset) * spacingX + rowIndex * backRowXOffset,
+      y: APP_CONFIG.shelfY + rowIndex * rowLift,
+      z: APP_CONFIG.shelfZ + 0.05 - rowIndex * rowDepth,
+    };
+  }
+
   const GameManager = {
     state: "MENU",
     mode: "easy",
+
+    isMixingMode: function isMixingMode(mode) {
+      const modeName = mode || this.mode;
+      return modeName === "mix-easy" || modeName === "mix-hard";
+    },
     currentLevel: 1,
     placedCount: 0,
     totalForLevel: 0,
@@ -36,6 +60,7 @@
     transitionTimer: null,
 
     init: function init() {
+      this.resetMixingShelfReservations();
       this.sceneEl = document.querySelector("a-scene");
       this.wheelEl = document.getElementById("color-wheel");
       this.ballsContainer = document.getElementById("balls-container");
@@ -65,10 +90,10 @@
       this.initLevel(1);
     },
 
-    startMixingGame: function startMixingGame() {
+    startMixingGame: function startMixingGame(mixMode) {
       if (window.FreePlayManager) FreePlayManager.stop();
       this.stopActiveRun();
-      this.mode = "mix";
+      this.mode = mixMode === "mix-easy" ? "mix-easy" : "mix-hard";
       this.state = "PLAYING";
       this.currentLevel = 1;
       this.runStartedAt = performance.now();
@@ -128,7 +153,7 @@
       this.state = "PLAYING";
       this.currentLevel = level;
       this.placedCount = 0;
-      this.mixingShelfUsed = 4;
+      this.resetMixingShelfReservations();
 
       const config = MIX_LEVEL_CONFIG[level];
       if (!config) return;
@@ -148,31 +173,146 @@
 
       this.spawnBalls(initialColors, "mix");
 
+      this.mixingShelfUsed = this.countMixingShelfOccupancy();
+
       if (window.UIManager) {
         UIManager.showGameHUD(this.mode);
-        UIManager.updateHUD("Level " + level, "0/" + this.totalForLevel, "MIXING");
+        UIManager.updateHUD("Level " + level, "0/" + this.totalForLevel, this.mode === "mix-easy" ? "MIX EASY" : "MIX HARD");
         if (UIManager.updateShelfCounter) UIManager.updateShelfCounter(this.mixingShelfUsed);
         if (UIManager.updateHintPanel) UIManager.updateHintPanel(level);
       }
 
       if (window.Timer) {
-        Timer.start(config.timer);
+        if (this.mode === "mix-hard") {
+          Timer.start(config.timer);
+        } else {
+          Timer.stop();
+          Timer.clearDisplay();
+        }
       }
     },
 
-    getNextShelfPosition: function getNextShelfPosition() {
-      const index = this.mixingShelfUsed || 0;
-      return getShelfBallPosition(index, 10);
+    resetMixingShelfReservations: function resetMixingShelfReservations() {
+      this.mixingShelfCapacity = 10;
+      this.mixingShelfUsed = 0;
+      this.mixingShelfSlots = [];
+      for (var i = 0; i < this.mixingShelfCapacity; i += 1) {
+        this.mixingShelfSlots.push({
+          reserved: false,
+          occupied: false,
+          ballId: null,
+        });
+      }
+      this.mixBallIdCounter = 0;
     },
 
-    incrementShelfCounter: function incrementShelfCounter() {
-      this.mixingShelfUsed = (this.mixingShelfUsed || 0) + 1;
-      if (window.UIManager && UIManager.updateShelfCounter) {
-        UIManager.updateShelfCounter(this.mixingShelfUsed);
+    ensureMixingShelfState: function ensureMixingShelfState() {
+      if (!this.mixingShelfSlots || !this.mixingShelfSlots.length) {
+        this.resetMixingShelfReservations();
       }
-      if (this.mixingShelfUsed >= 10) {
+    },
+
+    createMixBallId: function createMixBallId() {
+      this.mixBallIdCounter = (this.mixBallIdCounter || 0) + 1;
+      return "mix-ball-" + this.mixBallIdCounter;
+    },
+
+    reserveMixingShelfSlot: function reserveMixingShelfSlot(ballId, preferredIndex) {
+      this.ensureMixingShelfState();
+      const slots = this.mixingShelfSlots;
+      const hasPreferred =
+        typeof preferredIndex === "number" &&
+        preferredIndex >= 0 &&
+        preferredIndex < this.mixingShelfCapacity;
+      if (hasPreferred && !slots[preferredIndex].reserved) {
+        slots[preferredIndex].reserved = true;
+        slots[preferredIndex].ballId = ballId || null;
+        return preferredIndex;
+      }
+      for (var i = 0; i < this.mixingShelfCapacity; i += 1) {
+        if (!slots[i].reserved) {
+          slots[i].reserved = true;
+          slots[i].ballId = ballId || null;
+          return i;
+        }
+      }
+      return -1;
+    },
+
+    getShelfPositionForSlotIndex: function getShelfPositionForSlotIndex(slotIndex) {
+      return getMixingShelfSlotPosition(slotIndex);
+    },
+
+    markMixingShelfOccupied: function markMixingShelfOccupied(slotIndex, ballId) {
+      this.ensureMixingShelfState();
+      if (typeof slotIndex !== "number" || slotIndex < 0 || slotIndex >= this.mixingShelfCapacity) {
+        return false;
+      }
+      const slot = this.mixingShelfSlots[slotIndex];
+      if (!slot.reserved) {
+        slot.reserved = true;
+      }
+      if (ballId) {
+        slot.ballId = ballId;
+      }
+      if (!slot.occupied) {
+        slot.occupied = true;
+        this.mixingShelfUsed += 1;
+        this.updateShelfCounterUI();
+      }
+      if (this.mixingShelfUsed >= this.mixingShelfCapacity) {
         this.checkMixingGameOver();
       }
+      return true;
+    },
+
+    markMixingShelfOffShelf: function markMixingShelfOffShelf(slotIndex, ballId) {
+      this.ensureMixingShelfState();
+      if (typeof slotIndex !== "number" || slotIndex < 0 || slotIndex >= this.mixingShelfCapacity) {
+        return false;
+      }
+      const slot = this.mixingShelfSlots[slotIndex];
+      if (ballId && slot.ballId && slot.ballId !== ballId) {
+        return false;
+      }
+      if (slot.occupied) {
+        slot.occupied = false;
+        this.mixingShelfUsed = Math.max(0, this.mixingShelfUsed - 1);
+        this.updateShelfCounterUI();
+      }
+      return true;
+    },
+
+    releaseMixingShelfSlot: function releaseMixingShelfSlot(slotIndex, ballId) {
+      this.ensureMixingShelfState();
+      if (typeof slotIndex !== "number" || slotIndex < 0 || slotIndex >= this.mixingShelfCapacity) {
+        return false;
+      }
+      const slot = this.mixingShelfSlots[slotIndex];
+      if (ballId && slot.ballId && slot.ballId !== ballId) {
+        return false;
+      }
+      if (slot.occupied) {
+        slot.occupied = false;
+        this.mixingShelfUsed = Math.max(0, this.mixingShelfUsed - 1);
+      }
+      slot.reserved = false;
+      slot.ballId = null;
+      this.updateShelfCounterUI();
+      return true;
+    },
+
+    updateShelfCounterUI: function updateShelfCounterUI() {
+      if (window.UIManager && UIManager.updateShelfCounter) {
+        UIManager.updateShelfCounter(this.mixingShelfUsed || 0);
+      }
+    },
+
+    countMixingShelfOccupancy: function countMixingShelfOccupancy() {
+      this.ensureMixingShelfState();
+      return this.mixingShelfSlots.reduce(function (count, slot) {
+        return count + (slot.occupied ? 1 : 0);
+      }, 0);
     },
 
     checkMixingGameOver: function checkMixingGameOver() {
@@ -192,6 +332,19 @@
           const ball = document.createElement("a-entity");
           const position = getShelfBallPosition(index, shuffledColors.length);
 
+          if (modeTag === "mix") {
+            this.ensureMixingShelfState();
+            const ballId = this.createMixBallId();
+            const slotIndex = this.reserveMixingShelfSlot(ballId, index);
+            const reservedPos = this.getShelfPositionForSlotIndex(slotIndex);
+            ball.dataset.ballId = ballId;
+            ball.dataset.stableBallId = ballId;
+            ball.dataset.shelfSlotIndex = String(slotIndex);
+            position.x = reservedPos.x;
+            position.y = reservedPos.y;
+            position.z = reservedPos.z;
+          }
+
           ball.setAttribute("position", vec3ToString(toVector3(position)));
           ball.setAttribute("color-ball", {
             colorHex: color.hex,
@@ -204,6 +357,10 @@
           });
           ball.setAttribute("ball-respawn", { minY: -1, checkInterval: 500 });
           ball.dataset.modeTag = modeTag;
+          if (modeTag === "mix") {
+            ball.dataset.onShelf = "true";
+            this.markMixingShelfOccupied(Number(ball.dataset.shelfSlotIndex), ball.dataset.ballId);
+          }
           this.ballsContainer.appendChild(ball);
         }.bind(this),
       );
@@ -214,19 +371,12 @@
         return;
       }
 
-      if (this.mode === "mix") {
-        this.mixingShelfUsed = Math.max(0, (this.mixingShelfUsed || 0) - 1);
-        if (window.UIManager && UIManager.updateShelfCounter) {
-          UIManager.updateShelfCounter(this.mixingShelfUsed);
-        }
-      }
-
       this.placedCount += 1;
       if (window.UIManager) {
         UIManager.updateHUD(
           "Level " + this.currentLevel,
           this.placedCount + "/" + this.totalForLevel,
-          this.mode === "mix" ? "MIXING" : this.mode.toUpperCase(),
+          this.mode === "mix-easy" ? "MIX EASY" : this.mode === "mix-hard" ? "MIX HARD" : this.mode.toUpperCase(),
         );
       }
 
@@ -242,7 +392,7 @@
       if (window.Timer) Timer.stop();
       if (window.SoundManager) SoundManager.play("levelup");
 
-      if (this.mode === "mix") {
+      if (this.isMixingMode()) {
         if (this.currentLevel >= 6) {
           const totalTime = (performance.now() - this.runStartedAt) / 1000;
           this.victory(totalTime);
@@ -302,7 +452,7 @@
 
       this.clearLevelPlacements(this.currentLevel);
       this.clearLooseBalls();
-      if (this.mode === "mix") {
+      if (this.isMixingMode()) {
         this.initMixingLevel(this.currentLevel);
       } else {
         this.initLevel(this.currentLevel);
@@ -311,7 +461,7 @@
 
     clearLevelPlacements: function clearLevelPlacements(level) {
       let levelHexes;
-      if (this.mode === "mix") {
+      if (this.isMixingMode()) {
         const config = MIX_LEVEL_CONFIG[level];
         levelHexes = new Set(config ? config.targets : []);
       } else {
@@ -331,7 +481,7 @@
       });
 
       const wheel = this.wheelEl.components["color-wheel"];
-      if (this.mode === "mix") {
+      if (this.isMixingMode()) {
         const config = MIX_LEVEL_CONFIG[level];
         if (config) {
           config.targets.forEach(function (hex) {
@@ -363,7 +513,7 @@
       this.state = "MENU";
       this.mode = "easy";
       this.currentLevel = 1;
-      this.mixingShelfUsed = 0;
+      this.resetMixingShelfReservations();
       this.resetBoard();
       
       const station = document.querySelector('[mixing-station]');

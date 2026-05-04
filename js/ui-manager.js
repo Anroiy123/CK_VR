@@ -29,7 +29,7 @@
         gameoverMode: document.getElementById("gameover-mode"),
         statusText: document.getElementById("status-text"),
         mixingHintText: document.getElementById("mixing-hint-text"),
-        shelfCounter: document.getElementById("shelf-counter"),
+        shelfCounter: document.getElementById("hud-shelf-counter"),
       };
 
       this.world = {
@@ -42,7 +42,8 @@
       const scene = document.querySelector("a-scene");
       scene.addEventListener("start-easy", this.startEasy.bind(this));
       scene.addEventListener("start-hard", this.startHard.bind(this));
-      scene.addEventListener("start-mix", this.startMix.bind(this));
+      scene.addEventListener("start-mix-easy", this.startMixEasy.bind(this));
+      scene.addEventListener("start-mix-hard", this.startMixHard.bind(this));
       scene.addEventListener("start-freeplay", this.startFreePlay.bind(this));
       scene.addEventListener(
         "show-leaderboard",
@@ -64,8 +65,12 @@
       GameManager.startGame("hard");
     },
 
-    startMix: function startMix() {
-      GameManager.startMixingGame();
+    startMixEasy: function startMixEasy() {
+      GameManager.startMixingGame("mix-easy");
+    },
+
+    startMixHard: function startMixHard() {
+      GameManager.startMixingGame("mix-hard");
     },
 
     startFreePlay: function startFreePlay() {
@@ -80,6 +85,10 @@
     },
 
     replay: function replay() {
+      if (window.GameManager && GameManager.isMixingMode && GameManager.isMixingMode()) {
+        GameManager.startMixingGame(GameManager.mode);
+        return;
+      }
       GameManager.startGame(
         GameManager.mode === "freeplay" ? "easy" : GameManager.mode,
       );
@@ -108,7 +117,42 @@
     setVisible: function setVisible(name, visible) {
       if (this.panels[name]) {
         this.panels[name].setAttribute("visible", visible);
+        this.setPanelInteractivity(this.panels[name], visible);
       }
+    },
+
+    setPanelInteractivity: function setPanelInteractivity(panelEl, enabled) {
+      if (!panelEl || !panelEl.querySelectorAll) {
+        return;
+      }
+
+      const interactiveEls = panelEl.querySelectorAll(
+        ".interactive, [data-ui-interactive='1']",
+      );
+      Array.prototype.forEach.call(interactiveEls, function (el) {
+        if (!el.dataset.uiInteractive) {
+          el.dataset.uiInteractive = "1";
+        }
+        if (enabled) {
+          el.classList.add("interactive");
+        } else {
+          el.classList.remove("interactive");
+        }
+      });
+
+      const buttonRoots = panelEl.querySelectorAll(
+        ".vr-button-root, [data-ui-button-root='1']",
+      );
+      Array.prototype.forEach.call(buttonRoots, function (el) {
+        if (!el.dataset.uiButtonRoot) {
+          el.dataset.uiButtonRoot = "1";
+        }
+        if (enabled) {
+          el.classList.add("vr-button-root");
+        } else {
+          el.classList.remove("vr-button-root");
+        }
+      });
     },
 
     setWorldVisible: function setWorldVisible(name, visible) {
@@ -117,15 +161,33 @@
       }
     },
 
+    setGameplayWorldInteractivity: function setGameplayWorldInteractivity(enabled) {
+      const worldEntities = [this.world.wheel, this.world.shelf, this.world.balls, this.world.mixingStation];
+      worldEntities.forEach(function (worldEntity) {
+        if (!worldEntity) {
+          return;
+        }
+        const interactiveEls = worldEntity.querySelectorAll(".interactive");
+        Array.prototype.forEach.call(interactiveEls, function (el) {
+          if (enabled) {
+            el.classList.add("interactive");
+          } else {
+            el.classList.remove("interactive");
+          }
+        });
+      });
+    },
+
     setGameplayWorldVisible: function setGameplayWorldVisible(visible) {
       this.setWorldVisible("wheel", visible);
       this.setWorldVisible("shelf", visible);
       this.setWorldVisible("balls", visible);
-      const isMix = window.GameManager && window.GameManager.mode === "mix";
+      const isMix = window.GameManager && GameManager.isMixingMode && GameManager.isMixingMode();
       this.setWorldVisible("mixingStation", visible && isMix);
       if (!visible && this.refs.shelfCounter) {
         this.refs.shelfCounter.setAttribute("visible", false);
       }
+      this.setGameplayWorldInteractivity(visible);
     },
 
     showMenu: function showMenu() {
@@ -140,7 +202,7 @@
       this.hideAll();
       this.setGameplayWorldVisible(true);
       this.setVisible("hud", true);
-      this.setVisible("timer", mode === "hard");
+      this.setVisible("timer", mode === "hard" || mode === "mix-hard");
     },
 
     showFreePlay: function showFreePlay() {
@@ -185,12 +247,16 @@
     },
 
     updateTimer: function updateTimer(value, urgent) {
-      this.refs.timerText.setAttribute("value", String(value));
-      this.refs.timerText.setAttribute("color", urgent ? "#ff1744" : "#00ffff");
+      const displayValue = value === "--" ? "--" : String(value);
+      this.refs.timerText.setAttribute("value", displayValue);
+      this.refs.timerText.setAttribute("color", urgent ? "#ff1744" : "#91f7ff");
     },
 
     updateShelfCounter: function updateShelfCounter(count) {
       if (!this.refs.shelfCounter) return;
+      const isMixMode = window.GameManager && GameManager.isMixingMode && GameManager.isMixingMode();
+      this.refs.shelfCounter.setAttribute("visible", !!isMixMode);
+      if (!isMixMode) return;
       this.refs.shelfCounter.setAttribute("value", "Slots: " + count + "/10");
       if (count >= 9) {
         this.refs.shelfCounter.setAttribute("color", "#e03131");
@@ -199,22 +265,21 @@
       } else {
         this.refs.shelfCounter.setAttribute("color", "#51cf66");
       }
-      this.refs.shelfCounter.setAttribute("visible", true);
     },
 
     updateHintPanel: function updateHintPanel(level) {
-      if (level >= 4) {
+      if (level < 1 || level >= 4) {
         this.setVisible("mixingHint", false);
         return;
       }
-      
+
       let hintText = "";
       if (level === 1) {
         hintText = "Red + Yellow = Orange\nYellow + Blue = Green\nBlue + Red = Purple";
       } else if (level === 2 || level === 3) {
         hintText = "Primary + Adj. Secondary = Tertiary\nColor + White = Tint";
       }
-      
+
       if (this.refs.mixingHintText) {
         this.refs.mixingHintText.setAttribute("value", hintText);
       }
