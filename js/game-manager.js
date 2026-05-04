@@ -392,7 +392,7 @@
       if (window.SoundManager) SoundManager.play("levelup");
 
       if (this.isMixingMode()) {
-        if (this.currentLevel >= 6) {
+        if (this.currentLevel >= 5) {
           const totalTime = (performance.now() - this.runStartedAt) / 1000;
           this.victory(totalTime);
           return;

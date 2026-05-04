@@ -383,18 +383,20 @@
       const config = MIX_LEVEL_CONFIG[level];
       if (!config) return;
       const targetHexes = new Set(config.targets);
-      targetHexes.add("#FFFFFF");
-      const visibleColors = getAllColors().filter(function(c) {
-        return targetHexes.has(c.hex);
+      const visibleColors = getAllColors().filter(function (color) {
+        return targetHexes.has(color.hex);
       });
       this.updateVisibleSlots(visibleColors, false);
-      
-      const hasTints = level >= 3;
+
+      const hasTints = visibleColors.some(function (color) {
+        return color.type === "Tint";
+      });
+      const hasCenterTarget = targetHexes.has("#FFFFFF");
       if (this.tintRingEl) {
         this.tintRingEl.setAttribute("visible", hasTints);
       }
       if (this.centerRingEl) {
-        this.centerRingEl.setAttribute("visible", true);
+        this.centerRingEl.setAttribute("visible", hasCenterTarget);
       }
     },
 
