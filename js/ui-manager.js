@@ -15,7 +15,7 @@
         status: document.getElementById("status-panel"),
         hud: document.getElementById("diegetic-hud"),
         timer: document.getElementById("hud-timer-row"),
-        mixingHint: document.getElementById("mixing-hint-panel"),
+        skipLevel: document.getElementById("skip-level-button"),
       };
 
       this.refs = {
@@ -28,7 +28,6 @@
         gameoverLevel: document.getElementById("gameover-level"),
         gameoverMode: document.getElementById("gameover-mode"),
         statusText: document.getElementById("status-text"),
-        mixingHintText: document.getElementById("mixing-hint-text"),
         shelfCounter: document.getElementById("hud-shelf-counter"),
       };
 
@@ -53,6 +52,7 @@
       scene.addEventListener("replay", this.replay.bind(this));
       scene.addEventListener("retry-level", this.retryLevel.bind(this));
       scene.addEventListener("reset-freeplay", this.resetFreePlay.bind(this));
+      scene.addEventListener("skip-level", this.skipLevel.bind(this));
 
       this.showMenu();
     },
@@ -100,6 +100,10 @@
 
     resetFreePlay: function resetFreePlay() {
       FreePlayManager.reset();
+    },
+
+    skipLevel: function skipLevel() {
+      GameManager.skipLevel();
     },
 
     backToMenu: function backToMenu() {
@@ -203,6 +207,7 @@
       this.setGameplayWorldVisible(true);
       this.setVisible("hud", true);
       this.setVisible("timer", mode === "hard" || mode === "mix-hard");
+      this.setVisible("skipLevel", mode === "easy" || mode === "mix-easy");
     },
 
     showFreePlay: function showFreePlay() {
@@ -265,25 +270,6 @@
       } else {
         this.refs.shelfCounter.setAttribute("color", "#51cf66");
       }
-    },
-
-    updateHintPanel: function updateHintPanel(level) {
-      if (level < 1 || level >= 4) {
-        this.setVisible("mixingHint", false);
-        return;
-      }
-
-      let hintText = "";
-      if (level === 1) {
-        hintText = "Red + Yellow = Orange\nYellow + Blue = Green\nBlue + Red = Purple";
-      } else if (level === 2 || level === 3) {
-        hintText = "Primary + Adj. Secondary = Tertiary\nColor + White = Tint";
-      }
-
-      if (this.refs.mixingHintText) {
-        this.refs.mixingHintText.setAttribute("value", hintText);
-      }
-      this.setVisible("mixingHint", true);
     },
 
     showTransientMessage: function showTransientMessage(message, duration) {

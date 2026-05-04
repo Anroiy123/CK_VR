@@ -64,17 +64,22 @@
         options.sweepDeg
       )
     );
-    const material = new THREE.MeshStandardMaterial({
+    const materialType = options.materialType || "standard";
+    const materialOptions = {
       color: options.color,
       transparent: true,
       opacity: options.opacity,
       side: THREE.DoubleSide,
       depthWrite: false,
-      emissive: new THREE.Color(options.color),
-      emissiveIntensity: 0,
-      roughness: 0.5,
-      metalness: 0.1,
-    });
+    };
+    const material = materialType === "basic"
+      ? new THREE.MeshBasicMaterial(materialOptions)
+      : new THREE.MeshStandardMaterial(Object.assign({}, materialOptions, {
+        emissive: new THREE.Color(options.color),
+        emissiveIntensity: 0,
+        roughness: 0.5,
+        metalness: 0.1,
+      }));
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.z = options.zOffset || 0;
     mesh.renderOrder = options.renderOrder || 1;
@@ -120,10 +125,11 @@
     });
   }
 
-  function buildSegmentLayerDefinitions(innerEdge, outerEdge) {
+  function buildSegmentLayerDefinitions(innerEdge, outerEdge, isTint) {
     const layerCount = 4;
     const layerThickness = (outerEdge - innerEdge) / layerCount;
     const layerDefinitions = [];
+    const baseZOffset = isTint ? -0.02 : -0.01;
 
     for (let index = 0; index < layerCount; index += 1) {
       const outerRadius = outerEdge - layerThickness * index;
@@ -134,7 +140,7 @@
       layerDefinitions.push({
         innerRadius: innerRadius,
         outerRadius: outerRadius,
-        zOffset: -0.01 + index * 0.001,
+        zOffset: baseZOffset + index * 0.001,
       });
     }
 
@@ -168,12 +174,14 @@
 
     layerEl.__sectorMaterial.color.set(style.color);
     layerEl.__sectorMaterial.opacity = style.opacity;
-    if (style.emissive) {
-      layerEl.__sectorMaterial.emissive.set(style.emissive);
-      layerEl.__sectorMaterial.emissiveIntensity = style.emissiveIntensity || 0;
-    } else {
-      layerEl.__sectorMaterial.emissive.setHex(0x000000);
-      layerEl.__sectorMaterial.emissiveIntensity = 0;
+    if (layerEl.__sectorMaterial.emissive) {
+      if (style.emissive) {
+        layerEl.__sectorMaterial.emissive.set(style.emissive);
+        layerEl.__sectorMaterial.emissiveIntensity = style.emissiveIntensity || 0;
+      } else {
+        layerEl.__sectorMaterial.emissive.setHex(0x000000);
+        layerEl.__sectorMaterial.emissiveIntensity = 0;
+      }
     }
     layerEl.__sectorMaterial.needsUpdate = true;
   }
@@ -262,9 +270,9 @@
         const isTint = color.type === "Tint";
         let layerDefinitions;
         if (isTint) {
-          layerDefinitions = buildSegmentLayerDefinitions(0.12, 0.56);
+          layerDefinitions = buildSegmentLayerDefinitions(0.12, 0.56, true);
         } else {
-          layerDefinitions = buildSegmentLayerDefinitions(0.60, self.data.radius - 0.004);
+          layerDefinitions = buildSegmentLayerDefinitions(0.60, self.data.radius - 0.004, false);
         }
 
         const segmentLayers = layerDefinitions.map(function (layerDefinition, layerIndex) {
@@ -277,7 +285,8 @@
             color: inactiveStyle.color,
             opacity: inactiveStyle.opacity,
             zOffset: layerDefinition.zOffset,
-            renderOrder: 1 + layerIndex,
+            renderOrder: (isTint ? 10 : 1) + layerIndex,
+            materialType: isTint ? "basic" : "standard",
           });
           segmentLayer.setAttribute("visible", false);
           self.segmentRoot.appendChild(segmentLayer);

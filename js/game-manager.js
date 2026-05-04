@@ -179,7 +179,6 @@
         UIManager.showGameHUD(this.mode);
         UIManager.updateHUD("Level " + level, "0/" + this.totalForLevel, this.mode === "mix-easy" ? "MIX EASY" : "MIX HARD");
         if (UIManager.updateShelfCounter) UIManager.updateShelfCounter(this.mixingShelfUsed);
-        if (UIManager.updateHintPanel) UIManager.updateHintPanel(level);
       }
 
       if (window.Timer) {
@@ -459,6 +458,58 @@
       }
     },
 
+    skipLevel: function skipLevel() {
+      if ((this.mode !== "easy" && this.mode !== "mix-easy") || this.state !== "PLAYING") {
+        return;
+      }
+
+      if (this.mode === "easy") {
+        if (this.currentLevel >= 3) {
+          const totalTime = (performance.now() - this.runStartedAt) / 1000;
+          this.victory(totalTime);
+          return;
+        }
+
+        if (window.SoundManager) SoundManager.play("levelup");
+        if (window.UIManager) {
+          UIManager.showGameHUD(this.mode);
+          UIManager.showTransientMessage("Skipped to Level " + (this.currentLevel + 1), 1500);
+        }
+
+        this.clearLevelPlacements(this.currentLevel);
+        this.clearLooseBalls();
+
+        setTimeout(
+          function () {
+            this.initLevel(this.currentLevel + 1);
+          }.bind(this),
+          1600,
+        );
+      } else if (this.mode === "mix-easy") {
+        if (this.currentLevel >= 6) {
+          const totalTime = (performance.now() - this.runStartedAt) / 1000;
+          this.victory(totalTime);
+          return;
+        }
+
+        if (window.SoundManager) SoundManager.play("levelup");
+        if (window.UIManager) {
+          UIManager.showGameHUD(this.mode);
+          UIManager.showTransientMessage("Skipped to Level " + (this.currentLevel + 1), 1500);
+        }
+
+        this.clearLevelPlacements(this.currentLevel);
+        this.clearLooseBalls();
+
+        setTimeout(
+          function () {
+            this.initMixingLevel(this.currentLevel + 1);
+          }.bind(this),
+          1600,
+        );
+      }
+    },
+
     clearLevelPlacements: function clearLevelPlacements(level) {
       let levelHexes;
       if (this.isMixingMode()) {
@@ -530,7 +581,6 @@
       if (window.UIManager) {
         UIManager.showMenu();
         if (UIManager.updateShelfCounter) UIManager.updateShelfCounter(0);
-        if (UIManager.updateHintPanel) UIManager.updateHintPanel(0);
       }
       if (window.Leaderboard) Leaderboard.renderToPanel();
       if (!silent && window.SoundManager) {
