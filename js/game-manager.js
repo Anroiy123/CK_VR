@@ -486,7 +486,7 @@
           1600,
         );
       } else if (this.mode === "mix-easy") {
-        if (this.currentLevel >= 6) {
+        if (this.currentLevel >= 5) {
           const totalTime = (performance.now() - this.runStartedAt) / 1000;
           this.victory(totalTime);
           return;

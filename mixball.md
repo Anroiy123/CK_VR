@@ -1,9 +1,18 @@
-Luồng chơi :
+Luồng chơi:
 
 Bắt đầu:
 Shelf: 3 Primary (R,Y,B) + 1 White = 4 bóng khởi đầu, 10 slot tổng
-Wheel: TẤT CẢ slot trống (vòng ngoài, vòng trong, tâm trắng)
 Trạm trộn: sẵn sàng
+
+Tiến trình level mixing:
+- Level 1: điền 3 màu primary
+- Level 2: điền 3 màu secondary
+- Level 3: điền 6 màu tertiary
+- Level 4: điền 12 màu tint + tâm trắng
+- Level 5: điền toàn bộ bảng màu + tâm trắng
+
+Win = hoàn thành toàn bộ target của level hiện tại.
+Riêng Level 5 là màn tổng hợp cuối cùng và hoàn thành sẽ dẫn đến chiến thắng.
 
 Người chơi phải:
 
@@ -17,7 +26,7 @@ Ràng buộc:
 
 - Shelf tối đa 10 bóng — phải quản lý không gian
 - Bóng nguồn KHÔNG bị tiêu thụ khi mix (vẫn cần để mix các màu khác)
-- Win = hoàn thành toàn bộ bảng màu trên wheel
+- Win = hoàn thành toàn bộ target của level hiện tại
 
 Khi người chơi thả bóng 1 vào ô mix thì bóng đó sẽ hiện ở trên ô mix đó , tiếp tục người chơi chọn bóng thứ 2 để vào ô mix thì bóng mix màu giữa 2 màu đó sẽ hiện ở trên ô mix đó , tiếp tục nếu cần màu giảm sắc độ thì người chơi sẽ tiếp tục đặt bóng màu trắng vào ô mix và bóng màu Tertiary hiện ra ở trên ô mix đó sau đó người chơi sẽ bắt buộc phải đưa quả bóng đã mix đó ra shelf (cho dù màu đã đúng hay sai) . Đúng thì người chơi sẽ tiếp tục nhặt bóng từ shelf đó và để vào vòng tròn màu , sai thì người chơi bị mất 1 slot trong shelf giữ bóng (quá 10 lần sẽ không thể mix màu thêm nữa )
 

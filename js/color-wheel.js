@@ -186,11 +186,6 @@
     layerEl.__sectorMaterial.needsUpdate = true;
   }
 
-  function getLabelOffset(slotPosition) {
-    const radialDirection = new THREE.Vector3(slotPosition.x, slotPosition.y, 0).normalize();
-    return radialDirection.multiplyScalar(0.16).add(new THREE.Vector3(0, 0, 0.08));
-  }
-
   AFRAME.registerComponent("color-wheel", {
     schema: {
       radius: { type: "number", default: APP_CONFIG.wheelRadius },

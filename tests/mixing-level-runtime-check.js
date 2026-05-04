@@ -219,5 +219,14 @@ function loadScripts(context) {
   context.__scheduledHandler();
   assert(nextLevelRequested === 5, 'Completing mixing level 4 should advance to mixing level 5');
 
+  victoryCalls = 0;
+  nextLevelRequested = null;
+  context.__scheduledHandler = null;
+  context.GameManager.state = 'PLAYING';
+  context.GameManager.currentLevel = 5;
+  context.GameManager.skipLevel();
+  assert(victoryCalls === 1, 'Skipping mixing level 5 should trigger victory');
+  assert(nextLevelRequested === null, 'Skipping mixing level 5 should not queue another mixing level');
+
   console.log('PASS mixing runtime behavior matches five-level progression');
 })();
