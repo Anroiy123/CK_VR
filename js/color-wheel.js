@@ -144,7 +144,7 @@
   function getInactiveLayerStyle(layerIndex, isTint) {
     const opacityByLayer = [0.34, 0.28, 0.24, 0.2];
     return {
-      color: mixHexColors(isTint ? "#ffffff" : "#24324f", "#ffffff", layerIndex * 0.08),
+      color: mixHexColors(isTint ? "#6b7db8" : "#24324f", "#ffffff", layerIndex * 0.08),
       opacity: (opacityByLayer[layerIndex] || 0.2) * (isTint ? 0.4 : 1),
     };
   }
@@ -331,7 +331,7 @@
         visual.setAttribute("height", "0.024");
         visual.setAttribute("rotation", "90 0 0");
         visual.setAttribute("position", "0 0 -0.01");
-        visual.setAttribute("material", "color: #d0d7ff; opacity: 0.16; transparent: true; shader: flat");
+        visual.setAttribute("material", "color: #d0d7ff; opacity: 0.08; transparent: true; shader: flat");
         slot.appendChild(visual);
 
         const label = document.createElement("a-text");
@@ -412,7 +412,8 @@
           return;
         }
         if (slot.dataset.occupied === "true") {
-          self.setSlotState(slot, { occupied: true, revealName: true, colorHex: color.hex });
+          const fillColorHex = slot.dataset.fillColorHex || color.hex;
+          self.setSlotState(slot, { occupied: true, revealName: true, colorHex: fillColorHex });
           return;
         }
         self.setSlotState(slot, { occupied: false, revealName: revealName });
@@ -438,6 +439,7 @@
       if (isOccupied) {
         slot.classList.add("occupied");
         slot.dataset.occupied = "true";
+        slot.dataset.fillColorHex = options.colorHex || targetColor;
         visual.setAttribute("material", "color: " + (options.colorHex || targetColor) + "; opacity: 0.24; transparent: true; shader: flat; emissive: " + (options.colorHex || targetColor) + "; emissiveIntensity: 0.24");
         label.setAttribute("value", targetName);
         segmentLayers.forEach(function (segmentLayer, layerIndex) {
@@ -448,7 +450,8 @@
 
       slot.classList.remove("occupied");
       delete slot.dataset.occupied;
-      visual.setAttribute("material", "color: #d0d7ff; opacity: 0.16; transparent: true; shader: flat");
+      delete slot.dataset.fillColorHex;
+      visual.setAttribute("material", "color: #d0d7ff; opacity: 0.08; transparent: true; shader: flat");
       label.setAttribute("value", revealName ? targetName : "?");
       segmentLayers.forEach(function (segmentLayer, layerIndex) {
         applyLayerStyle(segmentLayer, getInactiveLayerStyle(layerIndex, isTint));
