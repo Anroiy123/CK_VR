@@ -62,12 +62,32 @@
   };
 
   const MIX_LEVEL_CONFIG = {
-    1: { targets: ["#FF8000", "#00FF00", "#8000FF"], timer: 60, label: "Mix Secondary Colors" },
-    2: { targets: ["#FF4000", "#FFBF00", "#80FF00", "#00FF80", "#0040FF", "#FF0080"], timer: 90, label: "Mix Tertiary Colors" },
-    3: { targets: ["#FF8080", "#FFFF80", "#8080FF"], timer: 60, label: "Mix Primary Tints" },
-    4: { targets: ["#FFC080", "#80FF80", "#C080FF"], timer: 90, label: "Mix Secondary Tints" },
-    5: { targets: ["#FF8000", "#00FF00", "#8000FF", "#FF8080", "#FFFF80", "#8080FF"], timer: 120, label: "Secondary & Primary Tints" },
-    6: { targets: ["#FF4000", "#00FF80", "#FF0080", "#FFA080", "#80FFC0", "#FF80C0"], timer: 150, label: "Master Mixer" }
+    1: { targets: ["#FF0000", "#FFFF00", "#0000FF"], timer: 60, label: "Mix Primary Colors" },
+    2: { targets: ["#FF8000", "#00FF00", "#8000FF"], timer: 75, label: "Mix Secondary Colors" },
+    3: { targets: ["#FF4000", "#FFBF00", "#80FF00", "#00FF80", "#0040FF", "#FF0080"], timer: 90, label: "Mix Tertiary Colors" },
+    4: {
+      targets: [
+        "#FF8080", "#FFFF80", "#8080FF",
+        "#FFC080", "#80FF80", "#C080FF",
+        "#FFA080", "#FFDF80", "#C0FF80", "#80FFC0", "#80A0FF", "#FF80C0",
+        "#FFFFFF"
+      ],
+      timer: 120,
+      label: "Mix Tint Colors"
+    },
+    5: {
+      targets: [
+        "#FF0000", "#FFFF00", "#0000FF",
+        "#FF8000", "#00FF00", "#8000FF",
+        "#FF4000", "#FFBF00", "#80FF00", "#00FF80", "#0040FF", "#FF0080",
+        "#FF8080", "#FFFF80", "#8080FF",
+        "#FFC080", "#80FF80", "#C080FF",
+        "#FFA080", "#FFDF80", "#C0FF80", "#80FFC0", "#80A0FF", "#FF80C0",
+        "#FFFFFF"
+      ],
+      timer: 150,
+      label: "Master Mixer"
+    }
   };
 
   const APP_CONFIG = {
