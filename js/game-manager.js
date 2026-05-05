@@ -45,6 +45,12 @@
     };
   }
 
+  function getFinalNormalLevel() {
+    return Object.keys(LEVEL_CONFIG).reduce(function (maxLevel, levelKey) {
+      return Math.max(maxLevel, Number(levelKey));
+    }, 0);
+  }
+
   const GameManager = {
     state: "MENU",
     mode: "easy",
@@ -407,7 +413,7 @@
         return;
       }
 
-      if (this.currentLevel >= 3) {
+      if (this.currentLevel >= getFinalNormalLevel()) {
         const totalTime = (performance.now() - this.runStartedAt) / 1000;
         this.victory(totalTime);
         return;
@@ -464,7 +470,7 @@
       }
 
       if (this.mode === "easy") {
-        if (this.currentLevel >= 3) {
+        if (this.currentLevel >= getFinalNormalLevel()) {
           const totalTime = (performance.now() - this.runStartedAt) / 1000;
           this.victory(totalTime);
           return;

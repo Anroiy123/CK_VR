@@ -369,9 +369,17 @@
     },
 
     prepareGameLevel: function prepareGameLevel(level) {
-      this.updateVisibleSlots(getVisibleColorsForGame(level), false);
-      if (this.tintRingEl) this.tintRingEl.setAttribute("visible", false);
-      if (this.centerRingEl) this.centerRingEl.setAttribute("visible", false);
+      const visibleColors = getColorsForLevel(level);
+      this.updateVisibleSlots(visibleColors, false);
+
+      const hasTints = visibleColors.some(function (color) {
+        return color.type === "Tint";
+      });
+      const hasCenterTarget = visibleColors.some(function (color) {
+        return color.hex === "#FFFFFF";
+      });
+      if (this.tintRingEl) this.tintRingEl.setAttribute("visible", hasTints);
+      if (this.centerRingEl) this.centerRingEl.setAttribute("visible", hasCenterTarget);
     },
 
     prepareMixingLevel: function prepareMixingLevel(level) {

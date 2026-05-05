@@ -56,9 +56,31 @@
   }, {});
 
   const LEVEL_CONFIG = {
-    1: { colors: "primary", timer: 30, label: "Primary Colors" },
-    2: { colors: "secondary", timer: 25, label: "Secondary Colors" },
-    3: { colors: "tertiary", timer: 45, label: "Tertiary Colors" },
+    1: { targets: ["#FF0000", "#FFFF00", "#0000FF", "#FFFFFF"], timer: 30, label: "Primary Colors + White" },
+    2: { targets: ["#FF8000", "#00FF00", "#8000FF"], timer: 25, label: "Secondary Colors" },
+    3: { targets: ["#FF4000", "#FFBF00", "#80FF00", "#00FF80", "#0040FF", "#FF0080"], timer: 45, label: "Tertiary Colors" },
+    4: {
+      targets: [
+        "#FF8080", "#FFFF80", "#8080FF",
+        "#FFC080", "#80FF80", "#C080FF",
+        "#FFA080", "#FFDF80", "#C0FF80", "#80FFC0", "#80A0FF", "#FF80C0"
+      ],
+      timer: 90,
+      label: "Tint Colors"
+    },
+    5: {
+      targets: [
+        "#FF0000", "#FFFF00", "#0000FF",
+        "#FF8000", "#00FF00", "#8000FF",
+        "#FF4000", "#FFBF00", "#80FF00", "#00FF80", "#0040FF", "#FF0080",
+        "#FF8080", "#FFFF80", "#8080FF",
+        "#FFC080", "#80FF80", "#C080FF",
+        "#FFA080", "#FFDF80", "#C0FF80", "#80FFC0", "#80A0FF", "#FF80C0",
+        "#FFFFFF"
+      ],
+      timer: 150,
+      label: "Full Color Wheel"
+    }
   };
 
   const MIX_LEVEL_CONFIG = {
@@ -142,6 +164,9 @@
     const config = LEVEL_CONFIG[level];
     if (!config) {
       return [];
+    }
+    if (config.targets) {
+      return config.targets.map(getColorByHex).filter(Boolean);
     }
     return COLOR_DATA[config.colors].map(cloneColor);
   }
