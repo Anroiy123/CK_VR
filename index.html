@@ -270,45 +270,51 @@
                     <a-plane
                         width="3.16"
                         height="0.06"
-                        position="0 1.01 0.01"
+                        position="0 1.09 0.01"
                         color="#d9b56f"
                         opacity="0.9"
                         material="shader: flat; transparent: true; depthTest: false"
                     ></a-plane>
-                    <a-plane
-                        width="3.16"
-                        height="0.012"
-                        position="0 -0.53 0.01"
-                        color="#8c7658"
-                        opacity="0.45"
-                        material="shader: flat; transparent: true; depthTest: false"
-                    ></a-plane>
-
                     <a-text
                         value="VR COLOR CIRCLE"
-                        position="0 0.9 0.02"
+                        position="0 0.98 0.02"
                         align="center"
                         color="#f3d78a"
                         width="5.4"
                         font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
                     ></a-text>
                     <a-text
-                        value="Learn color theory by placing each color in its perfect spot"
-                        position="0 0.68 0.02"
+                        value="Master the color wheel"
+                        position="0 0.74 0.02"
                         align="center"
                         color="#e9ecef"
-                        width="2.9"
+                        width="2.4"
                     ></a-text>
 
+                    <a-plane
+                        width="0.72"
+                        height="0.012"
+                        position="-0.82 0.48 0.02"
+                        color="#d9b56f"
+                        opacity="0.46"
+                        material="shader: flat; transparent: true; depthTest: false"
+                    ></a-plane>
                     <a-text
-                        value="START A MODE"
-                        position="0 0.44 0.02"
+                        value="NORMAL MODE"
+                        position="0 0.43 0.02"
                         align="center"
-                        color="#fff1d6"
-                        width="2.4"
+                        color="#d8f5a2"
+                        width="1.8"
                         font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
                     ></a-text>
-
+                    <a-plane
+                        width="0.72"
+                        height="0.012"
+                        position="0.82 0.48 0.02"
+                        color="#d9b56f"
+                        opacity="0.46"
+                        material="shader: flat; transparent: true; depthTest: false"
+                    ></a-plane>
                     <a-entity
                         id="btn-easy"
                         position="-0.68 0.16 0.03"
@@ -320,34 +326,74 @@
                         vr-button="label: HARD; helper: Timed challenge; action: start-hard; width: 1.18; bgColor: #8a5a3c; hoverColor: #9c6848"
                     ></a-entity>
 
+                    <a-plane
+                        width="0.72"
+                        height="0.012"
+                        position="-0.82 -0.15 0.02"
+                        color="#d9b56f"
+                        opacity="0.46"
+                        material="shader: flat; transparent: true; depthTest: false"
+                    ></a-plane>
+                    <a-text
+                        value="MIXING MODE"
+                        position="0 -0.2 0.02"
+                        align="center"
+                        color="#ffd8a8"
+                        width="1.8"
+                        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+                    ></a-text>
+                    <a-plane
+                        width="0.72"
+                        height="0.012"
+                        position="0.82 -0.15 0.02"
+                        color="#d9b56f"
+                        opacity="0.46"
+                        material="shader: flat; transparent: true; depthTest: false"
+                    ></a-plane>
                     <a-entity
                         id="btn-mix-easy"
-                        position="-0.68 -0.2 0.03"
-                        vr-button="label: MIX EASY; helper: Blend colors calmly; action: start-mix-easy; width: 1.18; bgColor: #6f5f4c; hoverColor: #82705a"
+                        position="-0.68 -0.43 0.03"
+                        vr-button="label: MIX EASY; helper: Blend calmly; action: start-mix-easy; width: 1.18; bgColor: #6f5f4c; hoverColor: #82705a"
                     ></a-entity>
                     <a-entity
                         id="btn-mix-hard"
-                        position="0.68 -0.2 0.03"
-                        vr-button="label: MIX HARD; helper: Fast mixing test; action: start-mix-hard; width: 1.18; bgColor: #7b6041; hoverColor: #8d704d"
+                        position="0.68 -0.43 0.03"
+                        vr-button="label: MIX HARD; helper: Fast mixing; action: start-mix-hard; width: 1.18; bgColor: #7b6041; hoverColor: #8d704d"
                     ></a-entity>
 
+                    <a-plane
+                        width="0.72"
+                        height="0.012"
+                        position="-0.82 -0.74 0.02"
+                        color="#8c7658"
+                        opacity="0.42"
+                        material="shader: flat; transparent: true; depthTest: false"
+                    ></a-plane>
                     <a-text
                         value="EXTRA"
-                        position="0 -0.72 0.02"
+                        position="0 -0.79 0.02"
                         align="center"
                         color="#eadcc8"
-                        width="1.4"
+                        width="1.8"
                         font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
                     ></a-text>
+                    <a-plane
+                        width="0.72"
+                        height="0.012"
+                        position="0.82 -0.74 0.02"
+                        color="#8c7658"
+                        opacity="0.42"
+                        material="shader: flat; transparent: true; depthTest: false"
+                    ></a-plane>
                     <a-entity
                         id="btn-freeplay"
-                        position="-0.68 -0.95 0.03"
-                        vr-button="label: FREE PLAY; helper: Explore all 12 colors; action: start-freeplay; width: 1.18; bgColor: #5d6b73; hoverColor: #6f7d85"
+                        position="-0.68 -1.06 0.03"
+                        vr-button="label: FREE PLAY; helper: Explore colors; action: start-freeplay; width: 1.18; height: 0.27; bgColor: #5d6b73; hoverColor: #6f7d85"
                     ></a-entity>
                     <a-entity
                         id="btn-leaderboard"
-                        position="0.68 -0.95 0.03"
-                        vr-button="label: LEADERBOARD; helper: Top local scores; action: show-leaderboard; width: 1.18; bgColor: #4c3f32; hoverColor: #5e4f40"
+                        position="0.68 -1.06 0.03"
+                        vr-button="label: LEADERBOARD; helper: Top scores; action: show-leaderboard; width: 1.18; height: 0.27; bgColor: #4c3f32; hoverColor: #5e4f40"
                     ></a-entity>
                 </a-entity>
 
@@ -543,7 +589,7 @@
                     ></a-entity>
                 </a-entity>
 
-                <a-entity id="status-panel" position="0 1.92 -1.68" scale="0.72 0.72 0.72" visible="false" billboard>
+                <a-entity id="status-panel" position="0 2.34 -1.18" scale="0.72 0.72 0.72" visible="false" billboard>
                     <a-plane
                         width="2.21"
                         height="0.6"

@@ -6,8 +6,8 @@
   var SPECTATORS = [
     { position: "-3.2 0 1.15", scale: 1.02 },
     { position: "-2.25 0 1.78", scale: 0.94 },
-    { position: "-1.05 0 2.18", scale: 0.9 },
-    { position: "1.05 0 2.18", scale: 0.92 },
+    { position: "-1.05 0 2.18", scale: 0.9, modelSrc: "assets/images/ishowspeed_fortnite_skin.glb" },
+    { position: "1.05 0 2.18", scale: 0.92, modelSrc: "assets/images/mrbeast_fortnite_skin.glb" },
     { position: "2.25 0 1.78", scale: 0.95 },
     { position: "3.2 0 1.15", scale: 1.03 },
     { position: "-3.55 0 2.45", scale: 0.88 },
@@ -123,7 +123,7 @@
     group.appendChild(fallback);
 
     var model = document.createElement("a-entity");
-    model.setAttribute("gltf-model", "url(" + SPECTATOR_MODEL_SRC + ")");
+    model.setAttribute("gltf-model", "url(" + (spectator.modelSrc || SPECTATOR_MODEL_SRC) + ")");
     model.setAttribute("position", "0 0 0");
     model.setAttribute("scale", "0.72 0.72 0.72");
     model.setAttribute("shadow", "cast: true; receive: false");
