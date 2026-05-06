@@ -5,9 +5,9 @@
 
   AFRAME.registerComponent("color-shelf", {
     schema: {
-      width: { type: "number", default: 1.36 },
+      width: { type: "number", default: 2.08 },
       height: { type: "number", default: 0.72 },
-      depth: { type: "number", default: 0.52 },
+      depth: { type: "number", default: 0.74 },
     },
 
     init: function init() {

@@ -3,22 +3,20 @@
     return;
   }
 
-  var WALL_ART = [
-    { position: "-2.35 1.65 -3.18", color: "#c2410c", accent: "#f8fafc" },
-    { position: "0 1.72 -3.19", color: "#2563eb", accent: "#facc15" },
-    { position: "2.35 1.65 -3.18", color: "#15803d", accent: "#fb7185" },
+  var SPECTATORS = [
+    { position: "-3.2 0 1.15", scale: 1.02 },
+    { position: "-2.25 0 1.78", scale: 0.94 },
+    { position: "-1.05 0 2.18", scale: 0.9 },
+    { position: "1.05 0 2.18", scale: 0.92 },
+    { position: "2.25 0 1.78", scale: 0.95 },
+    { position: "3.2 0 1.15", scale: 1.03 },
+    { position: "-3.55 0 2.45", scale: 0.88 },
+    { position: "3.55 0 2.45", scale: 0.88 },
   ];
 
-  var SPECTATORS = [
-    { position: "-2.95 0 -1.05", rotation: "0 46 0", scale: 1.02 },
-    { position: "-2.55 0 -2.05", rotation: "0 28 0", scale: 0.94 },
-    { position: "2.95 0 -1.05", rotation: "0 -46 0", scale: 1.03 },
-    { position: "2.52 0 -2.0", rotation: "0 -28 0", scale: 0.95 },
-    { position: "-1.55 0 -3.0", rotation: "0 8 0", scale: 0.9 },
-    { position: "1.55 0 -3.0", rotation: "0 -8 0", scale: 0.92 },
-    { position: "-3.35 0 0.18", rotation: "0 72 0", scale: 0.88 },
-    { position: "3.35 0 0.18", rotation: "0 -72 0", scale: 0.88 },
-  ];
+  var SPECTATOR_MODEL_SRC = "assets/npc_character_-_proto_series.glb";
+  var EXHIBITION_MODEL_SRC = "assets/Sketchfab_Scene.glb";
+  var SPECTATOR_LOOK_TARGET = { x: 0, z: -1.45 };
 
   function appendBox(parent, options) {
     var box = document.createElement("a-box");
@@ -32,17 +30,6 @@
     }
     parent.appendChild(box);
     return box;
-  }
-
-  function appendPlane(parent, options) {
-    var plane = document.createElement("a-plane");
-    plane.setAttribute("width", options.width);
-    plane.setAttribute("height", options.height);
-    plane.setAttribute("position", options.position);
-    plane.setAttribute("rotation", options.rotation);
-    plane.setAttribute("material", options.material);
-    parent.appendChild(plane);
-    return plane;
   }
 
   function appendCylinder(parent, options) {
@@ -67,81 +54,123 @@
     return sphere;
   }
 
-  function createWallArt(parent, art) {
-    var group = document.createElement("a-entity");
-    group.setAttribute("position", art.position);
-    parent.appendChild(group);
+  function parsePosition(position) {
+    var parts = String(position).trim().split(/\s+/).map(Number);
+    return {
+      x: parts[0] || 0,
+      y: parts[1] || 0,
+      z: parts[2] || 0,
+    };
+  }
 
-    appendBox(group, {
-      width: "0.98",
-      height: "0.68",
-      depth: "0.045",
-      position: "0 0 0",
-      material: "color: #3f3428; roughness: 0.7; metalness: 0.05",
+  function getYawToPlayArea(position) {
+    var dx = SPECTATOR_LOOK_TARGET.x - position.x;
+    var dz = SPECTATOR_LOOK_TARGET.z - position.z;
+    return THREE.MathUtils.radToDeg(Math.atan2(dx, dz));
+  }
+
+  function keepSingleSpectatorModel(modelObject) {
+    modelObject.traverse(function (node) {
+      if (!node.name) {
+        return;
+      }
+
+      if (node.name.indexOf("head_angry") !== -1) {
+        node.visible = false;
+      }
     });
-    appendPlane(group, {
-      width: "0.82",
-      height: "0.52",
-      position: "0 0 0.028",
-      rotation: "0 0 0",
-      material: "color: " + art.color + "; roughness: 0.45; metalness: 0.02",
+  }
+
+  function hideBuiltInBenches(modelObject) {
+    var benchNodeNames = {
+      "Cube.001": true,
+      "Cube.002": true,
+      "Cube.003": true,
+      "Cube.004": true,
+    };
+
+    modelObject.traverse(function (node) {
+      if (benchNodeNames[node.name]) {
+        node.visible = false;
+      }
     });
-    appendPlane(group, {
-      width: "0.36",
-      height: "0.11",
-      position: "0.1 0.08 0.032",
-      rotation: "0 0 -18",
-      material: "color: " + art.accent + "; roughness: 0.35; metalness: 0.05",
+  }
+
+  function createExhibitionModel(parent) {
+    var model = document.createElement("a-entity");
+    model.setAttribute("gltf-model", "url(" + EXHIBITION_MODEL_SRC + ")");
+    model.setAttribute("position", "0 3.2 -0.86");
+    model.setAttribute("rotation", "0 0 0");
+    model.setAttribute("scale", "3.25 3.25 3.25");
+    model.setAttribute("shadow", "cast: false; receive: true");
+    model.addEventListener("model-loaded", function () {
+      hideBuiltInBenches(model.object3D);
     });
-    appendPlane(group, {
-      width: "0.12",
-      height: "0.12",
-      position: "-0.2 -0.1 0.034",
-      rotation: "0 0 45",
-      material: "color: #111827; roughness: 0.45; metalness: 0.02",
-    });
+    parent.appendChild(model);
+    return model;
   }
 
   function createSpectator(parent, spectator) {
     var group = document.createElement("a-entity");
+    var position = parsePosition(spectator.position);
     group.setAttribute("position", spectator.position);
-    group.setAttribute("rotation", spectator.rotation);
+    group.setAttribute("rotation", "0 " + getYawToPlayArea(position) + " 0");
     group.setAttribute("scale", spectator.scale + " " + spectator.scale + " " + spectator.scale);
     group.classList.add("gallery-spectator");
     parent.appendChild(group);
 
-    appendCylinder(group, {
+    var fallback = document.createElement("a-entity");
+    group.appendChild(fallback);
+
+    var model = document.createElement("a-entity");
+    model.setAttribute("gltf-model", "url(" + SPECTATOR_MODEL_SRC + ")");
+    model.setAttribute("position", "0 0 0");
+    model.setAttribute("scale", "0.72 0.72 0.72");
+    model.setAttribute("shadow", "cast: true; receive: false");
+    model.setAttribute("visible", "false");
+    model.addEventListener("model-loaded", function () {
+      keepSingleSpectatorModel(model.object3D);
+      fallback.setAttribute("visible", "false");
+      model.setAttribute("visible", "true");
+    });
+    model.addEventListener("model-error", function () {
+      fallback.setAttribute("visible", "true");
+      model.setAttribute("visible", "false");
+    });
+    group.appendChild(model);
+
+    appendCylinder(fallback, {
       radius: "0.13",
       height: "0.72",
       position: "0 0.72 0",
       material: "color: #27211d; roughness: 0.85; metalness: 0.02",
     });
-    appendSphere(group, {
+    appendSphere(fallback, {
       radius: "0.105",
       position: "0 1.17 0",
       material: "color: #3a2f29; roughness: 0.9; metalness: 0.01",
     });
-    appendCylinder(group, {
+    appendCylinder(fallback, {
       radius: "0.035",
       height: "0.52",
       position: "-0.07 0.26 0",
       material: "color: #1f2933; roughness: 0.85; metalness: 0.01",
     });
-    appendCylinder(group, {
+    appendCylinder(fallback, {
       radius: "0.035",
       height: "0.52",
       position: "0.07 0.26 0",
       material: "color: #1f2933; roughness: 0.85; metalness: 0.01",
     });
 
-    var leftArm = appendCylinder(group, {
+    var leftArm = appendCylinder(fallback, {
       radius: "0.026",
       height: "0.48",
       position: "-0.16 0.76 0.03",
       rotation: "58 0 -28",
       material: "color: #27211d; roughness: 0.85; metalness: 0.02",
     });
-    var rightArm = appendCylinder(group, {
+    var rightArm = appendCylinder(fallback, {
       radius: "0.026",
       height: "0.48",
       position: "0.16 0.76 0.03",
@@ -165,73 +194,15 @@
       this.isApplauding = false;
       this.onLevelComplete = this.startApplause.bind(this);
 
-      appendPlane(this.el, {
-        width: "9",
-        height: "8",
-        position: "0 0 -0.7",
-        rotation: "-90 0 0",
-        material: "color: #b9aa96; roughness: 0.76; metalness: 0.03",
-      });
+      createExhibitionModel(this.el);
 
       appendBox(this.el, {
-        width: "9",
-        height: "3.2",
-        depth: "0.12",
-        position: "0 1.6 -3.35",
-        material: "color: #e8dfd2; roughness: 0.88; metalness: 0.01",
-      });
-
-      appendBox(this.el, {
-        width: "0.12",
-        height: "3.2",
-        depth: "7.6",
-        position: "-4.45 1.6 -0.6",
-        material: "color: #ded2c2; roughness: 0.88; metalness: 0.01",
-      });
-
-      appendBox(this.el, {
-        width: "0.12",
-        height: "3.2",
-        depth: "7.6",
-        position: "4.45 1.6 -0.6",
-        material: "color: #ded2c2; roughness: 0.88; metalness: 0.01",
-      });
-
-      appendBox(this.el, {
-        width: "9",
-        height: "0.08",
-        depth: "7.6",
-        position: "0 3.18 -0.6",
-        material: "color: #f1eadf; roughness: 0.9; metalness: 0.01",
-      });
-
-      appendBox(this.el, {
-        width: "3.0",
-        height: "0.12",
-        depth: "0.78",
-        position: "0 0.06 -2.45",
+        width: "2.16",
+        height: "0.09",
+        depth: "0.56",
+        position: "0 0.045 -1.76",
         material: "color: #6f6255; roughness: 0.62; metalness: 0.05",
       });
-
-      appendBox(this.el, {
-        width: "0.34",
-        height: "0.035",
-        depth: "5.9",
-        position: "-3.95 2.92 -0.6",
-        material: "color: #3b332b; roughness: 0.6; metalness: 0.25",
-      });
-
-      appendBox(this.el, {
-        width: "0.34",
-        height: "0.035",
-        depth: "5.9",
-        position: "3.95 2.92 -0.6",
-        material: "color: #3b332b; roughness: 0.6; metalness: 0.25",
-      });
-
-      WALL_ART.forEach(function (art) {
-        createWallArt(this.el, art);
-      }, this);
 
       SPECTATORS.forEach(function (spectator) {
         var spectatorEl = createSpectator(this.el, spectator);
@@ -275,10 +246,10 @@
         var localClap = Math.sin(time * 0.026 + phase);
         var armAngle = 18 + localClap * 18;
         spectatorEl.object3D.position.y = applause.baseY + bounce;
-        applause.leftArm.setAttribute("rotation", "74 0 " + (-armAngle));
+        applause.leftArm.setAttribute("rotation", "74 0 " + -armAngle);
         applause.rightArm.setAttribute("rotation", "74 0 " + armAngle);
-        applause.leftArm.setAttribute("position", (-0.11 - clap * 0.025) + " 0.86 0.08");
-        applause.rightArm.setAttribute("position", (0.11 + clap * 0.025) + " 0.86 0.08");
+        applause.leftArm.setAttribute("position", -0.11 - clap * 0.025 + " 0.86 0.08");
+        applause.rightArm.setAttribute("position", 0.11 + clap * 0.025 + " 0.86 0.08");
       });
     },
 

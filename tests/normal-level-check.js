@@ -164,9 +164,9 @@ function levelHexes(context, level) {
 
   assertArrayEqual(Object.keys(context.LEVEL_CONFIG).map(Number).sort(), [1, 2, 3, 4, 5], 'Normal mode must define exactly five levels');
   assertArrayEqual(levelHexes(context, 1), ['#0000FF', '#FF0000', '#FFFF00', '#FFFFFF'].sort(), 'Level 1 must include primary colors plus white');
-  assertArrayEqual(levelHexes(context, 2), ['#00FF00', '#8000FF', '#FF8000'].sort(), 'Level 2 must include secondary colors');
-  assertArrayEqual(levelHexes(context, 3), ['#0040FF', '#00FF80', '#80FF00', '#FF0080', '#FF4000', '#FFBF00'].sort(), 'Level 3 must include tertiary colors');
-  assertArrayEqual(levelHexes(context, 4), ['#8080FF', '#80A0FF', '#80FF80', '#80FFC0', '#C080FF', '#C0FF80', '#FF8080', '#FF80C0', '#FFC080', '#FFDF80', '#FFFF80', '#FFA080'].sort(), 'Level 4 must include all tint colors');
+  assertArrayEqual(levelHexes(context, 2), ['#00C800', '#B000E8', '#FF8A00'].sort(), 'Level 2 must include secondary colors');
+  assertArrayEqual(levelHexes(context, 3), ['#00A8A8', '#6A00FF', '#8FEA00', '#D0008A', '#FF4D00', '#FFC400'].sort(), 'Level 3 must include tertiary colors');
+  assertArrayEqual(levelHexes(context, 4), ['#8080FF', '#A878E8', '#80E480', '#80D4D4', '#D880F4', '#C7F580', '#FF8080', '#E880C5', '#FFC580', '#FFE280', '#FFFF80', '#FFA680'].sort(), 'Level 4 must include all tint colors');
   assert(context.getColorsForLevel(5).length === 25, 'Level 5 must include 25 targets');
 
   const wheelDef = context.AFRAME.components['color-wheel'];

@@ -252,6 +252,7 @@
 
       this.el.dataset.locked = "true";
       this.el.classList.remove("grabbable", "interactive");
+      this.el.setAttribute("visible", false);
       this.el.removeAttribute("ball-respawn");
 
       if (window.GameManager && window.GameManager.isMixingMode && window.GameManager.isMixingMode()) {

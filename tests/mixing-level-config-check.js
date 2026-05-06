@@ -64,30 +64,30 @@ function assertArrayEqual(actual, expected, message) {
 
   assertArrayEqual(
     data.MIX_LEVEL_CONFIG[2].targets.slice().sort(),
-    ['#00FF00', '#8000FF', '#FF8000'].sort(),
+    ['#00C800', '#B000E8', '#FF8A00'].sort(),
     'Level 2 must target only secondary colors'
   );
 
   assertArrayEqual(
     data.MIX_LEVEL_CONFIG[3].targets.slice().sort(),
-    ['#0040FF', '#00FF80', '#80FF00', '#FF0080', '#FF4000', '#FFBF00'].sort(),
+    ['#00A8A8', '#6A00FF', '#8FEA00', '#D0008A', '#FF4D00', '#FFC400'].sort(),
     'Level 3 must target only tertiary colors'
   );
 
   assertArrayEqual(
     data.MIX_LEVEL_CONFIG[4].targets.slice().sort(),
-    ['#8080FF', '#80A0FF', '#80FF80', '#80FFC0', '#C080FF', '#C0FF80', '#FF8080', '#FF80C0', '#FFC080', '#FFDF80', '#FFFF80', '#FFA080', '#FFFFFF'].sort(),
+    ['#8080FF', '#A878E8', '#80E480', '#80D4D4', '#D880F4', '#C7F580', '#FF8080', '#E880C5', '#FFC580', '#FFE280', '#FFFF80', '#FFA680', '#FFFFFF'].sort(),
     'Level 4 must target all tint colors plus white center'
   );
 
   assertArrayEqual(
     data.MIX_LEVEL_CONFIG[5].targets.slice().sort(),
     [
-      '#0000FF', '#00FF00', '#0040FF', '#00FF80', '#80A0FF',
-      '#80FF00', '#8000FF', '#8080FF', '#80FF80', '#80FFC0',
-      '#C080FF', '#C0FF80', '#FF0000', '#FF0080', '#FF4000',
-      '#FF8000', '#FF8080', '#FF80C0', '#FFBF00', '#FFC080',
-      '#FFDF80', '#FFFF00', '#FFFF80', '#FFFFFF', '#FFA080'
+      '#0000FF', '#00C800', '#00A8A8', '#6A00FF', '#A878E8',
+      '#8FEA00', '#B000E8', '#8080FF', '#80E480', '#80D4D4',
+      '#D880F4', '#C7F580', '#FF0000', '#D0008A', '#FF4D00',
+      '#FF8A00', '#FF8080', '#E880C5', '#FFC400', '#FFC580',
+      '#FFE280', '#FFFF00', '#FFFF80', '#FFFFFF', '#FFA680'
     ].sort(),
     'Level 5 must target the full board plus white center'
   );

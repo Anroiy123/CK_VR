@@ -56,7 +56,7 @@
                 <a-entity
                     id="camera"
                     camera
-                    position="0 1.6 0"
+                    position="0 1.2 0"
                     look-controls="pointerLockEnabled: false"
                 >
                     <a-cursor
@@ -218,21 +218,23 @@
                 ></a-entity>
             </a-entity>
 
-            <a-entity id="shelf" color-shelf position="0 0 -0.98" visible="false"> </a-entity>
+            <a-entity id="shelf" color-shelf position="0 0 -0.74" scale="0.72 0.72 0.72" visible="false"> </a-entity>
             <a-entity id="balls-container" visible="false"></a-entity>
             <a-entity id="particle-pool"></a-entity>
 
             <a-entity
                 id="mixing-station"
                 mixing-station
-                position="1.2 0.7 -1.3"
+                position="0.86 0.66 -0.94"
+                scale="0.72 0.72 0.72"
                 visible="false"
             ></a-entity>
 
             <a-entity
                 id="color-wheel"
-                color-wheel="radius: 1.12; level: 1"
-                position="0 1.54 -2.22"
+                color-wheel="radius: 0.78; level: 1"
+                position="0 1.22 -1.6"
+                scale="1.05 1.05 1.05"
                 rotation="-1 0 0"
                 visible="false"
             ></a-entity>
@@ -240,7 +242,8 @@
             <a-entity id="ui-container">
                 <a-entity
                     id="skip-level-button"
-                    position="1.98 1.34 -2.22"
+                    position="1.34 0.98 -1.6"
+                    scale="0.72 0.72 0.72"
                     visible="false"
                     billboard
                 >
@@ -249,7 +252,7 @@
                     ></a-entity>
                 </a-entity>
 
-                <a-entity id="menu-panel" position="0 1.72 -2.45" visible="true" billboard>
+                <a-entity id="menu-panel" position="0 1.24 -1.78" scale="0.72 0.72 0.72" visible="true" billboard>
                     <a-plane
                         width="3.5"
                         height="2.95"
@@ -348,7 +351,7 @@
                     ></a-entity>
                 </a-entity>
 
-                <a-entity id="leaderboard-panel" position="0 1.72 -2.45" visible="false" billboard>
+                <a-entity id="leaderboard-panel" position="0 1.24 -1.78" scale="0.72 0.72 0.72" visible="false" billboard>
                     <a-plane
                         width="3.71"
                         height="2.86"
@@ -393,7 +396,7 @@
                     ></a-entity>
                 </a-entity>
 
-                <a-entity id="victory-panel" position="0 1.82 -2.55" visible="false" billboard>
+                <a-entity id="victory-panel" position="0 1.3 -1.84" scale="0.72 0.72 0.72" visible="false" billboard>
                     <a-plane
                         width="3.36"
                         height="2.41"
@@ -445,7 +448,7 @@
                     ></a-entity>
                 </a-entity>
 
-                <a-entity id="gameover-panel" position="0 1.82 -2.55" visible="false" billboard>
+                <a-entity id="gameover-panel" position="0 1.3 -1.84" scale="0.72 0.72 0.72" visible="false" billboard>
                     <a-plane
                         width="3.36"
                         height="2.31"
@@ -497,7 +500,7 @@
                     ></a-entity>
                 </a-entity>
 
-                <a-entity id="freeplay-panel" position="1.98 1.66 -2.28" visible="false" billboard>
+                <a-entity id="freeplay-panel" position="1.34 1.18 -1.64" scale="0.72 0.72 0.72" visible="false" billboard>
                     <a-plane
                         width="1.61"
                         height="1.28"
@@ -540,7 +543,7 @@
                     ></a-entity>
                 </a-entity>
 
-                <a-entity id="status-panel" position="0 2.74 -2.34" visible="false" billboard>
+                <a-entity id="status-panel" position="0 1.92 -1.68" scale="0.72 0.72 0.72" visible="false" billboard>
                     <a-plane
                         width="2.21"
                         height="0.6"

@@ -19,7 +19,7 @@
 
       this.el.setAttribute("geometry", {
         primitive: "sphere",
-        radius: 0.09,
+        radius: 0.068,
         segmentsWidth: 24,
         segmentsHeight: 18,
       });

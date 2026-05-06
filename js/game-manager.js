@@ -2,8 +2,8 @@
   function getShelfBallPosition(index, totalCount) {
     const isDenseLayout = totalCount > 12;
     const maxColumns = isDenseLayout ? 7 : APP_CONFIG.shelfBallColumns;
-    const spacingX = isDenseLayout ? 0.26 : APP_CONFIG.shelfBallSpacingX;
-    const rowDepth = isDenseLayout ? 0.18 : APP_CONFIG.shelfBallRowDepth;
+    const spacingX = isDenseLayout ? 0.2 : APP_CONFIG.shelfBallSpacingX;
+    const rowDepth = isDenseLayout ? 0.16 : APP_CONFIG.shelfBallRowDepth;
     const rowLift = isDenseLayout ? 0 : APP_CONFIG.shelfBallRowLift;
     const baseZ = isDenseLayout ? APP_CONFIG.shelfZ + 0.08 : APP_CONFIG.shelfZ;
     const columnCount = Math.max(

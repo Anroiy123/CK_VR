@@ -6,17 +6,17 @@
       { name: "Blue", hex: "#0000FF", angle: 240, level: 1, type: "Primary", theory: "Primary color. It anchors the cool side of the wheel." },
     ],
     secondary: [
-      { name: "Orange", hex: "#FF8000", angle: 60, level: 2, type: "Secondary", theory: "Orange is made by mixing red and yellow." },
-      { name: "Green", hex: "#00FF00", angle: 180, level: 2, type: "Secondary", theory: "Green is made by mixing yellow and blue." },
-      { name: "Purple", hex: "#8000FF", angle: 300, level: 2, type: "Secondary", theory: "Purple is made by mixing red and blue." },
+      { name: "Orange", hex: "#FF8A00", angle: 60, level: 2, type: "Secondary", theory: "Orange is made by mixing red and yellow." },
+      { name: "Green", hex: "#00C800", angle: 180, level: 2, type: "Secondary", theory: "Green is made by mixing yellow and blue." },
+      { name: "Purple", hex: "#B000E8", angle: 300, level: 2, type: "Secondary", theory: "Purple is made by mixing red and blue." },
     ],
     tertiary: [
-      { name: "Red-Orange", hex: "#FF4000", angle: 30, level: 3, type: "Tertiary", theory: "Red-Orange sits between red and orange." },
-      { name: "Yellow-Orange", hex: "#FFBF00", angle: 90, level: 3, type: "Tertiary", theory: "Yellow-Orange sits between yellow and orange." },
-      { name: "Yellow-Green", hex: "#80FF00", angle: 150, level: 3, type: "Tertiary", theory: "Yellow-Green sits between yellow and green." },
-      { name: "Blue-Green", hex: "#00FF80", angle: 210, level: 3, type: "Tertiary", theory: "Blue-Green sits between blue and green." },
-      { name: "Blue-Purple", hex: "#0040FF", angle: 270, level: 3, type: "Tertiary", theory: "Blue-Purple sits between blue and purple." },
-      { name: "Red-Purple", hex: "#FF0080", angle: 330, level: 3, type: "Tertiary", theory: "Red-Purple sits between red and purple." },
+      { name: "Red-Orange", hex: "#FF4D00", angle: 30, level: 3, type: "Tertiary", theory: "Red-Orange sits between red and orange." },
+      { name: "Yellow-Orange", hex: "#FFC400", angle: 90, level: 3, type: "Tertiary", theory: "Yellow-Orange sits between yellow and orange." },
+      { name: "Yellow-Green", hex: "#8FEA00", angle: 150, level: 3, type: "Tertiary", theory: "Yellow-Green sits between yellow and green." },
+      { name: "Blue-Green", hex: "#00A8A8", angle: 210, level: 3, type: "Tertiary", theory: "Blue-Green sits between blue and green." },
+      { name: "Blue-Purple", hex: "#6A00FF", angle: 270, level: 3, type: "Tertiary", theory: "Blue-Purple sits between blue and purple." },
+      { name: "Red-Purple", hex: "#D0008A", angle: 330, level: 3, type: "Tertiary", theory: "Red-Purple sits between red and purple." },
     ],
     base: [
       { name: "White", hex: "#FFFFFF", type: "Base", targetSlot: "center", theory: "Base color for creating tints." }
@@ -24,30 +24,30 @@
   };
 
   const MIXING_RECIPES = {
-    "#FF0000,#FFFF00": "#FF8000",
-    "#0000FF,#FFFF00": "#00FF00",
-    "#0000FF,#FF0000": "#8000FF",
-    "#FF0000,#FF8000": "#FF4000",
-    "#FF8000,#FFFF00": "#FFBF00",
-    "#00FF00,#FFFF00": "#80FF00",
-    "#0000FF,#00FF00": "#00FF80",
-    "#0000FF,#8000FF": "#0040FF",
-    "#FF0000,#8000FF": "#FF0080",
+    "#FF0000,#FFFF00": "#FF8A00",
+    "#0000FF,#FFFF00": "#00C800",
+    "#0000FF,#FF0000": "#B000E8",
+    "#FF0000,#FF8A00": "#FF4D00",
+    "#FF8A00,#FFFF00": "#FFC400",
+    "#00C800,#FFFF00": "#8FEA00",
+    "#0000FF,#00C800": "#00A8A8",
+    "#0000FF,#B000E8": "#6A00FF",
+    "#FF0000,#B000E8": "#D0008A",
   };
 
   const TINT_VARIANTS = [
     { name: "Tinted Red", hex: "#FF8080", angle: 0, type: "Tint", parentHex: "#FF0000" },
     { name: "Tinted Yellow", hex: "#FFFF80", angle: 120, type: "Tint", parentHex: "#FFFF00" },
     { name: "Tinted Blue", hex: "#8080FF", angle: 240, type: "Tint", parentHex: "#0000FF" },
-    { name: "Tinted Orange", hex: "#FFC080", angle: 60, type: "Tint", parentHex: "#FF8000" },
-    { name: "Tinted Green", hex: "#80FF80", angle: 180, type: "Tint", parentHex: "#00FF00" },
-    { name: "Tinted Purple", hex: "#C080FF", angle: 300, type: "Tint", parentHex: "#8000FF" },
-    { name: "Tinted Red-Orange", hex: "#FFA080", angle: 30, type: "Tint", parentHex: "#FF4000" },
-    { name: "Tinted Yellow-Orange", hex: "#FFDF80", angle: 90, type: "Tint", parentHex: "#FFBF00" },
-    { name: "Tinted Yellow-Green", hex: "#C0FF80", angle: 150, type: "Tint", parentHex: "#80FF00" },
-    { name: "Tinted Blue-Green", hex: "#80FFC0", angle: 210, type: "Tint", parentHex: "#00FF80" },
-    { name: "Tinted Blue-Purple", hex: "#80A0FF", angle: 270, type: "Tint", parentHex: "#0040FF" },
-    { name: "Tinted Red-Purple", hex: "#FF80C0", angle: 330, type: "Tint", parentHex: "#FF0080" },
+    { name: "Tinted Orange", hex: "#FFC580", angle: 60, type: "Tint", parentHex: "#FF8A00" },
+    { name: "Tinted Green", hex: "#80E480", angle: 180, type: "Tint", parentHex: "#00C800" },
+    { name: "Tinted Purple", hex: "#D880F4", angle: 300, type: "Tint", parentHex: "#B000E8" },
+    { name: "Tinted Red-Orange", hex: "#FFA680", angle: 30, type: "Tint", parentHex: "#FF4D00" },
+    { name: "Tinted Yellow-Orange", hex: "#FFE280", angle: 90, type: "Tint", parentHex: "#FFC400" },
+    { name: "Tinted Yellow-Green", hex: "#C7F580", angle: 150, type: "Tint", parentHex: "#8FEA00" },
+    { name: "Tinted Blue-Green", hex: "#80D4D4", angle: 210, type: "Tint", parentHex: "#00A8A8" },
+    { name: "Tinted Blue-Purple", hex: "#A878E8", angle: 270, type: "Tint", parentHex: "#6A00FF" },
+    { name: "Tinted Red-Purple", hex: "#E880C5", angle: 330, type: "Tint", parentHex: "#D0008A" },
   ];
 
   const TINT_BY_PARENT = TINT_VARIANTS.reduce(function(acc, tint) {
@@ -57,13 +57,13 @@
 
   const LEVEL_CONFIG = {
     1: { targets: ["#FF0000", "#FFFF00", "#0000FF", "#FFFFFF"], timer: 30, label: "Primary Colors + White" },
-    2: { targets: ["#FF8000", "#00FF00", "#8000FF"], timer: 25, label: "Secondary Colors" },
-    3: { targets: ["#FF4000", "#FFBF00", "#80FF00", "#00FF80", "#0040FF", "#FF0080"], timer: 45, label: "Tertiary Colors" },
+    2: { targets: ["#FF8A00", "#00C800", "#B000E8"], timer: 25, label: "Secondary Colors" },
+    3: { targets: ["#FF4D00", "#FFC400", "#8FEA00", "#00A8A8", "#6A00FF", "#D0008A"], timer: 45, label: "Tertiary Colors" },
     4: {
       targets: [
         "#FF8080", "#FFFF80", "#8080FF",
-        "#FFC080", "#80FF80", "#C080FF",
-        "#FFA080", "#FFDF80", "#C0FF80", "#80FFC0", "#80A0FF", "#FF80C0"
+        "#FFC580", "#80E480", "#D880F4",
+        "#FFA680", "#FFE280", "#C7F580", "#80D4D4", "#A878E8", "#E880C5"
       ],
       timer: 90,
       label: "Tint Colors"
@@ -71,11 +71,11 @@
     5: {
       targets: [
         "#FF0000", "#FFFF00", "#0000FF",
-        "#FF8000", "#00FF00", "#8000FF",
-        "#FF4000", "#FFBF00", "#80FF00", "#00FF80", "#0040FF", "#FF0080",
+        "#FF8A00", "#00C800", "#B000E8",
+        "#FF4D00", "#FFC400", "#8FEA00", "#00A8A8", "#6A00FF", "#D0008A",
         "#FF8080", "#FFFF80", "#8080FF",
-        "#FFC080", "#80FF80", "#C080FF",
-        "#FFA080", "#FFDF80", "#C0FF80", "#80FFC0", "#80A0FF", "#FF80C0",
+        "#FFC580", "#80E480", "#D880F4",
+        "#FFA680", "#FFE280", "#C7F580", "#80D4D4", "#A878E8", "#E880C5",
         "#FFFFFF"
       ],
       timer: 150,
@@ -85,13 +85,13 @@
 
   const MIX_LEVEL_CONFIG = {
     1: { targets: ["#FF0000", "#FFFF00", "#0000FF"], timer: 60, label: "Mix Primary Colors" },
-    2: { targets: ["#FF8000", "#00FF00", "#8000FF"], timer: 75, label: "Mix Secondary Colors" },
-    3: { targets: ["#FF4000", "#FFBF00", "#80FF00", "#00FF80", "#0040FF", "#FF0080"], timer: 90, label: "Mix Tertiary Colors" },
+    2: { targets: ["#FF8A00", "#00C800", "#B000E8"], timer: 75, label: "Mix Secondary Colors" },
+    3: { targets: ["#FF4D00", "#FFC400", "#8FEA00", "#00A8A8", "#6A00FF", "#D0008A"], timer: 90, label: "Mix Tertiary Colors" },
     4: {
       targets: [
         "#FF8080", "#FFFF80", "#8080FF",
-        "#FFC080", "#80FF80", "#C080FF",
-        "#FFA080", "#FFDF80", "#C0FF80", "#80FFC0", "#80A0FF", "#FF80C0",
+        "#FFC580", "#80E480", "#D880F4",
+        "#FFA680", "#FFE280", "#C7F580", "#80D4D4", "#A878E8", "#E880C5",
         "#FFFFFF"
       ],
       timer: 120,
@@ -100,11 +100,11 @@
     5: {
       targets: [
         "#FF0000", "#FFFF00", "#0000FF",
-        "#FF8000", "#00FF00", "#8000FF",
-        "#FF4000", "#FFBF00", "#80FF00", "#00FF80", "#0040FF", "#FF0080",
+        "#FF8A00", "#00C800", "#B000E8",
+        "#FF4D00", "#FFC400", "#8FEA00", "#00A8A8", "#6A00FF", "#D0008A",
         "#FF8080", "#FFFF80", "#8080FF",
-        "#FFC080", "#80FF80", "#C080FF",
-        "#FFA080", "#FFDF80", "#C0FF80", "#80FFC0", "#80A0FF", "#FF80C0",
+        "#FFC580", "#80E480", "#D880F4",
+        "#FFA680", "#FFE280", "#C7F580", "#80D4D4", "#A878E8", "#E880C5",
         "#FFFFFF"
       ],
       timer: 150,
@@ -113,29 +113,29 @@
   };
 
   const APP_CONFIG = {
-    snapDistance: 0.46,
-    vrSnapDistance: 0.72,
-    shelfY: 0.84,
-    shelfZ: -0.98,
+    snapDistance: 0.32,
+    vrSnapDistance: 0.5,
+    shelfY: 0.62,
+    shelfZ: -0.74,
     shelfWidth: 1.44,
     shelfBallColumns: 5,
-    shelfBallSpacingX: 0.22,
-    shelfBallRowLift: 0.085,
-    shelfBallRowDepth: 0.14,
-    wheelRadius: 1.12,
+    shelfBallSpacingX: 0.16,
+    shelfBallRowLift: 0.06,
+    shelfBallRowDepth: 0.1,
+    wheelRadius: 0.78,
     slotDepthOffset: 0.08,
     placedBallDepthOffset: 0.18,
     vrGrab: {
       holdOffset: { x: 0, y: -0.04, z: -0.52 },
     },
     desktopDrag: {
-      minX: -1.85,
-      maxX: 1.85,
-      minY: 0.4,
-      maxY: 2.45,
-      minZ: -2.85,
-      maxZ: -1.8,
-      planePoint: { x: 0, y: 1.44, z: -2.18 },
+      minX: -1.25,
+      maxX: 1.25,
+      minY: 0.3,
+      maxY: 1.75,
+      minZ: -2.05,
+      maxZ: -1.2,
+      planePoint: { x: 0, y: 1.02, z: -1.55 },
       planeNormal: { x: 0, y: 0, z: 1 },
     },
   };

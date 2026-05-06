@@ -10,10 +10,12 @@
   }
 
   function getArcPoint(radius, radians) {
-    return new THREE.Vector2(
-      Math.cos(radians) * radius,
-      Math.sin(radians) * radius
-    );
+    return new THREE.Vector2(Math.cos(radians) * radius, Math.sin(radians) * radius);
+  }
+
+  function getWheelSlotPosition(angleDeg, radius) {
+    const radians = getWheelAngleRadians(angleDeg);
+    return { x: Math.cos(radians) * radius, y: Math.sin(radians) * radius, z: 0 };
   }
 
   function buildSectorShape(innerRadius, outerRadius, angleDeg, sweepDeg) {
@@ -53,8 +55,8 @@
         options.innerRadius,
         options.outerRadius,
         options.angleDeg,
-        options.sweepDeg
-      )
+        options.sweepDeg,
+      ),
     );
     const materialType = options.materialType || "standard";
     const materialOptions = {
@@ -64,14 +66,17 @@
       side: THREE.DoubleSide,
       depthWrite: false,
     };
-    const material = materialType === "basic"
-      ? new THREE.MeshBasicMaterial(materialOptions)
-      : new THREE.MeshStandardMaterial(Object.assign({}, materialOptions, {
-        emissive: new THREE.Color(options.color),
-        emissiveIntensity: 0,
-        roughness: 0.5,
-        metalness: 0.1,
-      }));
+    const material =
+      materialType === "basic"
+        ? new THREE.MeshBasicMaterial(materialOptions)
+        : new THREE.MeshStandardMaterial(
+            Object.assign({}, materialOptions, {
+              emissive: new THREE.Color(options.color),
+              emissiveIntensity: 0,
+              roughness: 0.5,
+              metalness: 0.1,
+            }),
+          );
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.z = options.zOffset || 0;
     mesh.renderOrder = options.renderOrder || 1;
@@ -87,11 +92,15 @@
 
   function hexToRgb(hex) {
     const normalizedHex = hex.replace("#", "");
-    const fullHex = normalizedHex.length === 3
-      ? normalizedHex.split("").map(function (part) {
-        return part + part;
-      }).join("")
-      : normalizedHex;
+    const fullHex =
+      normalizedHex.length === 3
+        ? normalizedHex
+            .split("")
+            .map(function (part) {
+              return part + part;
+            })
+            .join("")
+        : normalizedHex;
 
     return {
       r: parseInt(fullHex.slice(0, 2), 16),
@@ -101,9 +110,14 @@
   }
 
   function rgbToHex(rgb) {
-    return "#" + [rgb.r, rgb.g, rgb.b].map(function (channel) {
-      return clampColorChannel(channel).toString(16).padStart(2, "0");
-    }).join("");
+    return (
+      "#" +
+      [rgb.r, rgb.g, rgb.b]
+        .map(function (channel) {
+          return clampColorChannel(channel).toString(16).padStart(2, "0");
+        })
+        .join("")
+    );
   }
 
   function mixHexColors(startHex, endHex, amount) {
@@ -125,9 +139,7 @@
 
     for (let index = 0; index < layerCount; index += 1) {
       const outerRadius = outerEdge - layerThickness * index;
-      const innerRadius = index === layerCount - 1
-        ? innerEdge
-        : outerRadius - layerThickness;
+      const innerRadius = index === layerCount - 1 ? innerEdge : outerRadius - layerThickness;
 
       layerDefinitions.push({
         innerRadius: innerRadius,
@@ -140,7 +152,7 @@
   }
 
   function getInactiveLayerStyle(layerIndex, isTint) {
-    const opacityByLayer = [0.52];
+    const opacityByLayer = [isTint ? 0.56 : 0.68];
     return {
       color: isTint ? "#efe3d0" : "#d8c3a5",
       opacity: opacityByLayer[layerIndex] || 0.52,
@@ -204,28 +216,39 @@
 
     createRing: function createRing() {
       const outerRing = document.createElement("a-torus");
-      outerRing.setAttribute("radius", this.data.radius);
-      outerRing.setAttribute("radius-tubular", "0.045");
+      outerRing.setAttribute("radius", this.data.radius + 0.09);
+      outerRing.setAttribute("radius-tubular", "0.016");
       outerRing.setAttribute("segments-radial", "12");
       outerRing.setAttribute("segments-tubular", "24");
-      outerRing.setAttribute("material", "color: #8a6f4b; opacity: 0.78; transparent: true; emissive: #5f4728; emissiveIntensity: 0.08");
+      outerRing.setAttribute(
+        "material",
+        "color: #8a6f4b; opacity: 0.78; transparent: true; emissive: #5f4728; emissiveIntensity: 0.08",
+      );
       this.ringRoot.appendChild(outerRing);
 
       const innerRing = document.createElement("a-torus");
       innerRing.setAttribute("radius", this.data.radius - 0.12);
-      innerRing.setAttribute("radius-tubular", "0.018");
+      innerRing.setAttribute("radius-tubular", "0.01");
       innerRing.setAttribute("segments-radial", "10");
       innerRing.setAttribute("segments-tubular", "24");
-      innerRing.setAttribute("material", "color: #b89762; opacity: 0.58; transparent: true; emissive: #6f552f; emissiveIntensity: 0.06");
+      innerRing.setAttribute(
+        "material",
+        "color: #b89762; opacity: 0; transparent: true; depthWrite: false",
+      );
       this.ringRoot.appendChild(innerRing);
+      this.centerRingEl = innerRing;
 
       const haloRing = document.createElement("a-torus");
       const haloRadius = this.data.radius + 0.02;
       haloRing.setAttribute("radius", String(haloRadius));
-      haloRing.setAttribute("radius-tubular", "0.015");
+      haloRing.setAttribute("radius-tubular", "0.008");
       haloRing.setAttribute("segments-radial", "16");
       haloRing.setAttribute("segments-tubular", "24");
-      haloRing.setAttribute("material", "color: #c8a96a; opacity: 0.24; transparent: true; emissive: #6f552f; emissiveIntensity: 0.04; depthTest: false");
+      haloRing.setAttribute(
+        "material",
+        "color: #c8a96a; opacity: 0; transparent: true; depthWrite: false; visible: false",
+      );
+      haloRing.setAttribute("visible", false);
       this.ringRoot.appendChild(haloRing);
 
       const tintRing = document.createElement("a-torus");
@@ -233,10 +256,12 @@
       tintRing.setAttribute("radius-tubular", "0.015");
       tintRing.setAttribute("segments-radial", "10");
       tintRing.setAttribute("segments-tubular", "24");
-      tintRing.setAttribute("material", "color: #eadcc8; opacity: 0.28; transparent: true; emissive: #8a6a2f; emissiveIntensity: 0.05");
+      tintRing.setAttribute(
+        "material",
+        "color: #eadcc8; opacity: 0; transparent: true; depthWrite: false",
+      );
       this.ringRoot.appendChild(tintRing);
       this.tintRingEl = tintRing;
-      
     },
 
     createSegments: function createSegments() {
@@ -248,9 +273,9 @@
         const isTint = color.type === "Tint";
         let layerDefinitions;
         if (isTint) {
-          layerDefinitions = buildSegmentLayerDefinitions(0.12, 0.588, true);
+          layerDefinitions = buildSegmentLayerDefinitions(0.12, 0.46, true);
         } else {
-          layerDefinitions = buildSegmentLayerDefinitions(0.588, self.data.radius - 0.004, false);
+          layerDefinitions = buildSegmentLayerDefinitions(0.46, self.data.radius - 0.004, false);
         }
 
         const segmentLayers = layerDefinitions.map(function (layerDefinition, layerIndex) {
@@ -281,12 +306,12 @@
       getAllColors().forEach(function (color) {
         let slotRadius = self.data.radius - 0.02;
         if (color.type === "Tint") {
-          slotRadius = 0.588;
+          slotRadius = 0.46;
         } else if (color.type === "Base") {
           slotRadius = 0;
         }
 
-        const slotPosition = getSlotPosition(color.angle || 0, slotRadius);
+        const slotPosition = getWheelSlotPosition(color.angle || 0, slotRadius);
         const slot = document.createElement("a-entity");
         slot.id = "slot-" + (color.type === "Base" ? "center" : color.angle);
         slot.classList.add("color-slot", "interactive");
@@ -294,21 +319,28 @@
         slot.dataset.targetName = color.name;
         slot.dataset.angle = String(color.angle || 0);
         slot.dataset.type = color.type;
-        slot.setAttribute("position", vec3ToString(new THREE.Vector3(slotPosition.x, slotPosition.y, slotPosition.z)));
+        slot.setAttribute(
+          "position",
+          vec3ToString(new THREE.Vector3(slotPosition.x, slotPosition.y, slotPosition.z)),
+        );
         slot.setAttribute("geometry", "primitive: cylinder; radius: 0.14; height: 0.1");
-        slot.setAttribute("material", "color: #ffffff; opacity: 0; transparent: true; depthWrite: false; side: double");
+        slot.setAttribute(
+          "material",
+          "color: #ffffff; opacity: 0; transparent: true; depthWrite: false; side: double",
+        );
         slot.setAttribute("visible", false);
         slot.__segmentLayers = self.segmentLayersByHex[color.hex] || [];
 
         const visual = document.createElement("a-cylinder");
         visual.classList.add("slot-visual");
-        visual.setAttribute("radius", color.type === "Base" ? "0.065" : "0.052");
+        visual.setAttribute("radius", color.type === "Base" ? "0.14" : "0.052");
         visual.setAttribute("height", "0.024");
         visual.setAttribute("rotation", "90 0 0");
         visual.setAttribute("position", "0 0 -0.01");
-        const baseMaterial = color.type === "Base"
-          ? "color: #ffffff; opacity: 0.92; transparent: true; shader: flat; emissive: #ffffff; emissiveIntensity: 0.45; depthTest: false"
-          : "color: #8a6f4b; opacity: 0.42; transparent: true; shader: flat";
+        const baseMaterial =
+          color.type === "Base"
+            ? "color: #ffffff; opacity: 0.92; transparent: true; shader: flat; emissive: #ffffff; emissiveIntensity: 0.45; depthTest: false"
+            : "color: #8a6f4b; opacity: 0.42; transparent: true; shader: flat";
         visual.setAttribute("visible", color.type !== "Tint");
         visual.setAttribute("material", baseMaterial);
         slot.appendChild(visual);
@@ -339,7 +371,11 @@
       const hasTints = visibleColors.some(function (color) {
         return color.type === "Tint";
       });
+      const hasBase = visibleColors.some(function (color) {
+        return color.type === "Base";
+      });
       if (this.tintRingEl) this.tintRingEl.setAttribute("visible", hasTints);
+      if (this.centerRingEl) this.centerRingEl.setAttribute("visible", hasBase);
     },
 
     prepareMixingLevel: function prepareMixingLevel(level) {
@@ -354,9 +390,13 @@
       const hasTints = visibleColors.some(function (color) {
         return color.type === "Tint";
       });
+      const hasBase = visibleColors.some(function (color) {
+        return color.type === "Base";
+      });
       if (this.tintRingEl) {
         this.tintRingEl.setAttribute("visible", hasTints);
       }
+      if (this.centerRingEl) this.centerRingEl.setAttribute("visible", hasBase);
     },
 
     prepareFreePlay: function prepareFreePlay() {
@@ -364,9 +404,11 @@
     },
 
     updateVisibleSlots: function updateVisibleSlots(colors, revealName) {
-      const visibleHexes = new Set(colors.map(function (color) {
-        return color.hex;
-      }));
+      const visibleHexes = new Set(
+        colors.map(function (color) {
+          return color.hex;
+        }),
+      );
       const self = this;
 
       getAllColors().forEach(function (color) {
@@ -403,7 +445,7 @@
 
       const isTint = slot.dataset.type === "Tint";
       const isBase = slot.dataset.type === "Base";
-      visual.setAttribute("visible", !isTint);
+      visual.setAttribute("visible", false);
 
       if (isOccupied) {
         slot.classList.add("occupied");
@@ -411,13 +453,27 @@
         slot.dataset.fillColorHex = options.colorHex || targetColor;
         if (!isTint) {
           if (isBase) {
-            visual.setAttribute("material", "color: #ffffff; opacity: 1; transparent: true; shader: flat; emissive: #ffffff; emissiveIntensity: 0; depthTest: false");
+            visual.setAttribute("visible", true);
+            visual.setAttribute(
+              "material",
+              "color: #ffffff; opacity: 1; transparent: true; shader: flat; emissive: #ffffff; emissiveIntensity: 0.2; depthTest: false",
+            );
           } else {
-            visual.setAttribute("material", "color: " + (options.colorHex || targetColor) + "; opacity: 0.72; transparent: true; shader: flat; emissive: " + (options.colorHex || targetColor) + "; emissiveIntensity: 0.12");
+            visual.setAttribute(
+              "material",
+              "color: " +
+                (options.colorHex || targetColor) +
+                "; opacity: 0.72; transparent: true; shader: flat; emissive: " +
+                (options.colorHex || targetColor) +
+                "; emissiveIntensity: 0.12",
+            );
           }
         }
         segmentLayers.forEach(function (segmentLayer, layerIndex) {
-          applyLayerStyle(segmentLayer, getActiveLayerStyle(options.colorHex || targetColor, layerIndex, isTint));
+          applyLayerStyle(
+            segmentLayer,
+            getActiveLayerStyle(options.colorHex || targetColor, layerIndex, isTint),
+          );
         });
         return;
       }
@@ -426,9 +482,15 @@
       delete slot.dataset.occupied;
       delete slot.dataset.fillColorHex;
       if (isBase) {
-        visual.setAttribute("material", "color: #ffffff; opacity: 0.92; transparent: true; shader: flat; emissive: #ffffff; emissiveIntensity: 0.45; depthTest: false");
+        visual.setAttribute(
+          "material",
+          "color: #ffffff; opacity: 0.92; transparent: true; shader: flat; emissive: #ffffff; emissiveIntensity: 0.45; depthTest: false",
+        );
       } else {
-        visual.setAttribute("material", "color: #8a6f4b; opacity: 0.42; transparent: true; shader: flat");
+        visual.setAttribute(
+          "material",
+          "color: #8a6f4b; opacity: 0.42; transparent: true; shader: flat",
+        );
       }
       segmentLayers.forEach(function (segmentLayer, layerIndex) {
         applyLayerStyle(segmentLayer, getInactiveLayerStyle(layerIndex, isTint));
@@ -440,7 +502,11 @@
     },
 
     occupyColor: function occupyColor(colorHex, fillColorHex) {
-      this.setSlotState(colorHex, { occupied: true, revealName: true, colorHex: fillColorHex || colorHex });
+      this.setSlotState(colorHex, {
+        occupied: true,
+        revealName: true,
+        colorHex: fillColorHex || colorHex,
+      });
     },
 
     getSlotByColor: function getSlotByColor(colorHex) {
