@@ -4,6 +4,8 @@
   const STATE_EMPTY = 'EMPTY';
   const STATE_HOLDING = 'HOLDING_BALL1';
   const STATE_RESULT = 'RESULT_READY';
+  const MIXING_STATION_DESKTOP_DROP_DISTANCE = 0.2;
+  const MIXING_STATION_WORLD_DROP_DISTANCE = 0.5;
 
   AFRAME.registerComponent('mixing-station', {
     schema: {
@@ -86,8 +88,75 @@
         this.indicator.setAttribute('material', 'color: #38d9a9; emissive: #38d9a9; emissiveIntensity: 0.95');
         this.inputCup.setAttribute('material', 'color: #2b8a3e; emissive: #38d9a9; emissiveIntensity: 0.55; metalness: 0.7; roughness: 0.3');
       } else {
+        this.restoreIndicatorState();
+      }
+    },
+
+    restoreIndicatorState: function() {
+      if (this.state === STATE_HOLDING) {
+        this.setIndicatorState('holding');
+      } else if (this.state === STATE_RESULT) {
+        const resultBallData = this.resultBallEl && this.resultBallEl.getAttribute('color-ball');
+        this.setIndicatorState(resultBallData && resultBallData.isWaste ? 'waste' : 'result');
+      } else {
         this.setIndicatorState('empty');
       }
+    },
+
+    getHeldBall: function() {
+      if (this.el.sceneEl && this.el.sceneEl.components) {
+        const desktopGrabber = this.el.sceneEl.components['desktop-grabber'];
+        if (desktopGrabber && desktopGrabber.draggedBall) {
+          return desktopGrabber.draggedBall;
+        }
+      }
+
+      const controllers = document.querySelectorAll('[grabber]');
+      for (let index = 0; index < controllers.length; index += 1) {
+        const grabber = controllers[index].components && controllers[index].components.grabber;
+        if (grabber && grabber.grabbed) {
+          return grabber.grabbed;
+        }
+      }
+
+      return null;
+    },
+
+    canAcceptBall: function(ballEl) {
+      if (!ballEl || !ballEl.classList || !ballEl.classList.contains('color-ball-entity')) return false;
+      const ballData = ballEl.getAttribute('color-ball');
+      if (!ballData) return false;
+      const isWaste = ballData.isWaste === 'true' || ballData.isWaste === true;
+      if (isWaste) return false;
+      if (this.state === STATE_EMPTY || this.state === STATE_HOLDING) return true;
+      if (this.state === STATE_RESULT && ballData.colorHex === '#FFFFFF' && this.resultBallEl) {
+        const resultBallData = this.resultBallEl.getAttribute('color-ball');
+        return !!(resultBallData && window.getTintForColor(resultBallData.colorHex));
+      }
+      return false;
+    },
+
+    isInDropPriorityRange: function(ballEl) {
+      const ballPosition = window.getWorldPosition(ballEl);
+      const stationPosition = window.getWorldPosition(this.hitBox || this.el);
+      stationPosition.y -= 0.2;
+
+      if (this.el.sceneEl && this.el.sceneEl.components) {
+        const desktopGrabber = this.el.sceneEl.components['desktop-grabber'];
+        if (desktopGrabber && desktopGrabber.draggedBall === ballEl) {
+          const cameraEl = document.getElementById('camera');
+          if (cameraEl && cameraEl.getObject3D('camera')) {
+            const camera = cameraEl.getObject3D('camera');
+            const ballScreen = ballPosition.clone().project(camera);
+            const stationScreen = stationPosition.clone().project(camera);
+            const dx = ballScreen.x - stationScreen.x;
+            const dy = ballScreen.y - stationScreen.y;
+            return Math.sqrt(dx * dx + dy * dy) < MIXING_STATION_DESKTOP_DROP_DISTANCE;
+          }
+        }
+      }
+
+      return ballPosition.distanceTo(stationPosition) < MIXING_STATION_WORLD_DROP_DISTANCE;
     },
 
     tick: function(t, dt) {
@@ -99,18 +168,10 @@
         this.indicator.setAttribute('scale', '1 1 1');
       }
 
-      if (this.state === STATE_EMPTY && this.el.sceneEl && this.el.sceneEl.components && this.el.sceneEl.components['desktop-grabber']) {
-        const grabber = this.el.sceneEl.components['desktop-grabber'];
-        const held = grabber.draggedBall;
-        if (held && held.classList && held.classList.contains('color-ball-entity')) {
-          const worldPos = window.getWorldPosition(held);
-          const localPos = this.el.object3D.worldToLocal(worldPos.clone());
-          const dx = localPos.x;
-          const dz = localPos.z;
-          const inRange = Math.sqrt(dx * dx + dz * dz) <= 0.36 && localPos.y >= -0.08 && localPos.y <= 0.45;
-          this.setProximityFeedback(inRange);
-          return;
-        }
+      const held = this.getHeldBall();
+      if (this.canAcceptBall(held)) {
+        this.setProximityFeedback(this.isInDropPriorityRange(held));
+        return;
       }
       this.setProximityFeedback(false);
     },

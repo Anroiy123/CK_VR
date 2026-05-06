@@ -82,130 +82,137 @@
             position="-1.92 0.75 -1.4"
             visible="false"
           >
-            <!-- Neon glow outer layer (cyan) -->
+            <!-- Soft outer glow -->
             <a-plane
-              width="0.98"
-              height="0.74"
-              color="#00d4ff"
-              opacity="0.25"
-              material="shader: flat; transparent: true; depthTest: false; emissive: #00d4ff; emissiveIntensity: 0.6"
+              width="1.05"
+              height="0.70"
+              color="#4dabf7"
+              opacity="0.14"
+              material="shader: flat; transparent: true; depthTest: false; emissive: #4dabf7; emissiveIntensity: 0.35"
             ></a-plane>
-            <!-- Glass content layer (dark) -->
+            <!-- Main glass card -->
             <a-plane
-              width="0.90"
-              height="0.66"
+              width="0.96"
+              height="0.62"
               position="0 0 0.01"
-              color="#0a0e27"
-              opacity="0.88"
-              material="shader: flat; transparent: true; depthTest: false; emissive: #1a2847; emissiveIntensity: 0.4"
+              color="#101828"
+              opacity="0.94"
+              material="shader: flat; transparent: true; depthTest: false; emissive: #1d2a4f; emissiveIntensity: 0.22"
             ></a-plane>
-            <!-- Neon accent top bar (bright cyan) -->
+            <!-- Top accent -->
             <a-plane
-              width="0.90"
-              height="0.035"
-              position="0 0.31 0.02"
-              color="#00ffff"
-              opacity="1"
-              material="shader: flat; emissive: #00ffff; emissiveIntensity: 0.8; depthTest: false"
-            ></a-plane>
-            <!-- Left accent bar (neon magenta) -->
-            <a-plane
-              width="0.035"
-              height="0.66"
-              position="-0.46 0 0.02"
-              color="#ff00ff"
-              opacity="0.8"
-              material="shader: flat; emissive: #ff00ff; emissiveIntensity: 0.7; depthTest: false"
+              width="0.86"
+              height="0.02"
+              position="0 0.28 0.02"
+              color="#74c0fc"
+              opacity="0.72"
+              material="shader: flat; transparent: true; depthTest: false; emissive: #74c0fc; emissiveIntensity: 0.35"
             ></a-plane>
             <!-- Level text -->
             <a-text
               id="hud-level"
               value="Level 1"
-              position="0.05 0.23 0.03"
+              position="-0.36 0.18 0.03"
+              align="left"
+              color="#ffd166"
+              scale="0.34 0.34 0.34"
+              font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+            ></a-text>
+            <!-- Mode chip -->
+            <a-plane
+              width="0.34"
+              height="0.115"
+              position="0.28 0.19 0.02"
+              color="#2b2136"
+              opacity="0.9"
+              material="shader: flat; transparent: true; depthTest: false; emissive: #ff922b; emissiveIntensity: 0.1"
+            ></a-plane>
+            <!-- Mode label -->
+            <a-text
+              id="hud-mode"
+              value="EASY"
+              position="0.28 0.18 0.03"
               align="center"
-              color="#ffe066"
-              scale="0.48 0.48 0.48"
+              color="#ffe8cc"
+              scale="0.22 0.22 0.22"
               font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
             ></a-text>
             <!-- Progress text -->
             <a-text
               id="hud-progress"
               value="0/3"
-              position="0.05 0.085 0.03"
+              position="0 0.03 0.03"
               align="center"
-              color="#ff8cc8"
-              scale="0.42 0.42 0.42"
-            ></a-text>
-            <!-- Mode label -->
-            <a-text
-              id="hud-mode"
-              value="EASY"
-              position="0.05 -0.045 0.03"
-              align="center"
-              color="#b2f2bb"
-              scale="0.36 0.36 0.36"
+              color="#f8f9fa"
+              scale="0.52 0.52 0.52"
               font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+            ></a-text>
+            <a-text
+              value="colors placed"
+              position="0 -0.095 0.03"
+              align="center"
+              color="#ced4da"
+              scale="0.18 0.18 0.18"
             ></a-text>
             <!-- Soft divider -->
             <a-plane
               id="hud-info-divider"
-              width="0.58"
+              width="0.76"
               height="0.012"
-              position="0.05 -0.095 0.025"
+              position="0 -0.16 0.025"
               color="#4dabf7"
-              opacity="0.45"
-              material="shader: flat; transparent: true; depthTest: false; emissive: #4dabf7; emissiveIntensity: 0.35"
-            ></a-plane>
-            <!-- Info chip glow -->
-            <a-plane
-              width="0.62"
-              height="0.105"
-              position="0.05 -0.145 0.022"
-              color="#10233a"
-              opacity="0.72"
-              material="shader: flat; transparent: true; depthTest: false; emissive: #2f9e44; emissiveIntensity: 0.15"
+              opacity="0.34"
+              material="shader: flat; transparent: true; depthTest: false; emissive: #4dabf7; emissiveIntensity: 0.2"
             ></a-plane>
             <!-- Shelf slots row -->
+            <a-plane
+              width="0.38"
+              height="0.10"
+              position="-0.20 -0.24 0.022"
+              color="#15233f"
+              opacity="0.74"
+              material="shader: flat; transparent: true; depthTest: false; emissive: #4dabf7; emissiveIntensity: 0.08"
+            ></a-plane>
             <a-text
               id="hud-shelf-counter"
               value="Slots: 0/10"
-              position="0.05 -0.145 0.03"
+              position="-0.20 -0.245 0.03"
               align="center"
-              color="#8ce99a"
-              scale="0.32 0.32 0.32"
+              color="#b2f2bb"
+              scale="0.20 0.20 0.20"
               visible="false"
               font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
             ></a-text>
             <a-plane
-              width="0.36"
-              height="0.075"
-              position="0.05 -0.245 0.022"
-              color="#082533"
-              opacity="0.7"
-              material="shader: flat; transparent: true; depthTest: false; emissive: #00ffff; emissiveIntensity: 0.12"
+              width="0.38"
+              height="0.10"
+              position="0.20 -0.24 0.022"
+              color="#15233f"
+              opacity="0.74"
+              material="shader: flat; transparent: true; depthTest: false; emissive: #74c0fc; emissiveIntensity: 0.08"
             ></a-plane>
             <!-- Timer row (hidden by default) -->
             <a-entity
               id="hud-timer-row"
-              position="0 -0.245 0.02"
+              position="0.20 -0.245 0.03"
               visible="false"
             >
               <a-text
                 id="timer-label"
-                value="Time :"
-                position="-0.08 0 0"
+                value="TIME"
+                position="-0.04 0 0"
                 align="right"
-                color="#63e6be"
-                scale="0.24 0.24 0.24"
+                color="#adb5bd"
+                scale="0.16 0.16 0.16"
                 font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
               ></a-text>
               <a-text
                 id="timer-text"
                 value="--"
-                position="0.04 0 0"
+                position="0.02 0 0"
                 align="left"
                 color="#91f7ff"
-                scale="0.24 0.24 0.24"
+                scale="0.20 0.20 0.20"
                 font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
               ></a-text>
             </a-entity>
@@ -245,7 +252,7 @@
       <a-entity
         id="color-wheel"
         color-wheel="radius: 1.12; level: 1"
-        position="0 1.34 -2.22"
+        position="0 1.54 -2.22"
         rotation="-1 0 0"
         visible="false"
       ></a-entity>

@@ -1,8 +1,14 @@
 (function () {
   function getShelfBallPosition(index, totalCount) {
+    const isDenseLayout = totalCount > 12;
+    const maxColumns = isDenseLayout ? 7 : APP_CONFIG.shelfBallColumns;
+    const spacingX = isDenseLayout ? 0.26 : APP_CONFIG.shelfBallSpacingX;
+    const rowDepth = isDenseLayout ? 0.18 : APP_CONFIG.shelfBallRowDepth;
+    const rowLift = isDenseLayout ? 0 : APP_CONFIG.shelfBallRowLift;
+    const baseZ = isDenseLayout ? APP_CONFIG.shelfZ + 0.08 : APP_CONFIG.shelfZ;
     const columnCount = Math.max(
       1,
-      Math.min(APP_CONFIG.shelfBallColumns, totalCount),
+      Math.min(maxColumns, totalCount),
     );
     const rowCount = Math.max(1, Math.ceil(totalCount / columnCount));
     const rowIndex = Math.floor(index / columnCount);
@@ -12,16 +18,16 @@
         ? totalCount - rowIndex * columnCount
         : columnCount;
     const rowSpan =
-      APP_CONFIG.shelfBallSpacingX * Math.max(0, columnsInRow - 1);
+      spacingX * Math.max(0, columnsInRow - 1);
     const x =
       columnsInRow === 1
         ? 0
-        : -rowSpan / 2 + APP_CONFIG.shelfBallSpacingX * columnIndex;
+        : -rowSpan / 2 + spacingX * columnIndex;
     const rowCenterOffset = (rowCount - 1) / 2;
     const z =
-      APP_CONFIG.shelfZ +
-      (rowCenterOffset - rowIndex) * APP_CONFIG.shelfBallRowDepth;
-    const y = APP_CONFIG.shelfY + rowIndex * APP_CONFIG.shelfBallRowLift;
+      baseZ +
+      (rowCenterOffset - rowIndex) * rowDepth;
+    const y = APP_CONFIG.shelfY + rowIndex * rowLift;
 
     return { x: x, y: y, z: z };
   }
@@ -165,7 +171,18 @@
       if (!config) return;
 
       this.totalForLevel = config.targets.length;
-      this.clearLooseBalls();
+      this.clearAllBalls();
+
+      const station = document.querySelector('[mixing-station]');
+      if (station && station.components['mixing-station']) {
+        const comp = station.components['mixing-station'];
+        if (comp.heldBallEl && comp.heldBallEl.parentNode) comp.heldBallEl.parentNode.removeChild(comp.heldBallEl);
+        if (comp.resultBallEl && comp.resultBallEl.parentNode) comp.resultBallEl.parentNode.removeChild(comp.resultBallEl);
+        comp.state = 'EMPTY';
+        comp.heldBallEl = null;
+        comp.resultBallEl = null;
+        comp.setIndicatorState('empty');
+      }
 
       const wheel = this.wheelEl.components["color-wheel"];
       if (wheel) wheel.prepareMixingLevel(level);

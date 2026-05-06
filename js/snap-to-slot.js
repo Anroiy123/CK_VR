@@ -37,6 +37,9 @@
       }) || null;
   }
 
+  const MIXING_STATION_DESKTOP_DROP_DISTANCE = 0.2;
+  const MIXING_STATION_WORLD_DROP_DISTANCE = 0.5;
+
   AFRAME.registerComponent("snap-to-slot", {
     schema: {
       snapDistance: { type: "number", default: APP_CONFIG.snapDistance },
@@ -131,11 +134,11 @@
              const stationScreen = stationPos.clone().project(camera);
              const dx = ballScreen.x - stationScreen.x;
              const dy = ballScreen.y - stationScreen.y;
-             return Math.sqrt(dx*dx + dy*dy) < 0.8;
+              return Math.sqrt(dx*dx + dy*dy) < MIXING_STATION_DESKTOP_DROP_DISTANCE;
           }
         }
 
-        return ballPosition.distanceTo(stationPos) < 0.8;
+        return ballPosition.distanceTo(stationPos) < MIXING_STATION_WORLD_DROP_DISTANCE;
       });
 
       if (pointedStation) {
@@ -255,6 +258,12 @@
         if (window.GameManager.releaseMixingShelfSlot) {
           const ballId = this.el.dataset.stableBallId || this.el.dataset.ballId || null;
           window.GameManager.releaseMixingShelfSlot(Number(this.el.dataset.shelfSlotIndex), ballId);
+        }
+        if (this.el.dataset.isMixedResult !== "true" && window.GameManager.spawnBalls && window.getColorByHex) {
+          const replacementColor = window.getColorByHex(ballColor);
+          if (replacementColor) {
+            window.GameManager.spawnBalls([replacementColor], "mix");
+          }
         }
       }
 

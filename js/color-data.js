@@ -135,7 +135,7 @@
       maxY: 2.45,
       minZ: -2.85,
       maxZ: -1.8,
-      planePoint: { x: 0, y: 1.34, z: -2.18 },
+      planePoint: { x: 0, y: 1.44, z: -2.18 },
       planeNormal: { x: 0, y: 0, z: 1 },
     },
   };
