@@ -140,10 +140,10 @@
   }
 
   function getInactiveLayerStyle(layerIndex, isTint) {
-    const opacityByLayer = [0.24];
+    const opacityByLayer = [0.52];
     return {
-      color: isTint ? "#f1f5ff" : "#d0d7ff",
-      opacity: opacityByLayer[layerIndex] || 0.24,
+      color: isTint ? "#efe3d0" : "#d8c3a5",
+      opacity: opacityByLayer[layerIndex] || 0.52,
     };
   }
 
@@ -208,7 +208,7 @@
       outerRing.setAttribute("radius-tubular", "0.045");
       outerRing.setAttribute("segments-radial", "12");
       outerRing.setAttribute("segments-tubular", "24");
-      outerRing.setAttribute("material", "color: #d0d7ff; opacity: 0.34; transparent: true; emissive: #3b5bdb; emissiveIntensity: 0.45");
+      outerRing.setAttribute("material", "color: #8a6f4b; opacity: 0.78; transparent: true; emissive: #5f4728; emissiveIntensity: 0.08");
       this.ringRoot.appendChild(outerRing);
 
       const innerRing = document.createElement("a-torus");
@@ -216,7 +216,7 @@
       innerRing.setAttribute("radius-tubular", "0.018");
       innerRing.setAttribute("segments-radial", "10");
       innerRing.setAttribute("segments-tubular", "24");
-      innerRing.setAttribute("material", "color: #4dabf7; opacity: 0.2; transparent: true; emissive: #4dabf7; emissiveIntensity: 0.35");
+      innerRing.setAttribute("material", "color: #b89762; opacity: 0.58; transparent: true; emissive: #6f552f; emissiveIntensity: 0.06");
       this.ringRoot.appendChild(innerRing);
 
       const haloRing = document.createElement("a-torus");
@@ -225,7 +225,7 @@
       haloRing.setAttribute("radius-tubular", "0.015");
       haloRing.setAttribute("segments-radial", "16");
       haloRing.setAttribute("segments-tubular", "24");
-      haloRing.setAttribute("material", "color: #4dabf7; opacity: 0.1; transparent: true; emissive: #4dabf7; emissiveIntensity: 0.08; depthTest: false");
+      haloRing.setAttribute("material", "color: #c8a96a; opacity: 0.24; transparent: true; emissive: #6f552f; emissiveIntensity: 0.04; depthTest: false");
       this.ringRoot.appendChild(haloRing);
 
       const tintRing = document.createElement("a-torus");
@@ -233,7 +233,7 @@
       tintRing.setAttribute("radius-tubular", "0.015");
       tintRing.setAttribute("segments-radial", "10");
       tintRing.setAttribute("segments-tubular", "24");
-      tintRing.setAttribute("material", "color: #ffffff; opacity: 0.15; transparent: true; emissive: #ffffff; emissiveIntensity: 0.2");
+      tintRing.setAttribute("material", "color: #eadcc8; opacity: 0.28; transparent: true; emissive: #8a6a2f; emissiveIntensity: 0.05");
       this.ringRoot.appendChild(tintRing);
       this.tintRingEl = tintRing;
       
@@ -308,7 +308,7 @@
         visual.setAttribute("position", "0 0 -0.01");
         const baseMaterial = color.type === "Base"
           ? "color: #ffffff; opacity: 0.92; transparent: true; shader: flat; emissive: #ffffff; emissiveIntensity: 0.45; depthTest: false"
-          : "color: #d0d7ff; opacity: 0.08; transparent: true; shader: flat";
+          : "color: #8a6f4b; opacity: 0.42; transparent: true; shader: flat";
         visual.setAttribute("visible", color.type !== "Tint");
         visual.setAttribute("material", baseMaterial);
         slot.appendChild(visual);
@@ -413,7 +413,7 @@
           if (isBase) {
             visual.setAttribute("material", "color: #ffffff; opacity: 1; transparent: true; shader: flat; emissive: #ffffff; emissiveIntensity: 0; depthTest: false");
           } else {
-            visual.setAttribute("material", "color: " + (options.colorHex || targetColor) + "; opacity: 0.24; transparent: true; shader: flat; emissive: " + (options.colorHex || targetColor) + "; emissiveIntensity: 0.24");
+            visual.setAttribute("material", "color: " + (options.colorHex || targetColor) + "; opacity: 0.72; transparent: true; shader: flat; emissive: " + (options.colorHex || targetColor) + "; emissiveIntensity: 0.12");
           }
         }
         segmentLayers.forEach(function (segmentLayer, layerIndex) {
@@ -428,7 +428,7 @@
       if (isBase) {
         visual.setAttribute("material", "color: #ffffff; opacity: 0.92; transparent: true; shader: flat; emissive: #ffffff; emissiveIntensity: 0.45; depthTest: false");
       } else {
-        visual.setAttribute("material", "color: #d0d7ff; opacity: 0.08; transparent: true; shader: flat");
+        visual.setAttribute("material", "color: #8a6f4b; opacity: 0.42; transparent: true; shader: flat");
       }
       segmentLayers.forEach(function (segmentLayer, layerIndex) {
         applyLayerStyle(segmentLayer, getInactiveLayerStyle(layerIndex, isTint));

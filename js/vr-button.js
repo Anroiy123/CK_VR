@@ -10,10 +10,10 @@
       action: { type: "string", default: "" },
       width: { type: "number", default: 0.92 },
       height: { type: "number", default: 0.32 },
-      bgColor: { type: "string", default: "#e64980" },
-      hoverColor: { type: "string", default: "#f06595" },
-      labelColor: { type: "string", default: "#ffffff" },
-      helperColor: { type: "string", default: "#e9ecef" },
+      bgColor: { type: "string", default: "#6f5f4c" },
+      hoverColor: { type: "string", default: "#8a765e" },
+      labelColor: { type: "string", default: "#fff8ed" },
+      helperColor: { type: "string", default: "#eadcc8" },
       helperWidth: { type: "number", default: 2.0 },
     },
 
@@ -24,13 +24,12 @@
       this.glowPulseTime = 0;
       this.glowPulseActive = false;
 
-      // Glow plane behind button
       this.glow = document.createElement("a-plane");
-      this.glow.setAttribute("width", this.data.width + 0.06);
-      this.glow.setAttribute("height", this.data.height + 0.06);
+      this.glow.setAttribute("width", this.data.width + 0.07);
+      this.glow.setAttribute("height", this.data.height + 0.07);
       this.glow.setAttribute("position", "0 0 -0.008");
-      this.glow.setAttribute("color", this.data.bgColor);
-      this.glow.setAttribute("opacity", "0.12");
+      this.glow.setAttribute("color", "#2f251d");
+      this.glow.setAttribute("opacity", "0.16");
       this.glow.setAttribute("material", "shader: flat; transparent: true");
       this.glow.classList.add("interactive");
       this.el.appendChild(this.glow);
@@ -47,8 +46,8 @@
       border.setAttribute("width", this.data.width + 0.04);
       border.setAttribute("height", this.data.height + 0.04);
       border.setAttribute("position", "0 0 -0.005");
-      border.setAttribute("color", "#ffffff");
-      border.setAttribute("opacity", "0.08");
+      border.setAttribute("color", "#d9c4a4");
+      border.setAttribute("opacity", "0.38");
       border.setAttribute("material", "shader: flat; transparent: true");
       this.el.appendChild(border);
 
@@ -80,7 +79,7 @@
       this.isHovering = true;
       this.background.setAttribute("color", this.data.hoverColor);
       this.el.object3D.scale.set(1.08, 1.08, 1.08);
-      this.glow.setAttribute("opacity", "0.25");
+      this.glow.setAttribute("opacity", "0.28");
 
       if (!this.glowPulseActive) {
         this.glowPulseActive = true;
@@ -94,7 +93,7 @@
       this.glowPulseActive = false;
       this.background.setAttribute("color", this.data.bgColor);
       this.el.object3D.scale.set(1, 1, 1);
-      this.glow.setAttribute("opacity", "0.12");
+      this.glow.setAttribute("opacity", "0.16");
     },
 
     onClick: function onClick() {
@@ -113,9 +112,9 @@
 
       this.glowPulseTime += 0.016;
       var cycle = Math.sin(this.glowPulseTime * Math.PI * 2 / 0.8);
-      var pulseOpacity = 0.12 + (cycle + 1) * 0.05;
-      if (pulseOpacity > 0.25) {
-        pulseOpacity = 0.25;
+      var pulseOpacity = 0.16 + (cycle + 1) * 0.035;
+      if (pulseOpacity > 0.28) {
+        pulseOpacity = 0.28;
       }
       this.glow.setAttribute("opacity", String(pulseOpacity));
 

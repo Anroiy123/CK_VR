@@ -43,14 +43,14 @@
       const base = document.createElement('a-cylinder');
       base.setAttribute('radius', '0.3');
       base.setAttribute('height', '0.05');
-      base.setAttribute('material', 'color: #3b1b63; metalness: 0.8; roughness: 0.2');
+      base.setAttribute('material', 'color: #4c3f32; metalness: 0.12; roughness: 0.58');
       this.el.appendChild(base);
 
       const inputCup = document.createElement('a-cylinder');
       inputCup.setAttribute('radius', '0.15');
       inputCup.setAttribute('height', '0.1');
       inputCup.setAttribute('position', '0 0.05 0');
-      inputCup.setAttribute('material', 'color: #582f8c; emissive: #2a1740; emissiveIntensity: 0.25; metalness: 0.7; roughness: 0.3');
+      inputCup.setAttribute('material', 'color: #6f5f4c; metalness: 0.16; roughness: 0.5');
       this.el.appendChild(inputCup);
       this.inputCup = inputCup;
       
@@ -67,16 +67,16 @@
       if (!this.indicator) return;
       this.feedbackActive = false;
       if (stateName === 'empty') {
-        this.indicator.setAttribute('material', 'color: #4dabf7; emissive: #4dabf7; emissiveIntensity: 0.5');
+        this.indicator.setAttribute('material', 'color: #c8a96a; emissive: #8a6a2f; emissiveIntensity: 0.18');
       } else if (stateName === 'holding') {
-        this.indicator.setAttribute('material', 'color: #339af0; emissive: #339af0; emissiveIntensity: 0.8');
+        this.indicator.setAttribute('material', 'color: #9f8a5f; emissive: #6f5f35; emissiveIntensity: 0.22');
       } else if (stateName === 'result') {
-        this.indicator.setAttribute('material', 'color: #ffd43b; emissive: #ffd43b; emissiveIntensity: 1.0');
+        this.indicator.setAttribute('material', 'color: #f0c75e; emissive: #b7822f; emissiveIntensity: 0.38');
       } else if (stateName === 'waste') {
-        this.indicator.setAttribute('material', 'color: #e03131; emissive: #e03131; emissiveIntensity: 0.8');
+        this.indicator.setAttribute('material', 'color: #b94a3a; emissive: #7a261f; emissiveIntensity: 0.28');
       }
       if (this.inputCup) {
-        this.inputCup.setAttribute('material', 'color: #582f8c; emissive: #2a1740; emissiveIntensity: 0.25; metalness: 0.7; roughness: 0.3');
+        this.inputCup.setAttribute('material', 'color: #6f5f4c; metalness: 0.16; roughness: 0.5');
       }
     },
 
@@ -85,8 +85,8 @@
       if (this.feedbackActive === active) return;
       this.feedbackActive = active;
       if (active) {
-        this.indicator.setAttribute('material', 'color: #38d9a9; emissive: #38d9a9; emissiveIntensity: 0.95');
-        this.inputCup.setAttribute('material', 'color: #2b8a3e; emissive: #38d9a9; emissiveIntensity: 0.55; metalness: 0.7; roughness: 0.3');
+        this.indicator.setAttribute('material', 'color: #89a35d; emissive: #5f6f35; emissiveIntensity: 0.32');
+        this.inputCup.setAttribute('material', 'color: #5f6f4a; emissive: #5f6f35; emissiveIntensity: 0.18; metalness: 0.16; roughness: 0.5');
       } else {
         this.restoreIndicatorState();
       }

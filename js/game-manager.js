@@ -413,6 +413,13 @@
       this.state = "LEVEL_COMPLETE";
       if (window.Timer) Timer.stop();
       if (window.SoundManager) SoundManager.play("levelup");
+      if (this.sceneEl) {
+        this.sceneEl.emit("level-complete-celebration", {
+          level: this.currentLevel,
+          mode: this.mode,
+          finalLevel: false,
+        });
+      }
 
       if (this.isMixingMode()) {
         if (this.currentLevel >= 5) {
@@ -457,6 +464,13 @@
       Leaderboard.submit(totalTime, this.mode);
       UIManager.showVictory(totalTime, this.mode);
       SoundManager.play("victory");
+      if (this.sceneEl) {
+        this.sceneEl.emit("level-complete-celebration", {
+          level: this.currentLevel,
+          mode: this.mode,
+          finalLevel: true,
+        });
+      }
     },
 
     onTimeUp: function onTimeUp() {

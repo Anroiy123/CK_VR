@@ -6,9 +6,9 @@ body {
   overflow: hidden;
   background: radial-gradient(
     circle at top,
-    #1a0a2e 0%,
-    #0d0515 40%,
-    #030109 100%
+    #f2eadf 0%,
+    #d8cbb8 48%,
+    #8f806f 100%
   );
   font-family: "Segoe UI", sans-serif;
 }

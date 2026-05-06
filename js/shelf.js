@@ -16,7 +16,7 @@
       top.setAttribute("height", "0.06");
       top.setAttribute("depth", this.data.depth);
       top.setAttribute("position", "0 " + this.data.height + " 0");
-      top.setAttribute("material", "color: #30475e; metalness: 0.6; roughness: 0.35; emissive: #1a2744; emissiveIntensity: 0.15");
+      top.setAttribute("material", "color: #7b6a55; metalness: 0.08; roughness: 0.72");
       this.el.appendChild(top);
 
       const frame = document.createElement("a-box");
@@ -24,7 +24,7 @@
       frame.setAttribute("height", "0.03");
       frame.setAttribute("depth", this.data.depth + 0.06);
       frame.setAttribute("position", "0 " + (this.data.height + 0.03) + " 0");
-      frame.setAttribute("material", "color: #495057; shader: flat; emissive: #3b5bdb; emissiveIntensity: 0.12");
+      frame.setAttribute("material", "color: #4c3f32; roughness: 0.65; metalness: 0.08");
       this.el.appendChild(frame);
 
       const legPositions = [
@@ -39,7 +39,7 @@
         leg.setAttribute("radius", "0.035");
         leg.setAttribute("height", this.data.height);
         leg.setAttribute("position", legPosition.join(" "));
-        leg.setAttribute("material", "color: #34495e; shader: flat; emissive: #2b4578; emissiveIntensity: 0.1");
+        leg.setAttribute("material", "color: #3b3027; roughness: 0.7; metalness: 0.06");
         this.el.appendChild(leg);
       }.bind(this));
 
@@ -51,13 +51,13 @@
       shadow.setAttribute("material", "color: #000000; opacity: 0.18; transparent: true; shader: flat");
       this.el.appendChild(shadow);
 
-      const underglow = document.createElement("a-plane");
-      underglow.setAttribute("rotation", "-90 0 0");
-      underglow.setAttribute("width", String(this.data.width * 0.86));
-      underglow.setAttribute("height", String(this.data.depth * 0.72));
-      underglow.setAttribute("position", "0 " + (this.data.height - 0.03) + " 0");
-      underglow.setAttribute("material", "color: #4dabf7; emissive: #4dabf7; emissiveIntensity: 0.2; opacity: 0.15; transparent: true; shader: flat; depthTest: false");
-      this.el.appendChild(underglow);
+      const inset = document.createElement("a-plane");
+      inset.setAttribute("rotation", "-90 0 0");
+      inset.setAttribute("width", String(this.data.width * 0.86));
+      inset.setAttribute("height", String(this.data.depth * 0.72));
+      inset.setAttribute("position", "0 " + (this.data.height + 0.032) + " 0");
+      inset.setAttribute("material", "color: #9a8a75; opacity: 0.35; transparent: true; roughness: 0.82; metalness: 0.02");
+      this.el.appendChild(inset);
     },
   });
 })();
