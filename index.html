@@ -1,621 +1,691 @@
 <!doctype html>
 <html lang="vi">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>VR Color Circle</title>
-        <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.6.0/dist/aframe-extras.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
-        <script src="js/exhibition-room.js"></script>
-        <script src="js/color-data.js"></script>
-        <script src="js/tooltip.js"></script>
-        <script src="js/grabber.js"></script>
-        <script src="js/color-wheel.js"></script>
-        <script src="js/color-ball.js"></script>
-        <script src="js/shelf.js"></script>
-        <script src="js/snap-to-slot.js"></script>
-        <script src="js/mixing-station.js"></script>
-        <script src="js/ball-respawn.js"></script>
-        <script src="js/particle-pool.js"></script>
-        <script src="js/sound-manager.js"></script>
-        <script src="js/timer.js"></script>
-        <script src="js/leaderboard.js"></script>
-        <script src="js/free-play.js"></script>
-        <script src="js/vr-button.js"></script>
-        <script src="js/ui-manager.js"></script>
-        <script src="js/game-manager.js"></script>
-        <link rel="stylesheet" href="css/styles.css" />
-    </head>
-    <body>
-        <a-scene
-            id="vr-color-circle-scene"
-            background="color: #efe8dd"
-            renderer="antialias: true; colorManagement: true; toneMapping: ACESFilmic; toneMappingExposure: 1.2"
-            vr-mode-ui="enabled: true"
-            embedded="false"
-            desktop-grabber
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VR Color Circle</title>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.6.0/dist/aframe-extras.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
+    <script src="js/exhibition-room.js"></script>
+    <script src="js/color-data.js"></script>
+    <script src="js/tooltip.js"></script>
+    <script src="js/grabber.js"></script>
+    <script src="js/color-wheel.js"></script>
+    <script src="js/color-ball.js"></script>
+    <script src="js/shelf.js"></script>
+    <script src="js/snap-to-slot.js"></script>
+    <script src="js/mixing-station.js"></script>
+    <script src="js/ball-respawn.js"></script>
+    <script src="js/particle-pool.js"></script>
+    <script src="js/sound-manager.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/leaderboard.js"></script>
+    <script src="js/free-play.js"></script>
+    <script src="js/vr-button.js"></script>
+    <script src="js/ui-manager.js"></script>
+    <script src="js/game-manager.js"></script>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <a-scene
+      id="vr-color-circle-scene"
+      background="color: #efe8dd"
+      renderer="antialias: true; colorManagement: true; toneMapping: ACESFilmic; toneMappingExposure: 1.2"
+      vr-mode-ui="enabled: true"
+      embedded="false"
+      desktop-grabber
+    >
+      <a-assets timeout="10000"></a-assets>
+
+      <a-light type="ambient" color="#f5eadb" intensity="0.55"></a-light>
+      <a-light
+        type="directional"
+        color="#fff7ed"
+        intensity="0.48"
+        position="-1.4 3.2 1.6"
+        castShadow="false"
+      ></a-light>
+      <a-light
+        type="point"
+        color="#ffd8a8"
+        intensity="0.55"
+        position="0 2.55 -2.25"
+      ></a-light>
+      <a-light
+        type="point"
+        color="#fff4d6"
+        intensity="0.35"
+        position="-2.7 2.35 -1.7"
+      ></a-light>
+      <a-light
+        type="point"
+        color="#fff4d6"
+        intensity="0.35"
+        position="2.7 2.35 -1.7"
+      ></a-light>
+
+      <a-entity exhibition-room></a-entity>
+
+      <a-entity
+        id="camera-rig"
+        position="0 0 0"
+        movement-controls="fly: false; speed: 0.12"
+      >
+        <a-entity
+          id="camera"
+          camera
+          position="0 1.2 0"
+          look-controls="pointerLockEnabled: false"
         >
-            <a-assets timeout="10000"></a-assets>
+          <a-cursor
+            cursor="rayOrigin: mouse; fuse: false"
+            raycaster="objects: .interactive"
+            color="#f8f9ff"
+            geometry="primitive: ring; radiusInner: 0.012; radiusOuter: 0.018"
+            material="shader: flat"
+          ></a-cursor>
 
-            <a-light type="ambient" color="#f5eadb" intensity="0.55"></a-light>
-            <a-light
-                type="directional"
-                color="#fff7ed"
-                intensity="0.48"
-                position="-1.4 3.2 1.6"
-                castShadow="false"
-            ></a-light>
-            <a-light type="point" color="#ffd8a8" intensity="0.55" position="0 2.55 -2.25"></a-light>
-            <a-light type="point" color="#fff4d6" intensity="0.35" position="-2.7 2.35 -1.7"></a-light>
-            <a-light type="point" color="#fff4d6" intensity="0.35" position="2.7 2.35 -1.7"></a-light>
-
-            <a-entity exhibition-room></a-entity>
-
-            <a-entity id="camera-rig" position="0 0 0" movement-controls="fly: false; speed: 0.12">
-                <a-entity
-                    id="camera"
-                    camera
-                    position="0 1.2 0"
-                    look-controls="pointerLockEnabled: false"
-                >
-                    <a-cursor
-                        cursor="rayOrigin: mouse; fuse: false"
-                        raycaster="objects: .interactive"
-                        color="#f8f9ff"
-                        geometry="primitive: ring; radiusInner: 0.012; radiusOuter: 0.018"
-                        material="shader: flat"
-                    ></a-cursor>
-
-                    <a-entity id="diegetic-hud" position="-1.92 0.75 -1.4" visible="false">
-                        <!-- Soft outer glow -->
-                        <a-plane
-                            width="1.05"
-                            height="0.70"
-                            color="#d8c3a5"
-                            opacity="0.18"
-                            material="shader: flat; transparent: true; depthTest: false"
-                        ></a-plane>
-                        <!-- Main glass card -->
-                        <a-plane
-                            width="0.96"
-                            height="0.62"
-                            position="0 0 0.01"
-                            color="#2f251d"
-                            opacity="0.94"
-                            material="shader: flat; transparent: true; depthTest: false"
-                        ></a-plane>
-                        <!-- Top accent -->
-                        <a-plane
-                            width="0.86"
-                            height="0.02"
-                            position="0 0.28 0.02"
-                            color="#d9b56f"
-                            opacity="0.72"
-                            material="shader: flat; transparent: true; depthTest: false"
-                        ></a-plane>
-                        <!-- Level text -->
-                        <a-text
-                            id="hud-level"
-                            value="Level 1"
-                            position="-0.36 0.18 0.03"
-                            align="left"
-                            color="#f3d78a"
-                            scale="0.34 0.34 0.34"
-                            font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-                        ></a-text>
-                        <!-- Mode chip -->
-                        <a-plane
-                            width="0.34"
-                            height="0.115"
-                            position="0.28 0.19 0.02"
-                            color="#4a3429"
-                            opacity="0.9"
-                            material="shader: flat; transparent: true; depthTest: false"
-                        ></a-plane>
-                        <!-- Mode label -->
-                        <a-text
-                            id="hud-mode"
-                            value="EASY"
-                            position="0.28 0.18 0.03"
-                            align="center"
-                            color="#fff1d6"
-                            scale="0.22 0.22 0.22"
-                            font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-                        ></a-text>
-                        <!-- Progress text -->
-                        <a-text
-                            id="hud-progress"
-                            value="0/3"
-                            position="0 0.03 0.03"
-                            align="center"
-                            color="#f8f9fa"
-                            scale="0.52 0.52 0.52"
-                            font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-                        ></a-text>
-                        <a-text
-                            value="colors placed"
-                            position="0 -0.095 0.03"
-                            align="center"
-                            color="#ced4da"
-                            scale="0.18 0.18 0.18"
-                        ></a-text>
-                        <!-- Soft divider -->
-                        <a-plane
-                            id="hud-info-divider"
-                            width="0.76"
-                            height="0.012"
-                            position="0 -0.16 0.025"
-                            color="#b89762"
-                            opacity="0.34"
-                            material="shader: flat; transparent: true; depthTest: false"
-                        ></a-plane>
-                        <!-- Shelf slots row -->
-                        <a-plane
-                            width="0.38"
-                            height="0.10"
-                            position="-0.20 -0.24 0.022"
-                            color="#3b3027"
-                            opacity="0.74"
-                            material="shader: flat; transparent: true; depthTest: false"
-                        ></a-plane>
-                        <a-text
-                            id="hud-shelf-counter"
-                            value="Slots: 0/10"
-                            position="-0.20 -0.245 0.03"
-                            align="center"
-                            color="#b2f2bb"
-                            scale="0.20 0.20 0.20"
-                            visible="false"
-                            font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-                        ></a-text>
-                        <a-plane
-                            width="0.38"
-                            height="0.10"
-                            position="0.20 -0.24 0.022"
-                            color="#3b3027"
-                            opacity="0.74"
-                            material="shader: flat; transparent: true; depthTest: false"
-                        ></a-plane>
-                        <!-- Timer row (hidden by default) -->
-                        <a-entity id="hud-timer-row" position="0.20 -0.245 0.03" visible="false">
-                            <a-text
-                                id="timer-label"
-                                value="TIME"
-                                position="-0.04 0 0"
-                                align="right"
-                                color="#adb5bd"
-                                scale="0.16 0.16 0.16"
-                                font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-                            ></a-text>
-                            <a-text
-                                id="timer-text"
-                                value="--"
-                                position="0.02 0 0"
-                                align="left"
-                                color="#91f7ff"
-                                scale="0.20 0.20 0.20"
-                                font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-                            ></a-text>
-                        </a-entity>
-                    </a-entity>
-                </a-entity>
-
-                <a-entity
-                    id="left-hand"
-                    laser-controls="hand: left"
-                    raycaster="objects: .interactive; far: 10"
-                    line="color: #d9b56f; opacity: 0.7"
-                    grabber
-                ></a-entity>
-
-                <a-entity
-                    id="right-hand"
-                    laser-controls="hand: right"
-                    raycaster="objects: .interactive; far: 10"
-                    line="color: #ff8787; opacity: 0.7"
-                    grabber
-                ></a-entity>
-            </a-entity>
-
-            <a-entity id="shelf" color-shelf position="0 0 -0.74" scale="0.72 0.72 0.72" visible="false"> </a-entity>
-            <a-entity id="balls-container" visible="false"></a-entity>
-            <a-entity id="particle-pool"></a-entity>
-
+          <a-entity
+            id="diegetic-hud"
+            position="-1.92 0.75 -1.4"
+            visible="false"
+          >
+            <!-- Soft outer glow -->
+            <a-plane
+              width="1.05"
+              height="0.70"
+              color="#d8c3a5"
+              opacity="0.18"
+              material="shader: flat; transparent: true; depthTest: false"
+            ></a-plane>
+            <!-- Main glass card -->
+            <a-plane
+              width="0.96"
+              height="0.62"
+              position="0 0 0.01"
+              color="#2f251d"
+              opacity="0.94"
+              material="shader: flat; transparent: true; depthTest: false"
+            ></a-plane>
+            <!-- Top accent -->
+            <a-plane
+              width="0.86"
+              height="0.02"
+              position="0 0.28 0.02"
+              color="#d9b56f"
+              opacity="0.72"
+              material="shader: flat; transparent: true; depthTest: false"
+            ></a-plane>
+            <!-- Level text -->
+            <a-text
+              id="hud-level"
+              value="Level 1"
+              position="-0.36 0.18 0.03"
+              align="left"
+              color="#f3d78a"
+              scale="0.34 0.34 0.34"
+              font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+            ></a-text>
+            <!-- Mode chip -->
+            <a-plane
+              width="0.34"
+              height="0.115"
+              position="0.28 0.19 0.02"
+              color="#4a3429"
+              opacity="0.9"
+              material="shader: flat; transparent: true; depthTest: false"
+            ></a-plane>
+            <!-- Mode label -->
+            <a-text
+              id="hud-mode"
+              value="EASY"
+              position="0.28 0.18 0.03"
+              align="center"
+              color="#fff1d6"
+              scale="0.22 0.22 0.22"
+              font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+            ></a-text>
+            <!-- Progress text -->
+            <a-text
+              id="hud-progress"
+              value="0/3"
+              position="0 0.03 0.03"
+              align="center"
+              color="#f8f9fa"
+              scale="0.52 0.52 0.52"
+              font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+            ></a-text>
+            <a-text
+              value="colors placed"
+              position="0 -0.095 0.03"
+              align="center"
+              color="#ced4da"
+              scale="0.18 0.18 0.18"
+            ></a-text>
+            <!-- Soft divider -->
+            <a-plane
+              id="hud-info-divider"
+              width="0.76"
+              height="0.012"
+              position="0 -0.16 0.025"
+              color="#b89762"
+              opacity="0.34"
+              material="shader: flat; transparent: true; depthTest: false"
+            ></a-plane>
+            <!-- Shelf slots row -->
+            <a-plane
+              width="0.38"
+              height="0.10"
+              position="-0.20 -0.24 0.022"
+              color="#3b3027"
+              opacity="0.74"
+              material="shader: flat; transparent: true; depthTest: false"
+            ></a-plane>
+            <a-text
+              id="hud-shelf-counter"
+              value="Slots: 0/10"
+              position="-0.20 -0.245 0.03"
+              align="center"
+              color="#b2f2bb"
+              scale="0.20 0.20 0.20"
+              visible="false"
+              font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+            ></a-text>
+            <a-plane
+              width="0.38"
+              height="0.10"
+              position="0.20 -0.24 0.022"
+              color="#3b3027"
+              opacity="0.74"
+              material="shader: flat; transparent: true; depthTest: false"
+            ></a-plane>
+            <!-- Timer row (hidden by default) -->
             <a-entity
-                id="mixing-station"
-                mixing-station
-                position="0.86 0.66 -0.94"
-                scale="0.72 0.72 0.72"
-                visible="false"
-            ></a-entity>
-
-            <a-entity
-                id="color-wheel"
-                color-wheel="radius: 0.78; level: 1"
-                position="0 1.22 -1.6"
-                scale="1.05 1.05 1.05"
-                rotation="-1 0 0"
-                visible="false"
-            ></a-entity>
-
-            <a-entity id="ui-container">
-                <a-entity
-                    id="skip-level-button"
-                    position="1.34 0.98 -1.6"
-                    scale="0.72 0.72 0.72"
-                    visible="false"
-                    billboard
-                >
-                    <a-entity
-                        vr-button="label: SKIP; helper: Next level; action: skip-level; width: 0.65; height: 0.22; bgColor: #b7822f; hoverColor: #c99543"
-                    ></a-entity>
-                </a-entity>
-
-                <a-entity id="menu-panel" position="0 1.24 -1.78" scale="0.72 0.72 0.72" visible="true" billboard>
-                    <a-plane
-                        width="3.5"
-                        height="2.95"
-                        color="#d8c3a5"
-                        opacity="0.12"
-                        material="shader: flat; transparent: true; depthTest: false"
-                    ></a-plane>
-                    <a-plane
-                        width="3.36"
-                        height="2.81"
-                        color="#2f251d"
-                        opacity="0.95"
-                        material="shader: flat; transparent: true"
-                    ></a-plane>
-                    <a-plane
-                        width="3.16"
-                        height="0.06"
-                        position="0 1.09 0.01"
-                        color="#d9b56f"
-                        opacity="0.9"
-                        material="shader: flat; transparent: true; depthTest: false"
-                    ></a-plane>
-                    <a-text
-                        value="VR COLOR CIRCLE"
-                        position="0 0.98 0.02"
-                        align="center"
-                        color="#f3d78a"
-                        width="5.4"
-                        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-                    ></a-text>
-                    <a-text
-                        value="Master the color wheel"
-                        position="0 0.74 0.02"
-                        align="center"
-                        color="#e9ecef"
-                        width="2.4"
-                    ></a-text>
-
-                    <a-plane
-                        width="0.72"
-                        height="0.012"
-                        position="-0.82 0.48 0.02"
-                        color="#d9b56f"
-                        opacity="0.46"
-                        material="shader: flat; transparent: true; depthTest: false"
-                    ></a-plane>
-                    <a-text
-                        value="NORMAL MODE"
-                        position="0 0.43 0.02"
-                        align="center"
-                        color="#d8f5a2"
-                        width="1.8"
-                        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-                    ></a-text>
-                    <a-plane
-                        width="0.72"
-                        height="0.012"
-                        position="0.82 0.48 0.02"
-                        color="#d9b56f"
-                        opacity="0.46"
-                        material="shader: flat; transparent: true; depthTest: false"
-                    ></a-plane>
-                    <a-entity
-                        id="btn-easy"
-                        position="-0.68 0.16 0.03"
-                        vr-button="label: EASY; helper: Relaxed pace; action: start-easy; width: 1.18; bgColor: #5f6f4a; hoverColor: #718257"
-                    ></a-entity>
-                    <a-entity
-                        id="btn-hard"
-                        position="0.68 0.16 0.03"
-                        vr-button="label: HARD; helper: Timed challenge; action: start-hard; width: 1.18; bgColor: #8a5a3c; hoverColor: #9c6848"
-                    ></a-entity>
-
-                    <a-plane
-                        width="0.72"
-                        height="0.012"
-                        position="-0.82 -0.15 0.02"
-                        color="#d9b56f"
-                        opacity="0.46"
-                        material="shader: flat; transparent: true; depthTest: false"
-                    ></a-plane>
-                    <a-text
-                        value="MIXING MODE"
-                        position="0 -0.2 0.02"
-                        align="center"
-                        color="#ffd8a8"
-                        width="1.8"
-                        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-                    ></a-text>
-                    <a-plane
-                        width="0.72"
-                        height="0.012"
-                        position="0.82 -0.15 0.02"
-                        color="#d9b56f"
-                        opacity="0.46"
-                        material="shader: flat; transparent: true; depthTest: false"
-                    ></a-plane>
-                    <a-entity
-                        id="btn-mix-easy"
-                        position="-0.68 -0.43 0.03"
-                        vr-button="label: MIX EASY; helper: Blend calmly; action: start-mix-easy; width: 1.18; bgColor: #6f5f4c; hoverColor: #82705a"
-                    ></a-entity>
-                    <a-entity
-                        id="btn-mix-hard"
-                        position="0.68 -0.43 0.03"
-                        vr-button="label: MIX HARD; helper: Fast mixing; action: start-mix-hard; width: 1.18; bgColor: #7b6041; hoverColor: #8d704d"
-                    ></a-entity>
-
-                    <a-plane
-                        width="0.72"
-                        height="0.012"
-                        position="-0.82 -0.74 0.02"
-                        color="#8c7658"
-                        opacity="0.42"
-                        material="shader: flat; transparent: true; depthTest: false"
-                    ></a-plane>
-                    <a-text
-                        value="EXTRA"
-                        position="0 -0.79 0.02"
-                        align="center"
-                        color="#eadcc8"
-                        width="1.8"
-                        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-                    ></a-text>
-                    <a-plane
-                        width="0.72"
-                        height="0.012"
-                        position="0.82 -0.74 0.02"
-                        color="#8c7658"
-                        opacity="0.42"
-                        material="shader: flat; transparent: true; depthTest: false"
-                    ></a-plane>
-                    <a-entity
-                        id="btn-freeplay"
-                        position="-0.68 -1.06 0.03"
-                        vr-button="label: FREE PLAY; helper: Explore colors; action: start-freeplay; width: 1.18; height: 0.27; bgColor: #5d6b73; hoverColor: #6f7d85"
-                    ></a-entity>
-                    <a-entity
-                        id="btn-leaderboard"
-                        position="0.68 -1.06 0.03"
-                        vr-button="label: LEADERBOARD; helper: Top scores; action: show-leaderboard; width: 1.18; height: 0.27; bgColor: #4c3f32; hoverColor: #5e4f40"
-                    ></a-entity>
-                </a-entity>
-
-                <a-entity id="leaderboard-panel" position="0 1.24 -1.78" scale="0.72 0.72 0.72" visible="false" billboard>
-                    <a-plane
-                        width="3.71"
-                        height="2.86"
-                        color="#d8c3a5"
-                        opacity="0.08"
-                        material="shader: flat; transparent: true; depthTest: false"
-                    ></a-plane>
-                    <a-plane
-                        width="3.55"
-                        height="2.7"
-                        color="#2f251d"
-                        opacity="1"
-                        material="shader: flat"
-                    ></a-plane>
-                    <a-text
-                        value="LEADERBOARD"
-                        position="0 0.98 0.01"
-                        align="center"
-                        color="#ffd43b"
-                        width="3.1"
-                    ></a-text>
-                    <a-text
-                        id="lb-easy-scores"
-                        value="EASY&#10;---"
-                        position="-0.82 0.25 0.01"
-                        align="left"
-                        color="#51cf66"
-                        width="1.7"
-                    ></a-text>
-                    <a-text
-                        id="lb-hard-scores"
-                        value="HARD&#10;---"
-                        position="0.82 0.25 0.01"
-                        align="left"
-                        color="#ff6b6b"
-                        width="1.7"
-                    ></a-text>
-                    <a-entity
-                        id="btn-lb-back"
-                        position="0 -0.9 0.02"
-                        vr-button="label: BACK; action: back-menu; bgColor: #364fc7"
-                    ></a-entity>
-                </a-entity>
-
-                <a-entity id="victory-panel" position="0 1.3 -1.84" scale="0.72 0.72 0.72" visible="false" billboard>
-                    <a-plane
-                        width="3.36"
-                        height="2.41"
-                        color="#ffd43b"
-                        emissive="#ffd43b"
-                        emissiveIntensity="0.1"
-                        opacity="0.1"
-                        material="shader: flat; transparent: true; depthTest: false"
-                    ></a-plane>
-                    <a-plane
-                        width="3.2"
-                        height="2.25"
-                        color="#3f3025"
-                        opacity="1"
-                        material="shader: flat"
-                    ></a-plane>
-                    <a-text
-                        value="CONGRATULATIONS!"
-                        position="0 0.72 0.01"
-                        align="center"
-                        color="#ffd43b"
-                        width="3.2"
-                    ></a-text>
-                    <a-text
-                        id="victory-time"
-                        value="Total Time: --"
-                        position="0 0.22 0.01"
-                        align="center"
-                        color="#ffffff"
-                        width="2.2"
-                    ></a-text>
-                    <a-text
-                        id="victory-mode"
-                        value="Mode: --"
-                        position="0 -0.08 0.01"
-                        align="center"
-                        color="#d0d7ff"
-                        width="2"
-                    ></a-text>
-                    <a-entity
-                        id="btn-replay"
-                        position="-0.56 -0.72 0.02"
-                        vr-button="label: REPLAY; action: replay; bgColor: #2b8a3e"
-                    ></a-entity>
-                    <a-entity
-                        id="btn-menu"
-                        position="0.56 -0.72 0.02"
-                        vr-button="label: MENU; action: back-menu; bgColor: #495057"
-                    ></a-entity>
-                </a-entity>
-
-                <a-entity id="gameover-panel" position="0 1.3 -1.84" scale="0.72 0.72 0.72" visible="false" billboard>
-                    <a-plane
-                        width="3.36"
-                        height="2.31"
-                        color="#e03131"
-                        emissive="#e03131"
-                        emissiveIntensity="0.08"
-                        opacity="0.1"
-                        material="shader: flat; transparent: true; depthTest: false"
-                    ></a-plane>
-                    <a-plane
-                        width="3.2"
-                        height="2.15"
-                        color="#4a2921"
-                        opacity="1"
-                        material="shader: flat"
-                    ></a-plane>
-                    <a-text
-                        value="TIME'S UP!"
-                        position="0 0.7 0.01"
-                        align="center"
-                        color="#ff8787"
-                        width="3.4"
-                    ></a-text>
-                    <a-text
-                        id="gameover-level"
-                        value="Level: --"
-                        position="0 0.18 0.01"
-                        align="center"
-                        color="#ffffff"
-                        width="2.2"
-                    ></a-text>
-                    <a-text
-                        id="gameover-mode"
-                        value="Mode: --"
-                        position="0 -0.1 0.01"
-                        align="center"
-                        color="#d0d7ff"
-                        width="2"
-                    ></a-text>
-                    <a-entity
-                        id="btn-retry"
-                        position="-0.56 -0.72 0.02"
-                        vr-button="label: RETRY; action: retry-level; bgColor: #f08c00"
-                    ></a-entity>
-                    <a-entity
-                        id="btn-gameover-menu"
-                        position="0.56 -0.72 0.02"
-                        vr-button="label: MENU; action: back-menu; bgColor: #495057"
-                    ></a-entity>
-                </a-entity>
-
-                <a-entity id="freeplay-panel" position="1.34 1.18 -1.64" scale="0.72 0.72 0.72" visible="false" billboard>
-                    <a-plane
-                        width="1.61"
-                        height="1.28"
-                        color="#d8c3a5"
-                        emissive="#d8c3a5"
-                        emissiveIntensity="0.08"
-                        opacity="0.1"
-                        material="shader: flat; transparent: true; depthTest: false"
-                    ></a-plane>
-                    <a-plane
-                        width="1.45"
-                        height="1.12"
-                        color="#2f251d"
-                        opacity="0.92"
-                        material="shader: flat"
-                    ></a-plane>
-                    <a-text
-                        value="FREE PLAY"
-                        position="0 0.34 0.01"
-                        align="center"
-                        color="#d9b56f"
-                        width="1.6"
-                    ></a-text>
-                    <a-text
-                        value="Explore all 12 colors"
-                        position="0 0.08 0.01"
-                        align="center"
-                        color="#e7f5ff"
-                        width="1.1"
-                    ></a-text>
-                    <a-entity
-                        id="btn-reset-freeplay"
-                        position="0 -0.22 0.02"
-                        vr-button="label: RESET; action: reset-freeplay; width: 0.86; bgColor: #1971c2"
-                    ></a-entity>
-                    <a-entity
-                        id="btn-freeplay-menu"
-                        position="0 -0.56 0.02"
-                        vr-button="label: MENU; action: back-menu; width: 0.86; bgColor: #495057"
-                    ></a-entity>
-                </a-entity>
-
-                <a-entity id="status-panel" position="0 2.34 -1.18" scale="0.72 0.72 0.72" visible="false" billboard>
-                    <a-plane
-                        width="2.21"
-                        height="0.6"
-                        color="#d8c3a5"
-                        emissive="#d8c3a5"
-                        emissiveIntensity="0.06"
-                        opacity="0.1"
-                        material="shader: flat; transparent: true; depthTest: false"
-                    ></a-plane>
-                    <a-plane
-                        width="2.05"
-                        height="0.44"
-                        color="#2f251d"
-                        opacity="0.92"
-                        material="shader: flat; depthTest: false"
-                    ></a-plane>
-                    <a-text
-                        id="status-text"
-                        value=""
-                        position="0 0 0.01"
-                        align="center"
-                        color="#ffffff"
-                        width="2.05"
-                    ></a-text>
-                </a-entity>
+              id="hud-timer-row"
+              position="0.20 -0.245 0.03"
+              visible="false"
+            >
+              <a-text
+                id="timer-label"
+                value="TIME"
+                position="-0.04 0 0"
+                align="right"
+                color="#adb5bd"
+                scale="0.16 0.16 0.16"
+                font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+              ></a-text>
+              <a-text
+                id="timer-text"
+                value="--"
+                position="0.02 0 0"
+                align="left"
+                color="#91f7ff"
+                scale="0.20 0.20 0.20"
+                font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+              ></a-text>
             </a-entity>
-        </a-scene>
-    </body>
+          </a-entity>
+        </a-entity>
+
+        <a-entity
+          id="left-hand"
+          laser-controls="hand: left"
+          raycaster="objects: .interactive; far: 10"
+          line="color: #d9b56f; opacity: 0.7"
+          grabber
+        ></a-entity>
+
+        <a-entity
+          id="right-hand"
+          laser-controls="hand: right"
+          raycaster="objects: .interactive; far: 10"
+          line="color: #ff8787; opacity: 0.7"
+          grabber
+        ></a-entity>
+      </a-entity>
+
+      <a-entity
+        id="shelf"
+        color-shelf
+        position="0 0 -0.74"
+        scale="0.72 0.72 0.72"
+        visible="false"
+      >
+      </a-entity>
+      <a-entity id="balls-container" visible="false"></a-entity>
+      <a-entity id="particle-pool"></a-entity>
+
+      <a-entity
+        id="mixing-station"
+        mixing-station
+        position="0.86 0.66 -0.94"
+        scale="0.72 0.72 0.72"
+        visible="false"
+      ></a-entity>
+
+      <a-entity
+        id="color-wheel"
+        color-wheel="radius: 0.78; level: 1"
+        position="0 1.22 -1.6"
+        scale="1.05 1.05 1.05"
+        rotation="-1 0 0"
+        visible="false"
+      ></a-entity>
+
+      <a-entity id="ui-container">
+        <a-entity
+          id="skip-level-button"
+          position="1.34 0.98 -1.6"
+          scale="0.72 0.72 0.72"
+          visible="false"
+          billboard
+        >
+          <a-entity
+            vr-button="label: SKIP; helper: Next level; action: skip-level; width: 0.65; height: 0.22; bgColor: #b7822f; hoverColor: #c99543"
+          ></a-entity>
+        </a-entity>
+
+        <a-entity
+          id="menu-panel"
+          position="0 1.24 -1.78"
+          scale="0.72 0.72 0.72"
+          visible="true"
+          billboard
+        >
+          <a-plane
+            width="3.5"
+            height="2.95"
+            color="#d8c3a5"
+            opacity="0.12"
+            material="shader: flat; transparent: true; depthTest: false"
+          ></a-plane>
+          <a-plane
+            width="3.36"
+            height="2.81"
+            color="#2f251d"
+            opacity="0.95"
+            material="shader: flat; transparent: true"
+          ></a-plane>
+          <a-plane
+            width="3.16"
+            height="0.06"
+            position="0 1.09 0.01"
+            color="#d9b56f"
+            opacity="0.9"
+            material="shader: flat; transparent: true; depthTest: false"
+          ></a-plane>
+          <a-text
+            value="VR COLOR CIRCLE"
+            position="0 0.98 0.02"
+            align="center"
+            color="#f3d78a"
+            width="5.4"
+            font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+          ></a-text>
+          <a-text
+            value="Master the color wheel"
+            position="0 0.74 0.02"
+            align="center"
+            color="#e9ecef"
+            width="2.4"
+          ></a-text>
+
+          <a-plane
+            width="0.72"
+            height="0.012"
+            position="-0.82 0.48 0.02"
+            color="#d9b56f"
+            opacity="0.46"
+            material="shader: flat; transparent: true; depthTest: false"
+          ></a-plane>
+          <a-text
+            value="NORMAL MODE"
+            position="0 0.43 0.02"
+            align="center"
+            color="#d8f5a2"
+            width="1.8"
+            font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+          ></a-text>
+          <a-plane
+            width="0.72"
+            height="0.012"
+            position="0.82 0.48 0.02"
+            color="#d9b56f"
+            opacity="0.46"
+            material="shader: flat; transparent: true; depthTest: false"
+          ></a-plane>
+          <a-entity
+            id="btn-easy"
+            position="-0.68 0.16 0.03"
+            vr-button="label: EASY; helper: Relaxed pace; action: start-easy; width: 1.18; bgColor: #5f6f4a; hoverColor: #718257"
+          ></a-entity>
+          <a-entity
+            id="btn-hard"
+            position="0.68 0.16 0.03"
+            vr-button="label: HARD; helper: Timed challenge; action: start-hard; width: 1.18; bgColor: #8a5a3c; hoverColor: #9c6848"
+          ></a-entity>
+
+          <a-plane
+            width="0.72"
+            height="0.012"
+            position="-0.82 -0.15 0.02"
+            color="#d9b56f"
+            opacity="0.46"
+            material="shader: flat; transparent: true; depthTest: false"
+          ></a-plane>
+          <a-text
+            value="MIXING MODE"
+            position="0 -0.2 0.02"
+            align="center"
+            color="#ffd8a8"
+            width="1.8"
+            font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+          ></a-text>
+          <a-plane
+            width="0.72"
+            height="0.012"
+            position="0.82 -0.15 0.02"
+            color="#d9b56f"
+            opacity="0.46"
+            material="shader: flat; transparent: true; depthTest: false"
+          ></a-plane>
+          <a-entity
+            id="btn-mix-easy"
+            position="-0.68 -0.43 0.03"
+            vr-button="label: MIX EASY; helper: Blend calmly; action: start-mix-easy; width: 1.18; bgColor: #6f5f4c; hoverColor: #82705a"
+          ></a-entity>
+          <a-entity
+            id="btn-mix-hard"
+            position="0.68 -0.43 0.03"
+            vr-button="label: MIX HARD; helper: Fast mixing; action: start-mix-hard; width: 1.18; bgColor: #7b6041; hoverColor: #8d704d"
+          ></a-entity>
+
+          <a-plane
+            width="0.72"
+            height="0.012"
+            position="-0.82 -0.74 0.02"
+            color="#8c7658"
+            opacity="0.42"
+            material="shader: flat; transparent: true; depthTest: false"
+          ></a-plane>
+          <a-text
+            value="EXTRA"
+            position="0 -0.79 0.02"
+            align="center"
+            color="#eadcc8"
+            width="1.8"
+            font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+          ></a-text>
+          <a-plane
+            width="0.72"
+            height="0.012"
+            position="0.82 -0.74 0.02"
+            color="#8c7658"
+            opacity="0.42"
+            material="shader: flat; transparent: true; depthTest: false"
+          ></a-plane>
+          <a-entity
+            id="btn-freeplay"
+            position="-0.68 -1.06 0.03"
+            vr-button="label: FREE PLAY; helper: Explore colors; action: start-freeplay; width: 1.18; height: 0.27; bgColor: #5d6b73; hoverColor: #6f7d85"
+          ></a-entity>
+          <a-entity
+            id="btn-leaderboard"
+            position="0.68 -1.06 0.03"
+            vr-button="label: LEADERBOARD; helper: Top scores; action: show-leaderboard; width: 1.18; height: 0.27; bgColor: #4c3f32; hoverColor: #5e4f40"
+          ></a-entity>
+        </a-entity>
+
+        <a-entity
+          id="leaderboard-panel"
+          position="0 1.24 -1.78"
+          scale="0.72 0.72 0.72"
+          visible="false"
+          billboard
+        >
+          <a-plane
+            width="3.71"
+            height="2.86"
+            color="#d8c3a5"
+            opacity="0.08"
+            material="shader: flat; transparent: true; depthTest: false"
+          ></a-plane>
+          <a-plane
+            width="3.55"
+            height="2.7"
+            color="#2f251d"
+            opacity="1"
+            material="shader: flat"
+          ></a-plane>
+          <a-text
+            value="LEADERBOARD"
+            position="0 0.98 0.01"
+            align="center"
+            color="#ffd43b"
+            width="3.1"
+          ></a-text>
+          <a-text
+            id="lb-easy-scores"
+            value="EASY&#10;---"
+            position="-0.82 0.25 0.01"
+            align="left"
+            color="#51cf66"
+            width="1.7"
+          ></a-text>
+          <a-text
+            id="lb-hard-scores"
+            value="HARD&#10;---"
+            position="0.82 0.25 0.01"
+            align="left"
+            color="#ff6b6b"
+            width="1.7"
+          ></a-text>
+          <a-entity
+            id="btn-lb-back"
+            position="0 -0.9 0.02"
+            vr-button="label: BACK; action: back-menu; bgColor: #364fc7"
+          ></a-entity>
+        </a-entity>
+
+        <a-entity
+          id="victory-panel"
+          position="0 1.3 -1.84"
+          scale="0.72 0.72 0.72"
+          visible="false"
+          billboard
+        >
+          <a-plane
+            width="3.36"
+            height="2.41"
+            color="#ffd43b"
+            emissive="#ffd43b"
+            emissiveIntensity="0.1"
+            opacity="0.1"
+            material="shader: flat; transparent: true; depthTest: false"
+          ></a-plane>
+          <a-plane
+            width="3.2"
+            height="2.25"
+            color="#3f3025"
+            opacity="1"
+            material="shader: flat"
+          ></a-plane>
+          <a-text
+            value="CONGRATULATIONS!"
+            position="0 0.72 0.01"
+            align="center"
+            color="#ffd43b"
+            width="3.2"
+          ></a-text>
+          <a-text
+            id="victory-time"
+            value="Total Time: --"
+            position="0 0.22 0.01"
+            align="center"
+            color="#ffffff"
+            width="2.2"
+          ></a-text>
+          <a-text
+            id="victory-mode"
+            value="Mode: --"
+            position="0 -0.08 0.01"
+            align="center"
+            color="#d0d7ff"
+            width="2"
+          ></a-text>
+          <a-entity
+            id="btn-replay"
+            position="-0.56 -0.72 0.02"
+            vr-button="label: REPLAY; action: replay; bgColor: #2b8a3e"
+          ></a-entity>
+          <a-entity
+            id="btn-menu"
+            position="0.56 -0.72 0.02"
+            vr-button="label: MENU; action: back-menu; bgColor: #495057"
+          ></a-entity>
+        </a-entity>
+
+        <a-entity
+          id="gameover-panel"
+          position="0 1.3 -1.84"
+          scale="0.72 0.72 0.72"
+          visible="false"
+          billboard
+        >
+          <a-plane
+            width="3.36"
+            height="2.31"
+            color="#e03131"
+            emissive="#e03131"
+            emissiveIntensity="0.08"
+            opacity="0.1"
+            material="shader: flat; transparent: true; depthTest: false"
+          ></a-plane>
+          <a-plane
+            width="3.2"
+            height="2.15"
+            color="#4a2921"
+            opacity="1"
+            material="shader: flat"
+          ></a-plane>
+          <a-text
+            value="TIME'S UP!"
+            position="0 0.7 0.01"
+            align="center"
+            color="#ff8787"
+            width="3.4"
+          ></a-text>
+          <a-text
+            id="gameover-level"
+            value="Level: --"
+            position="0 0.18 0.01"
+            align="center"
+            color="#ffffff"
+            width="2.2"
+          ></a-text>
+          <a-text
+            id="gameover-mode"
+            value="Mode: --"
+            position="0 -0.1 0.01"
+            align="center"
+            color="#d0d7ff"
+            width="2"
+          ></a-text>
+          <a-entity
+            id="btn-retry"
+            position="-0.56 -0.72 0.02"
+            vr-button="label: RETRY; action: retry-level; bgColor: #f08c00"
+          ></a-entity>
+          <a-entity
+            id="btn-gameover-menu"
+            position="0.56 -0.72 0.02"
+            vr-button="label: MENU; action: back-menu; bgColor: #495057"
+          ></a-entity>
+        </a-entity>
+
+        <a-entity
+          id="freeplay-panel"
+          position="1.34 1.18 -1.64"
+          scale="0.72 0.72 0.72"
+          visible="false"
+          billboard
+        >
+          <a-plane
+            width="1.61"
+            height="1.28"
+            color="#d8c3a5"
+            emissive="#d8c3a5"
+            emissiveIntensity="0.08"
+            opacity="0.1"
+            material="shader: flat; transparent: true; depthTest: false"
+          ></a-plane>
+          <a-plane
+            width="1.45"
+            height="1.12"
+            color="#2f251d"
+            opacity="0.92"
+            material="shader: flat"
+          ></a-plane>
+          <a-text
+            value="FREE PLAY"
+            position="0 0.34 0.01"
+            align="center"
+            color="#d9b56f"
+            width="1.6"
+          ></a-text>
+          <a-text
+            value="Explore all 12 colors"
+            position="0 0.08 0.01"
+            align="center"
+            color="#e7f5ff"
+            width="1.1"
+          ></a-text>
+          <a-entity
+            id="btn-reset-freeplay"
+            position="0 -0.22 0.02"
+            vr-button="label: RESET; action: reset-freeplay; width: 0.86; bgColor: #1971c2"
+          ></a-entity>
+          <a-entity
+            id="btn-freeplay-menu"
+            position="0 -0.56 0.02"
+            vr-button="label: MENU; action: back-menu; width: 0.86; bgColor: #495057"
+          ></a-entity>
+        </a-entity>
+
+        <a-entity
+          id="status-panel"
+          position="0 2.34 -1.18"
+          scale="0.72 0.72 0.72"
+          visible="false"
+          billboard
+        >
+          <a-plane
+            width="2.21"
+            height="0.6"
+            color="#d8c3a5"
+            emissive="#d8c3a5"
+            emissiveIntensity="0.06"
+            opacity="0.1"
+            material="shader: flat; transparent: true; depthTest: false"
+          ></a-plane>
+          <a-plane
+            width="2.05"
+            height="0.44"
+            color="#2f251d"
+            opacity="0.92"
+            material="shader: flat; depthTest: false"
+          ></a-plane>
+          <a-text
+            id="status-text"
+            value=""
+            position="0 0 0.01"
+            align="center"
+            color="#ffffff"
+            width="2.05"
+          ></a-text>
+        </a-entity>
+      </a-entity>
+    </a-scene>
+  </body>
 </html>

@@ -132,7 +132,7 @@
       minX: -1.25,
       maxX: 1.25,
       minY: 0.3,
-      maxY: 1.75,
+      maxY: 2.12,
       minZ: -2.05,
       maxZ: -1.2,
       planePoint: { x: 0, y: 1.02, z: -1.55 },

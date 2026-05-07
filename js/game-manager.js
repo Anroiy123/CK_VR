@@ -143,6 +143,7 @@
       this.clearLooseBalls();
 
       const wheel = this.wheelEl.components["color-wheel"];
+      wheel.resetSlots();
       wheel.prepareGameLevel(level);
 
       this.spawnBalls(levelColors, "game");
@@ -185,7 +186,10 @@
       }
 
       const wheel = this.wheelEl.components["color-wheel"];
-      if (wheel) wheel.prepareMixingLevel(level);
+      if (wheel) {
+        wheel.resetSlots();
+        wheel.prepareMixingLevel(level);
+      }
 
       const initialColors = [
         getColorByHex("#FF0000"),

@@ -37,6 +37,12 @@
       }) || null;
   }
 
+  function getMatchingSlot(slots, colorHex) {
+    return slots.find(function (slot) {
+      return slot.dataset.targetColor === colorHex;
+    }) || null;
+  }
+
   const MIXING_STATION_DESKTOP_DROP_DISTANCE = 0.2;
   const MIXING_STATION_WORLD_DROP_DISTANCE = 0.5;
 
@@ -86,6 +92,7 @@
       const ballPosition = getWorldPosition(this.el);
       const isFreePlay = window.FreePlayManager && FreePlayManager.active;
       const pointedSlot = getPointedSlot(controller);
+      const matchingSlot = getMatchingSlot(slots, ballData.colorHex);
       const snapDistance = event && event.detail && event.detail.desktop ? this.data.snapDistance : APP_CONFIG.vrSnapDistance;
 
       if (pointedSlot) {
@@ -99,6 +106,15 @@
 
         if (isCorrectPointedSlot) {
           this.snapSuccess(pointedSlot, true, false);
+          return;
+        }
+      }
+
+      if (matchingSlot) {
+        const matchingSlotDistance = getWorldPosition(matchingSlot).distanceTo(ballPosition);
+        if (matchingSlotDistance <= snapDistance) {
+          this.activeController = null;
+          this.snapSuccess(matchingSlot, true, Boolean(isFreePlay));
           return;
         }
       }
