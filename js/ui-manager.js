@@ -14,6 +14,7 @@
         freeplay: document.getElementById("freeplay-panel"),
         status: document.getElementById("status-panel"),
         hud: document.getElementById("diegetic-hud"),
+        vrHud: document.getElementById("vr-hud-panel"),
         timer: document.getElementById("hud-timer-row"),
         skipLevel: document.getElementById("skip-level-button"),
         backMenu: document.getElementById("back-menu-button"),
@@ -31,6 +32,11 @@
         statusText: document.getElementById("status-text"),
         shelfCounter: document.getElementById("hud-shelf-counter"),
         progressBar: document.getElementById("hud-progress-bar"),
+        vrHudLevel: document.getElementById("vr-hud-level"),
+        vrHudProgress: document.getElementById("vr-hud-progress"),
+        vrHudMode: document.getElementById("vr-hud-mode"),
+        vrHudTimer: document.getElementById("vr-hud-timer"),
+        vrHudShelf: document.getElementById("vr-hud-shelf"),
       };
 
       this.world = {
@@ -236,7 +242,10 @@
       this.hideAll();
       this.setGameplayWorldVisible(true);
       this.setVisible("hud", true);
+      this.setVisible("vrHud", true);
       this.setVisible("timer", mode === "hard" || mode === "mix-hard");
+      this.setElementVisible(this.refs.vrHudTimer, mode === "hard" || mode === "mix-hard");
+      this.setElementVisible(this.refs.vrHudShelf, mode === "mix-easy" || mode === "mix-hard");
       this.setVisible("skipLevel", mode === "easy" || mode === "mix-easy");
       this.setVisible("backMenu", true);
     },
@@ -245,8 +254,11 @@
       this.hideAll();
       this.setGameplayWorldVisible(true);
       this.setVisible("hud", true);
+      this.setVisible("vrHud", true);
       this.setVisible("freeplay", true);
       this.setVisible("timer", false);
+      this.setElementVisible(this.refs.vrHudTimer, false);
+      this.setElementVisible(this.refs.vrHudShelf, false);
     },
 
     showVictory: function showVictory(totalTime, mode) {
@@ -277,9 +289,12 @@
     updateHUD: function updateHUD(levelLabel, progressLabel, modeLabel) {
       this.setTextValue(this.refs.hudLevel, levelLabel);
       this.setTextValue(this.refs.hudProgress, progressLabel);
+      this.setTextValue(this.refs.vrHudLevel, levelLabel);
+      this.setTextValue(this.refs.vrHudProgress, progressLabel);
       this.updateProgressBar(progressLabel);
       if (modeLabel && this.refs.hudMode) {
         this.setTextValue(this.refs.hudMode, modeLabel);
+        this.setTextValue(this.refs.vrHudMode, modeLabel);
       }
     },
 
@@ -298,10 +313,14 @@
     updateTimer: function updateTimer(value, urgent) {
       const displayValue = value === "--" ? "--" : String(value);
       this.setTextValue(this.refs.timerText, displayValue);
+      this.setTextValue(this.refs.vrHudTimer, displayValue === "--" ? "" : "TIME  " + displayValue);
       if (this.refs.timerText.classList) {
         this.refs.timerText.classList.toggle("is-urgent", !!urgent);
       } else {
         this.refs.timerText.setAttribute("color", urgent ? "#ff1744" : "#91f7ff");
+      }
+      if (this.refs.vrHudTimer) {
+        this.refs.vrHudTimer.setAttribute("color", urgent ? "#ff8787" : "#ffd8a8");
       }
     },
 
@@ -309,13 +328,18 @@
       if (!this.refs.shelfCounter) return;
       const isMixMode = window.GameManager && GameManager.isMixingMode && GameManager.isMixingMode();
       this.setElementVisible(this.refs.shelfCounter, !!isMixMode);
+      this.setElementVisible(this.refs.vrHudShelf, !!isMixMode);
       if (!isMixMode) return;
       this.setTextValue(this.refs.shelfCounter, "Slots: " + count + "/10");
+      this.setTextValue(this.refs.vrHudShelf, "SLOTS  " + count + "/10");
       if (this.refs.shelfCounter.classList) {
         this.refs.shelfCounter.classList.toggle("is-warning", count >= 8 && count < 9);
         this.refs.shelfCounter.classList.toggle("is-danger", count >= 9);
       } else {
         this.refs.shelfCounter.setAttribute("color", count >= 9 ? "#e03131" : count >= 8 ? "#ffd43b" : "#51cf66");
+      }
+      if (this.refs.vrHudShelf) {
+        this.refs.vrHudShelf.setAttribute("color", count >= 9 ? "#ff8787" : count >= 8 ? "#ffd43b" : "#d8f5a2");
       }
     },
 

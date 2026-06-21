@@ -1,141 +1,236 @@
 (function () {
-  const SOUND_DEFINITIONS = {
-    bgm: { src: "assets/sounds/bgm.mp3", loop: true, volume: 0.24 },
-    correct: { src: "assets/sounds/correct.mp3", volume: 0.7 },
-    wrong: { src: "assets/sounds/wrong.mp3", volume: 0.5 },
-    grab: { src: "assets/sounds/grab.mp3", volume: 0.42 },
-    levelup: { src: "assets/sounds/levelup.mp3", volume: 0.78 },
-    victory: { src: "assets/sounds/victory.mp3", volume: 0.82 },
-    tick: { src: "assets/sounds/tick.mp3", volume: 0.28 },
-    click: { src: "assets/sounds/click.mp3", volume: 0.4 },
+  const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+
+  const EFFECT_DEFINITIONS = {
+    click: {
+      volume: 0.09,
+      wave: "triangle",
+      notes: [
+        { frequency: 520, start: 0, duration: 0.045 },
+        { frequency: 760, start: 0.035, duration: 0.055 },
+      ],
+    },
+    grab: {
+      volume: 0.075,
+      wave: "sine",
+      notes: [
+        { frequency: 290, start: 0, duration: 0.06 },
+        { frequency: 390, start: 0.045, duration: 0.08 },
+      ],
+    },
+    correct: {
+      volume: 0.12,
+      wave: "sine",
+      notes: [
+        { frequency: 523.25, start: 0, duration: 0.08 },
+        { frequency: 659.25, start: 0.07, duration: 0.09 },
+        { frequency: 783.99, start: 0.15, duration: 0.13 },
+      ],
+    },
+    wrong: {
+      volume: 0.085,
+      wave: "sawtooth",
+      notes: [
+        { frequency: 220, start: 0, duration: 0.11 },
+        { frequency: 155.56, start: 0.08, duration: 0.18 },
+      ],
+    },
+    levelup: {
+      volume: 0.14,
+      wave: "triangle",
+      notes: [
+        { frequency: 392, start: 0, duration: 0.09 },
+        { frequency: 523.25, start: 0.08, duration: 0.11 },
+        { frequency: 659.25, start: 0.18, duration: 0.13 },
+        { frequency: 783.99, start: 0.3, duration: 0.2 },
+      ],
+    },
+    victory: {
+      volume: 0.15,
+      wave: "triangle",
+      notes: [
+        { frequency: 523.25, start: 0, duration: 0.11 },
+        { frequency: 659.25, start: 0.1, duration: 0.12 },
+        { frequency: 783.99, start: 0.21, duration: 0.13 },
+        { frequency: 1046.5, start: 0.34, duration: 0.35 },
+      ],
+    },
+    tick: {
+      volume: 0.055,
+      wave: "square",
+      notes: [
+        { frequency: 880, start: 0, duration: 0.035 },
+      ],
+    },
   };
 
+  const MUSIC_PATTERN = [
+    { bass: 130.81, chord: [261.63, 329.63, 392.0] },
+    { bass: 174.61, chord: [349.23, 440.0, 523.25] },
+    { bass: 196.0, chord: [392.0, 493.88, 587.33] },
+    { bass: 164.81, chord: [329.63, 392.0, 493.88] },
+  ];
+
   const SoundManager = {
-    sounds: {},
-    disabled: {},
-    ready: false,
     audioContext: null,
+    masterGain: null,
+    musicGain: null,
+    effectsGain: null,
+    bgmTimer: null,
+    bgmStep: 0,
+    bgmEnabled: false,
+    ready: false,
 
     init: function init() {
       this.ready = true;
-      // Resume AudioContext on first user gesture so fallback tones work immediately
-      var self = this;
-      function resumeOnGesture() {
-        if (self.audioContext && self.audioContext.state === 'suspended') {
-          self.audioContext.resume();
-        }
-        document.removeEventListener('click', resumeOnGesture);
-        document.removeEventListener('keydown', resumeOnGesture);
-        document.removeEventListener('touchstart', resumeOnGesture);
-      }
-      document.addEventListener('click', resumeOnGesture);
-      document.addEventListener('keydown', resumeOnGesture);
-      document.addEventListener('touchstart', resumeOnGesture);
+      this.bindUnlockListeners();
     },
 
-    ensureSound: function ensureSound(name) {
-      if (this.disabled[name] || this.sounds[name] || !window.Howl) {
-        return this.sounds[name] || null;
+    bindUnlockListeners: function bindUnlockListeners() {
+      var self = this;
+      var unlock = function unlock() {
+        self.ensureAudioGraph();
+        self.resumeContext();
+        if (self.bgmEnabled && !self.bgmTimer) {
+          self.startProceduralBGM();
+        }
+        document.removeEventListener("click", unlock);
+        document.removeEventListener("keydown", unlock);
+        document.removeEventListener("touchstart", unlock);
+      };
+
+      document.addEventListener("click", unlock);
+      document.addEventListener("keydown", unlock);
+      document.addEventListener("touchstart", unlock);
+    },
+
+    ensureAudioGraph: function ensureAudioGraph() {
+      if (!AudioContextCtor) {
+        return false;
       }
 
-      const definition = SOUND_DEFINITIONS[name];
-      if (!definition) {
-        return null;
+      if (this.audioContext) {
+        return true;
       }
 
-      const howl = new Howl({
-        src: [definition.src],
-        loop: Boolean(definition.loop),
-        volume: definition.volume,
-        preload: false,
-        onloaderror: function () {
-          SoundManager.disabled[name] = true;
-        },
-        onplayerror: function () {
-          SoundManager.disabled[name] = true;
-          SoundManager.playToneFallback(name);
-        },
-      });
+      this.audioContext = new AudioContextCtor();
+      this.masterGain = this.audioContext.createGain();
+      this.musicGain = this.audioContext.createGain();
+      this.effectsGain = this.audioContext.createGain();
 
-      this.sounds[name] = howl;
-      return howl;
+      this.masterGain.gain.value = 0.82;
+      this.musicGain.gain.value = 0.18;
+      this.effectsGain.gain.value = 0.62;
+
+      this.musicGain.connect(this.masterGain);
+      this.effectsGain.connect(this.masterGain);
+      this.masterGain.connect(this.audioContext.destination);
+      return true;
+    },
+
+    resumeContext: function resumeContext() {
+      if (this.audioContext && this.audioContext.state === "suspended") {
+        this.audioContext.resume();
+      }
     },
 
     play: function play(name) {
-      const sound = this.ensureSound(name);
-      if (!sound || this.disabled[name]) {
-        this.playToneFallback(name);
+      var definition = EFFECT_DEFINITIONS[name];
+      if (!definition || !this.ensureAudioGraph()) {
         return;
       }
 
-      try {
-        sound.play();
-      } catch (error) {
-        this.disabled[name] = true;
-        this.playToneFallback(name);
-      }
+      this.resumeContext();
+      this.playEffect(definition);
     },
 
     startBGM: function startBGM() {
-      const sound = this.ensureSound("bgm");
-      if (!sound || this.disabled.bgm) {
+      this.bgmEnabled = true;
+      if (!this.ensureAudioGraph()) {
         return;
       }
-      if (sound.playing()) {
-        return;
-      }
-      try {
-        sound.play();
-      } catch (error) {
-        this.disabled.bgm = true;
+
+      this.resumeContext();
+      if (!this.bgmTimer) {
+        this.startProceduralBGM();
       }
     },
 
     stopBGM: function stopBGM() {
-      const bgm = this.sounds.bgm;
-      if (bgm) {
-        bgm.stop();
+      this.bgmEnabled = false;
+      if (this.bgmTimer) {
+        clearInterval(this.bgmTimer);
+        this.bgmTimer = null;
       }
     },
 
-    playToneFallback: function playToneFallback(name) {
-      if (name === "bgm" || !window.AudioContext) {
+    playEffect: function playEffect(definition) {
+      var context = this.audioContext;
+      var baseTime = context.currentTime;
+      var destination = this.effectsGain;
+
+      definition.notes.forEach(function (note) {
+        var oscillator = context.createOscillator();
+        var gain = context.createGain();
+        var startAt = baseTime + note.start;
+        var endAt = startAt + note.duration;
+
+        oscillator.type = definition.wave;
+        oscillator.frequency.setValueAtTime(note.frequency, startAt);
+        gain.gain.setValueAtTime(0.0001, startAt);
+        gain.gain.exponentialRampToValueAtTime(definition.volume, startAt + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, endAt);
+
+        oscillator.connect(gain);
+        gain.connect(destination);
+        oscillator.start(startAt);
+        oscillator.stop(endAt + 0.025);
+      });
+    },
+
+    startProceduralBGM: function startProceduralBGM() {
+      var self = this;
+      this.playMusicStep();
+      this.bgmTimer = setInterval(function () {
+        self.playMusicStep();
+      }, 1800);
+    },
+
+    playMusicStep: function playMusicStep() {
+      if (!this.bgmEnabled || !this.audioContext || !this.musicGain) {
         return;
       }
 
-      const frequencies = {
-        click: 540,
-        grab: 380,
-        correct: 760,
-        wrong: 180,
-        levelup: 640,
-        victory: 920,
-        tick: 440,
-      };
+      var context = this.audioContext;
+      var step = MUSIC_PATTERN[this.bgmStep % MUSIC_PATTERN.length];
+      var startAt = context.currentTime + 0.02;
 
-      const frequency = frequencies[name];
-      if (!frequency) {
-        return;
-      }
+      this.playMusicNote(step.bass, startAt, 1.55, "sine", 0.18);
+      step.chord.forEach(
+        function (frequency, index) {
+          this.playMusicNote(frequency, startAt + index * 0.04, 1.35, "triangle", 0.055);
+        }.bind(this),
+      );
 
-      if (!this.audioContext) {
-        this.audioContext = new AudioContext();
-      }
+      this.bgmStep += 1;
+    },
 
-      if (this.audioContext.state === 'suspended') {
-        this.audioContext.resume();
-      }
+    playMusicNote: function playMusicNote(frequency, startAt, duration, wave, volume) {
+      var context = this.audioContext;
+      var oscillator = context.createOscillator();
+      var gain = context.createGain();
+      var endAt = startAt + duration;
 
-      const oscillator = this.audioContext.createOscillator();
-      const gainNode = this.audioContext.createGain();
-      oscillator.type = name === "wrong" ? "sawtooth" : "sine";
-      oscillator.frequency.value = frequency;
-      gainNode.gain.value = 0.04;
-      oscillator.connect(gainNode);
-      gainNode.connect(this.audioContext.destination);
-      oscillator.start();
-      gainNode.gain.exponentialRampToValueAtTime(0.0001, this.audioContext.currentTime + 0.18);
-      oscillator.stop(this.audioContext.currentTime + 0.18);
+      oscillator.type = wave;
+      oscillator.frequency.setValueAtTime(frequency, startAt);
+      gain.gain.setValueAtTime(0.0001, startAt);
+      gain.gain.exponentialRampToValueAtTime(volume, startAt + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.0001, endAt);
+
+      oscillator.connect(gain);
+      gain.connect(this.musicGain);
+      oscillator.start(startAt);
+      oscillator.stop(endAt + 0.05);
     },
   };
 

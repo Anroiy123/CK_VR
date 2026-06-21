@@ -22,6 +22,22 @@
   var EXHIBITION_MODEL_SRC = "assets/Sketchfab_Scene.glb";
   var SPECTATOR_LOOK_TARGET = { x: 0, z: -1.45 };
 
+  function isMobileVrDevice() {
+    return Boolean(
+      AFRAME.utils &&
+      AFRAME.utils.device &&
+      AFRAME.utils.device.isMobileVR &&
+      AFRAME.utils.device.isMobileVR()
+    );
+  }
+
+  function getSpectatorModelSrc(spectator) {
+    if (isMobileVrDevice()) {
+      return SPECTATOR_MODEL_SRC;
+    }
+    return spectator.modelSrc || SPECTATOR_MODEL_SRC;
+  }
+
   function appendCylinder(parent, options) {
     var cylinder = document.createElement("a-cylinder");
     cylinder.setAttribute("radius", options.radius);
@@ -113,7 +129,7 @@
     group.appendChild(fallback);
 
     var model = document.createElement("a-entity");
-    model.setAttribute("gltf-model", "url(" + (spectator.modelSrc || SPECTATOR_MODEL_SRC) + ")");
+    model.setAttribute("gltf-model", "url(" + getSpectatorModelSrc(spectator) + ")");
     model.setAttribute("position", "0 0 0");
     model.setAttribute("scale", "0.72 0.72 0.72");
     model.setAttribute("shadow", "cast: true; receive: false");

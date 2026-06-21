@@ -4,13 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VR Color Circle</title>
+    <link rel="icon" href="data:," />
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.6.0/dist/aframe-extras.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
-    <script src="js/exhibition-room.js?v=visual-polish-20260508b"></script>
+    <script src="js/exhibition-room.js?v=quest3-20260621"></script>
     <script src="js/color-data.js"></script>
     <script src="js/tooltip.js"></script>
-    <script src="js/grabber.js"></script>
+    <script src="js/grabber.js?v=vr-input-20260621c"></script>
     <script src="js/color-wheel.js?v=visual-polish-20260508d"></script>
     <script src="js/color-ball.js?v=bugfix-20260621"></script>
     <script src="js/shelf.js?v=bugfix-20260621"></script>
@@ -18,12 +18,12 @@
     <script src="js/mixing-station.js"></script>
     <script src="js/ball-respawn.js"></script>
     <script src="js/particle-pool.js?v=visual-polish-20260508"></script>
-    <script src="js/sound-manager.js"></script>
+    <script src="js/sound-manager.js?v=audio-20260621"></script>
     <script src="js/timer.js"></script>
     <script src="js/leaderboard.js"></script>
     <script src="js/free-play.js"></script>
     <script src="js/vr-button.js"></script>
-    <script src="js/ui-manager.js"></script>
+    <script src="js/ui-manager.js?v=quest3-20260621"></script>
     <script src="js/game-manager.js"></script>
     <link rel="stylesheet" href="css/styles.css" />
   </head>
@@ -31,7 +31,7 @@
     <a-scene
       id="vr-color-circle-scene"
       background="color: #efe8dd"
-      renderer="antialias: true; colorManagement: true; toneMapping: ACESFilmic; toneMappingExposure: 1.2"
+      renderer="antialias: auto; colorManagement: true; foveationLevel: 1; toneMapping: ACESFilmic; exposure: 1.2"
       vr-mode-ui="enabled: true"
       embedded="false"
       desktop-grabber
@@ -200,6 +200,13 @@
             align="center"
             color="#e9ecef"
             width="2.4"
+          ></a-text>
+          <a-text
+            value="Trigger: select / grab   Grip: grab   Thumbstick: move"
+            position="0 0.61 0.02"
+            align="center"
+            color="#c9bda9"
+            width="2.15"
           ></a-text>
 
           <a-plane
@@ -538,6 +545,64 @@
             position="0 -0.56 0.02"
             vr-button="label: MENU; action: back-menu; width: 0.86; bgColor: #495057"
           ></a-entity>
+        </a-entity>
+
+        <a-entity
+          id="vr-hud-panel"
+          position="0 2.23 -1.45"
+          scale="0.72 0.72 0.72"
+          visible="false"
+          billboard
+        >
+          <a-plane
+            width="2.72"
+            height="0.52"
+            color="#2f251d"
+            opacity="0.94"
+            material="shader: flat; transparent: true; depthTest: false"
+          ></a-plane>
+          <a-text
+            id="vr-hud-level"
+            value="Level 1"
+            position="-1.14 0.08 0.02"
+            align="left"
+            color="#f3d78a"
+            width="1.55"
+          ></a-text>
+          <a-text
+            id="vr-hud-progress"
+            value="0/4"
+            position="0 0.08 0.02"
+            align="center"
+            color="#ffffff"
+            width="1.7"
+          ></a-text>
+          <a-text
+            id="vr-hud-mode"
+            value="EASY"
+            position="1.14 0.08 0.02"
+            align="right"
+            color="#d8f5a2"
+            width="1.45"
+          ></a-text>
+          <a-text
+            id="vr-hud-timer"
+            value=""
+            position="0 -0.14 0.02"
+            align="center"
+            color="#ffd8a8"
+            width="1.35"
+            visible="false"
+          ></a-text>
+          <a-text
+            id="vr-hud-shelf"
+            value=""
+            position="0 -0.14 0.02"
+            align="center"
+            color="#d8f5a2"
+            width="1.35"
+            visible="false"
+          ></a-text>
         </a-entity>
 
         <a-entity

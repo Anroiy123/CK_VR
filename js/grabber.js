@@ -25,10 +25,47 @@
   AFRAME.registerComponent("grabber", {
     init: function init() {
       this.grabbed = null;
-      this.el.addEventListener("gripdown", this.tryGrab.bind(this));
-      this.el.addEventListener("gripup", this.tryDrop.bind(this));
-      this.el.addEventListener("triggerdown", this.tryGrab.bind(this));
-      this.el.addEventListener("triggerup", this.tryDrop.bind(this));
+      this.boundTryGrab = this.tryGrab.bind(this);
+      this.boundTryDrop = this.tryDrop.bind(this);
+      this.boundTryTrigger = this.tryTrigger.bind(this);
+      this.el.addEventListener("gripdown", this.boundTryGrab);
+      this.el.addEventListener("gripup", this.boundTryDrop);
+      this.el.addEventListener("triggerdown", this.boundTryTrigger);
+      this.el.addEventListener("triggerup", this.boundTryDrop);
+      this.el.addEventListener("selectstart", this.boundTryTrigger);
+      this.el.addEventListener("selectend", this.boundTryDrop);
+      this.el.addEventListener("controllerdisconnected", this.boundTryDrop);
+    },
+
+    remove: function remove() {
+      this.tryDrop();
+      this.el.removeEventListener("gripdown", this.boundTryGrab);
+      this.el.removeEventListener("gripup", this.boundTryDrop);
+      this.el.removeEventListener("triggerdown", this.boundTryTrigger);
+      this.el.removeEventListener("triggerup", this.boundTryDrop);
+      this.el.removeEventListener("selectstart", this.boundTryTrigger);
+      this.el.removeEventListener("selectend", this.boundTryDrop);
+      this.el.removeEventListener("controllerdisconnected", this.boundTryDrop);
+    },
+
+    getPointedTarget: function getPointedTarget() {
+      const raycaster = this.el.components.raycaster;
+      if (!raycaster || !raycaster.intersectedEls.length) {
+        return null;
+      }
+
+      return raycaster.intersectedEls.map(resolveTarget).find(function (element) {
+        return !!element;
+      });
+    },
+
+    tryTrigger: function tryTrigger() {
+      const target = this.getPointedTarget();
+      if (!target || target.classList.contains("vr-button-root")) {
+        return;
+      }
+
+      this.tryGrab();
     },
 
     tryGrab: function tryGrab() {
@@ -36,16 +73,9 @@
         return;
       }
 
-      const raycaster = this.el.components.raycaster;
-      if (!raycaster || !raycaster.intersectedEls.length) {
-        return;
-      }
+      const target = this.getPointedTarget();
 
-      const target = raycaster.intersectedEls.map(resolveTarget).find(function (element) {
-        return element && element.classList.contains("grabbable");
-      });
-
-      if (!target || target.dataset.locked === "true") {
+      if (!target || !target.classList.contains("grabbable") || target.dataset.locked === "true") {
         return;
       }
 
