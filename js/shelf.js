@@ -186,20 +186,6 @@
         position: "0 " + (this.data.height + 0.04) + " 0",
         material: "color: #f0d7a1; opacity: 0.13; transparent: true; shader: flat; depthWrite: false",
       });
-
-      for (let slotIndex = 0; slotIndex < 10; slotIndex += 1) {
-        const row = Math.floor(slotIndex / 5);
-        const column = slotIndex % 5;
-        const x = (column - 2) * 0.21 + row * 0.035;
-        const z = 0.05 - row * 0.22;
-        appendCylinder(this.el, {
-          radius: "0.048",
-          height: "0.006",
-          position: x + " " + (this.data.height + 0.044) + " " + z,
-          rotation: "90 0 0",
-          material: "color: #241912; opacity: 0.36; transparent: true; roughness: 0.65; metalness: 0.06",
-        });
-      }
     },
   });
 })();

@@ -28,28 +28,45 @@
   function setHeldRenderPriority(el, enabled) {
     el.object3D.traverse(function (node) {
       if (node.isMesh && node.material) {
+        const materials = Array.isArray(node.material) ? node.material : [node.material];
+
         if (enabled) {
           if (!node.userData.colorBallRenderState) {
             node.userData.colorBallRenderState = {
               renderOrder: node.renderOrder,
-              depthTest: node.material.depthTest,
-              depthWrite: node.material.depthWrite,
+              materials: materials.map(function (material) {
+                return {
+                  material: material,
+                  transparent: material.transparent,
+                  opacity: material.opacity,
+                  depthTest: material.depthTest,
+                  depthWrite: material.depthWrite,
+                };
+              }),
             };
           }
           node.renderOrder = 1000;
-          node.material.depthTest = false;
-          node.material.depthWrite = false;
-          node.material.needsUpdate = true;
+          materials.forEach(function (material) {
+            material.transparent = true;
+            material.opacity = 1;
+            material.depthTest = false;
+            material.depthWrite = false;
+            material.needsUpdate = true;
+          });
           return;
         }
 
         const renderState = node.userData.colorBallRenderState;
         if (renderState) {
           node.renderOrder = renderState.renderOrder;
-          node.material.depthTest = renderState.depthTest;
-          node.material.depthWrite = renderState.depthWrite;
+          renderState.materials.forEach(function (materialState) {
+            materialState.material.transparent = materialState.transparent;
+            materialState.material.opacity = materialState.opacity;
+            materialState.material.depthTest = materialState.depthTest;
+            materialState.material.depthWrite = materialState.depthWrite;
+            materialState.material.needsUpdate = true;
+          });
           delete node.userData.colorBallRenderState;
-          node.material.needsUpdate = true;
         }
       }
     });
