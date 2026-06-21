@@ -1,92 +1,88 @@
 # VR Color Circle
 
-VR Color Circle là game giáo dục 3D/VR chạy hoàn toàn phía client, dùng A-Frame/WebXR để dạy vòng tròn màu qua thao tác kéo thả và pha màu trực tiếp trong không gian ảo. Ở trạng thái hiện tại, dự án không còn chỉ là game đặt bóng theo wheel cơ bản mà đã có thêm nhánh `Mixing Mode`, khu exhibition, HUD diegetic, leaderboard tách theo từng mode, và các script kiểm tra runtime cho tiến trình level.
+VR Color Circle là game giáo dục 3D/VR giúp người chơi tìm hiểu vòng tròn màu bằng thao tác kéo thả, sắp xếp và pha màu trực tiếp trong không gian triển lãm ảo.
 
-## Tổng quan hiện tại
+## Chơi trực tuyến
 
-- Entry point: `index.html`
-- Kiến trúc: static site, không backend, không `package.json`, không bước build bắt buộc
-- Runtime chính: A-Frame 1.6.0, aframe-extras 7.6.0, Howler.js 2.2.4
-- Input: chuột trên desktop và controller trong VR
-- Lưu trạng thái điểm: `localStorage`
-- Luồng chính trong menu:
-  - `Normal Mode`: `Easy`, `Hard`
-  - `Mixing Mode`: `Mix Easy`, `Mix Hard`
-  - `Extra`: `Free Play`, `Leaderboard`
+Production: [https://ckvr.vercel.app](https://ckvr.vercel.app)
 
-## Điểm nổi bật
+## Tính năng chính
 
-- Một scene A-Frame duy nhất chứa đầy đủ menu, HUD, gameplay world, leaderboard, victory và game over.
-- Hai kiểu chơi khác nhau:
-  - `Normal Mode`: kéo bóng màu lên wheel đúng vị trí.
-  - `Mixing Mode`: đưa bóng vào trạm pha màu để tạo màu mục tiêu, rồi đặt kết quả lên wheel.
-- Tiến trình 5 level cho cả nhánh normal và nhánh mixing.
-- Có `skip level` trong `easy` và `mix-easy`.
-- Leaderboard lưu top 10 kết quả cho từng mode và hiển thị top 5 trên panel.
-- Audio có cơ chế fallback bằng Web Audio tone nếu file âm thanh không tải được.
-- Có script kiểm tra runtime cho progression của normal mode và mixing mode trong `tests/`.
+- Chạy hoàn toàn trên trình duyệt, không cần backend.
+- Hỗ trợ chuột trên desktop và controller trong WebXR.
+- Hai nhánh gameplay: đặt màu trực tiếp và pha màu.
+- Mỗi nhánh có 5 level với độ khó tăng dần.
+- Chế độ Easy không giới hạn thời gian và cho phép bỏ qua level.
+- Chế độ Hard sử dụng đồng hồ đếm ngược.
+- Free Play cho phép khám phá toàn bộ bảng màu.
+- Leaderboard lưu kết quả riêng cho từng chế độ bằng `localStorage`.
+- HUD dạng DOM overlay cố định ở góc trên bên phải, hiển thị level, chế độ, tiến độ, thời gian và trạng thái kệ.
+- Nút Back Menu luôn có trong gameplay; nút Skip Level chỉ xuất hiện ở Easy và Mix Easy.
+- Âm thanh sử dụng Howler.js và có Web Audio fallback khi asset không tải được.
 
-## Công nghệ sử dụng
+## Công nghệ
 
-- `HTML5`
-- `CSS3`
-- `Vanilla JavaScript` theo kiểu global/IIFE
-- `A-Frame`
-- `aframe-extras`
-- `Howler.js`
-- `WebXR`
+- HTML5, CSS3, Vanilla JavaScript
+- A-Frame 1.6.0
+- aframe-extras 7.6.0
+- Howler.js 2.2.4
+- WebXR
+- Vercel
 
-## Cấu trúc dự án
+## Chế độ chơi
 
-```text
-CK_VR2/
-├─ index.html
-├─ README.md
-├─ css/
-│  └─ styles.css
-├─ js/
-│  ├─ ambient-particles.js
-│  ├─ ball-respawn.js
-│  ├─ color-ball.js
-│  ├─ color-data.js
-│  ├─ color-wheel.js
-│  ├─ exhibition-room.js
-│  ├─ free-play.js
-│  ├─ game-manager.js
-│  ├─ grabber.js
-│  ├─ grid-floor.js
-│  ├─ leaderboard.js
-│  ├─ mixing-station.js
-│  ├─ particle-pool.js
-│  ├─ shelf.js
-│  ├─ snap-to-slot.js
-│  ├─ sound-manager.js
-│  ├─ starfield-sky.js
-│  ├─ timer.js
-│  ├─ tooltip.js
-│  ├─ ui-manager.js
-│  └─ vr-button.js
-├─ assets/
-│  ├─ images/
-│  └─ *.glb
-├─ tests/
-│  ├─ normal-level-check.js
-│  └─ mixing-level-runtime-check.js
-├─ docs/
-└─ skills/
-```
+### Normal Mode
 
-## Cách chạy local
+- `Easy`: đặt bóng màu đúng vị trí trên vòng tròn màu, không giới hạn thời gian.
+- `Hard`: cùng cơ chế với Easy nhưng có thời gian giới hạn cho từng level.
 
-Dự án là static site, nên cách chạy ổn định nhất là phục vụ repo qua localhost thay vì mở `file://` trực tiếp.
+### Mixing Mode
 
-### Cách khuyến nghị
+- `Mix Easy`: kết hợp bóng tại trạm pha màu, sau đó đặt màu tạo được lên wheel.
+- `Mix Hard`: có đồng hồ đếm ngược và yêu cầu quản lý số chỗ trống trên kệ.
+- Công thức sai tạo ra bóng `Waste` thay vì màu mục tiêu.
+- Thêm màu trắng vào một màu hợp lệ sẽ tạo ra biến thể tint tương ứng.
 
-1. Mở terminal tại thư mục repo.
-2. Chạy một static server bất kỳ.
-3. Truy cập `http://127.0.0.1:<port>/index.html`.
+### Free Play
 
-Ví dụ với Python:
+Free Play mở toàn bộ tập màu để người chơi tự do thử wheel, kệ và các tương tác mà không bị ràng buộc bởi tiến trình thắng thua.
+
+### Leaderboard
+
+Kết quả được lưu riêng cho `easy`, `hard`, `mix-easy` và `mix-hard`. Mỗi chế độ giữ tối đa 10 kết quả, panel trong game hiển thị 5 kết quả cao nhất.
+
+## Tiến trình level
+
+| Level | Normal Mode | Số mục tiêu | Mixing Mode |
+| --- | --- | ---: | --- |
+| 1 | Primary Colors + White | 4 | Mix Primary Colors |
+| 2 | Secondary Colors | 3 | Mix Secondary Colors |
+| 3 | Tertiary Colors | 6 | Mix Tertiary Colors |
+| 4 | Tint Colors | 12 | Mix Tint Colors |
+| 5 | Full Color Wheel | 25 | Master Mixer |
+
+Cấu hình màu, recipe, mục tiêu và thời gian nằm trong `js/color-data.js`.
+
+## Điều khiển
+
+### Desktop
+
+- Di chuyển camera bằng `look-controls`.
+- Nhấn và kéo bóng bằng chuột.
+- Thả bóng gần slot, kệ hoặc trạm pha để kích hoạt tương tác tương ứng.
+- Chọn các nút menu bằng con trỏ giữa màn hình.
+
+### VR
+
+- Hai tay sử dụng `laser-controls` và component `grabber`.
+- Raycaster tương tác với các entity có class `.interactive`.
+- Cầm, di chuyển và thả bóng bằng controller.
+
+## Chạy local
+
+Dự án là static site, không có `package.json` và không cần bước build.
+
+Chạy một static server tại thư mục dự án:
 
 ```powershell
 python -m http.server 4173
@@ -98,157 +94,48 @@ Sau đó mở:
 http://127.0.0.1:4173/index.html
 ```
 
-### Ghi chú
+Không nên mở trực tiếp bằng `file://` vì một số tài nguyên và luồng trình duyệt hoạt động ổn định hơn qua localhost.
 
-- Không cần cài dependency từ `npm` vì repo hiện không có `package.json`.
-- Có thể dùng VS Code Live Server hoặc bất kỳ static server nào khác.
-- Nếu cần test browser automation hoặc WebXR flow, nên luôn dùng localhost.
+## Cấu trúc repository
 
-## Cách chơi
-
-### Desktop
-
-- Dùng chuột để kéo và thả bóng màu.
-- Camera dùng `look-controls`, còn thao tác kéo thả đi qua `desktop-grabber`.
-
-### VR
-
-- Hai tay `left-hand` và `right-hand` dùng `laser-controls` + `grabber`.
-- Các nút menu và object gameplay đều đi qua raycaster vào các entity `.interactive`.
-
-### Mục tiêu
-
-- Ở `Normal Mode`: đặt đúng bóng màu vào slot tương ứng trên color wheel.
-- Ở `Mixing Mode`: pha ra màu cần thiết tại `mixing-station`, sau đó đặt kết quả đúng lên wheel.
-
-## Các chế độ chơi
-
-### Normal Mode
-
-- `Easy`: không giới hạn thời gian, có nút skip level.
-- `Hard`: có đồng hồ đếm ngược cho từng level.
-
-### Mixing Mode
-
-- `Mix Easy`: không giới hạn thời gian, có nút skip level.
-- `Mix Hard`: có đồng hồ đếm ngược và thêm áp lực quản lý chỗ trống trên kệ.
-
-### Free Play
-
-- Dùng `FreePlayManager`.
-- Spawn toàn bộ tập màu từ `COLOR_LIST`.
-- Hiển thị wheel và HUD mà không theo tiến trình thắng thua chuẩn.
-
-### Leaderboard
-
-- Lưu dữ liệu theo 4 mode:
-  - `easy`
-  - `hard`
-  - `mix-easy`
-  - `mix-hard`
-- Mỗi mode lưu tối đa 10 kết quả trong `localStorage`.
-- Panel leaderboard hiện top 5 kết quả ngắn gọn.
-
-## Progression level hiện tại
-
-### Normal Mode
-
-- Level 1: `Primary Colors + White` với 4 mục tiêu.
-- Level 2: `Secondary Colors` với 3 mục tiêu.
-- Level 3: `Tertiary Colors` với 6 mục tiêu.
-- Level 4: `Tint Colors` với 12 mục tiêu.
-- Level 5: `Full Color Wheel` với 25 mục tiêu.
-
-### Mixing Mode
-
-- Level 1: `Mix Primary Colors`
-- Level 2: `Mix Secondary Colors`
-- Level 3: `Mix Tertiary Colors`
-- Level 4: `Mix Tint Colors`
-- Level 5: `Master Mixer`
-
-Logic level nằm trong `js/color-data.js` qua `LEVEL_CONFIG` và `MIX_LEVEL_CONFIG`, còn flow chuyển level/victory nằm trong `js/game-manager.js`.
-
-## Kiến trúc chính
-
-### `index.html`
-
-- Khai báo toàn bộ scene A-Frame.
-- Nạp script theo đúng thứ tự phụ thuộc.
-- Chứa menu panel, leaderboard panel, victory panel, gameover panel, freeplay panel, HUD và gameplay world.
-
-### `js/game-manager.js`
-
-- State machine trung tâm cho `MENU`, `PLAYING`, `LEVEL_COMPLETE`, `VICTORY`, `TIME_UP`, `FREE_PLAY`.
-- Điều phối `startGame`, `startMixingGame`, `initLevel`, `initMixingLevel`, `skipLevel`, `retryCurrentLevel`, `backToMenu`.
-- Quản lý shelf slot của mixing mode và điều kiện thua khi kệ đầy.
-
-### `js/color-data.js`
-
-- Khai báo dữ liệu màu, recipe pha màu, tint variant, config level và các helper dùng chung.
-- Đây là nguồn sự thật cho số lượng target, timer và mapping pha màu.
-
-### `js/color-wheel.js`
-
-- Dựng color wheel.
-- Cập nhật các slot hiển thị theo level.
-- Xóa/đặt màu khi người chơi hoàn thành mục tiêu.
-
-### `js/mixing-station.js`
-
-- Giữ bóng đầu vào, pha màu, tạo kết quả hoặc tạo `waste`.
-- Hỗ trợ pha tint bằng cách thêm `white` vào màu đang có.
-
-### `js/ui-manager.js`
-
-- Bật/tắt panel.
-- Đồng bộ HUD, timer, shelf counter, transient status message.
-- Route các event UI sang `GameManager` và `FreePlayManager`.
-
-### `js/sound-manager.js`
-
-- Phát BGM và SFX qua Howler khi asset tồn tại.
-- Nếu audio file lỗi hoặc thiếu, fallback sang tone phát bằng Web Audio API.
-
-## Kiểm tra hiện có
-
-Repo hiện chưa có browser e2e test đầy đủ, nhưng đã có 2 script Node để kiểm tra progression logic:
-
-```powershell
-node tests/normal-level-check.js
-node tests/mixing-level-runtime-check.js
+```text
+CK_VR2/
+├─ index.html
+├─ README.md
+├─ assets/
+│  ├─ images/
+│  └─ *.glb
+├─ css/
+│  └─ styles.css
+└─ js/
+   ├─ color-data.js
+   ├─ color-wheel.js
+   ├─ game-manager.js
+   ├─ mixing-station.js
+   ├─ shelf.js
+   ├─ sound-manager.js
+   ├─ ui-manager.js
+   └─ ...
 ```
 
-Hai script này kiểm tra các điểm chính:
+## Kiến trúc
 
-- Số level hiện tại là 5 cho mỗi nhánh.
-- Cấu hình target của từng level khớp với `color-data.js`.
-- Hoàn thành level cuối sẽ đi vào `victory`.
-- Skip level ở level cuối cũng đi vào `victory`.
+- `index.html`: scene A-Frame, menu, gameplay world, panel kết quả và DOM HUD.
+- `js/color-data.js`: nguồn dữ liệu màu, recipe pha màu và cấu hình level.
+- `js/game-manager.js`: state machine và luồng Normal/Mixing Mode.
+- `js/color-wheel.js`: dựng wheel, slot mục tiêu và trạng thái màu đã đặt.
+- `js/mixing-station.js`: xử lý recipe, tint và kết quả pha sai.
+- `js/shelf.js`: quản lý vị trí bóng và giới hạn kệ.
+- `js/ui-manager.js`: đồng bộ panel, HUD, timer, tiến độ và các event UI.
+- `js/sound-manager.js`: quản lý nhạc nền, hiệu ứng và audio fallback.
 
-## Checklist test thủ công nên giữ
+## Triển khai
 
-- Mở app qua localhost và xác nhận menu hiện đủ 6 lựa chọn.
-- Chơi thử `Easy`, `Hard`, `Mix Easy`, `Mix Hard`.
-- Kiểm tra `skip level` chỉ hiện ở `easy` và `mix-easy`.
-- Kiểm tra mixing station trả về kết quả đúng với recipe hợp lệ và `waste` với tổ hợp sai.
-- Kiểm tra leaderboard cập nhật sau khi thắng ở từng mode có tính điểm.
-- Kiểm tra `Free Play` vào được, reset được và quay về menu được.
-- Kiểm tra tương tác desktop lẫn VR controller nếu có thiết bị.
+Nhánh `main` được triển khai lên Vercel. Workflow tại `.github/workflows/vercel-deploy.yml` có thể build và deploy production khi các Vercel secrets cần thiết đã được cấu hình trong GitHub.
 
-## Hạn chế hiện tại
+## Giới hạn
 
-- Không có backend nên leaderboard chỉ cục bộ theo trình duyệt.
-- Không có bước build, bundling hoặc module system hiện đại.
-- Repo hiện không có thư mục `assets/sounds`; audio runtime dựa vào fallback nếu asset không hiện diện.
-- Test hiện tại mới bao phủ config/runtime logic, chưa bao phủ render và tương tác browser thực tế.
-- Chất lượng trải nghiệm VR vẫn phụ thuộc thiết bị WebXR và hiệu năng máy chạy.
-
-## File nên đọc trước nếu tiếp tục phát triển
-
-- `index.html`
-- `js/game-manager.js`
-- `js/color-data.js`
-- `js/color-wheel.js`
-- `js/mixing-station.js`
-- `js/ui-manager.js`
+- Leaderboard chỉ tồn tại trong trình duyệt hiện tại vì dữ liệu được lưu bằng `localStorage`.
+- Không có hệ thống tài khoản hoặc đồng bộ điểm giữa thiết bị.
+- Chất lượng và hiệu năng WebXR phụ thuộc vào trình duyệt và thiết bị.
+- Nếu không có file âm thanh tương ứng, game sẽ dùng tone fallback thay thế.
