@@ -11,4 +11,6 @@ output
 openspec
 .gitnexus
 .vscode
-openspec
+.playwright-mcp
+tests
+.kiro

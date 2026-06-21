@@ -164,8 +164,8 @@ function loadScripts(context) {
   wheelDef.prepareMixingLevel.call(wheelInstance, 4);
   assert(capturedVisibleColors, 'prepareMixingLevel should pass visible colors to updateVisibleSlots');
   assert(capturedVisibleColors.length === 13, 'Level 4 should reveal 13 target slots');
-  assert(wheelInstance.tintRingEl.attributes.visible === true, 'Tint ring should be visible for tint level');
-  assert(wheelInstance.centerRingEl.attributes.visible === true, 'Center ring should be visible when white is targeted');
+  assert(wheelInstance.tintRingEl.attributes.visible === false, 'Tint ring should stay hidden for tint level');
+  assert(wheelInstance.centerRingEl.attributes.visible === false, 'Center ring should stay hidden when white is targeted');
 
   capturedVisibleColors = null;
   wheelDef.prepareMixingLevel.call(wheelInstance, 2);

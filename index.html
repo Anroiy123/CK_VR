@@ -7,17 +7,17 @@
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.6.0/dist/aframe-extras.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
-    <script src="js/exhibition-room.js"></script>
+    <script src="js/exhibition-room.js?v=visual-polish-20260508b"></script>
     <script src="js/color-data.js"></script>
     <script src="js/tooltip.js"></script>
     <script src="js/grabber.js"></script>
-    <script src="js/color-wheel.js"></script>
-    <script src="js/color-ball.js"></script>
-    <script src="js/shelf.js"></script>
-    <script src="js/snap-to-slot.js"></script>
+    <script src="js/color-wheel.js?v=visual-polish-20260508d"></script>
+    <script src="js/color-ball.js?v=visual-polish-20260508"></script>
+    <script src="js/shelf.js?v=visual-polish-20260508"></script>
+    <script src="js/snap-to-slot.js?v=visual-polish-20260508"></script>
     <script src="js/mixing-station.js"></script>
     <script src="js/ball-respawn.js"></script>
-    <script src="js/particle-pool.js"></script>
+    <script src="js/particle-pool.js?v=visual-polish-20260508"></script>
     <script src="js/sound-manager.js"></script>
     <script src="js/timer.js"></script>
     <script src="js/leaderboard.js"></script>
@@ -38,18 +38,18 @@
     >
       <a-assets timeout="10000"></a-assets>
 
-      <a-light type="ambient" color="#f5eadb" intensity="0.55"></a-light>
+      <a-light type="ambient" color="#f5eadb" intensity="0.42"></a-light>
       <a-light
         type="directional"
         color="#fff7ed"
-        intensity="0.48"
+        intensity="0.68"
         position="-1.4 3.2 1.6"
-        castShadow="false"
+        castShadow="true"
       ></a-light>
       <a-light
         type="point"
         color="#ffd8a8"
-        intensity="0.55"
+        intensity="0.68"
         position="0 2.55 -2.25"
       ></a-light>
       <a-light
@@ -86,146 +86,6 @@
             material="shader: flat"
           ></a-cursor>
 
-          <a-entity
-            id="diegetic-hud"
-            position="-1.92 0.75 -1.4"
-            visible="false"
-          >
-            <!-- Soft outer glow -->
-            <a-plane
-              width="1.05"
-              height="0.70"
-              color="#d8c3a5"
-              opacity="0.18"
-              material="shader: flat; transparent: true; depthTest: false"
-            ></a-plane>
-            <!-- Main glass card -->
-            <a-plane
-              width="0.96"
-              height="0.62"
-              position="0 0 0.01"
-              color="#2f251d"
-              opacity="0.94"
-              material="shader: flat; transparent: true; depthTest: false"
-            ></a-plane>
-            <!-- Top accent -->
-            <a-plane
-              width="0.86"
-              height="0.02"
-              position="0 0.28 0.02"
-              color="#d9b56f"
-              opacity="0.72"
-              material="shader: flat; transparent: true; depthTest: false"
-            ></a-plane>
-            <!-- Level text -->
-            <a-text
-              id="hud-level"
-              value="Level 1"
-              position="-0.36 0.18 0.03"
-              align="left"
-              color="#f3d78a"
-              scale="0.34 0.34 0.34"
-              font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-            ></a-text>
-            <!-- Mode chip -->
-            <a-plane
-              width="0.34"
-              height="0.115"
-              position="0.28 0.19 0.02"
-              color="#4a3429"
-              opacity="0.9"
-              material="shader: flat; transparent: true; depthTest: false"
-            ></a-plane>
-            <!-- Mode label -->
-            <a-text
-              id="hud-mode"
-              value="EASY"
-              position="0.28 0.18 0.03"
-              align="center"
-              color="#fff1d6"
-              scale="0.22 0.22 0.22"
-              font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-            ></a-text>
-            <!-- Progress text -->
-            <a-text
-              id="hud-progress"
-              value="0/3"
-              position="0 0.03 0.03"
-              align="center"
-              color="#f8f9fa"
-              scale="0.52 0.52 0.52"
-              font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-            ></a-text>
-            <a-text
-              value="colors placed"
-              position="0 -0.095 0.03"
-              align="center"
-              color="#ced4da"
-              scale="0.18 0.18 0.18"
-            ></a-text>
-            <!-- Soft divider -->
-            <a-plane
-              id="hud-info-divider"
-              width="0.76"
-              height="0.012"
-              position="0 -0.16 0.025"
-              color="#b89762"
-              opacity="0.34"
-              material="shader: flat; transparent: true; depthTest: false"
-            ></a-plane>
-            <!-- Shelf slots row -->
-            <a-plane
-              width="0.38"
-              height="0.10"
-              position="-0.20 -0.24 0.022"
-              color="#3b3027"
-              opacity="0.74"
-              material="shader: flat; transparent: true; depthTest: false"
-            ></a-plane>
-            <a-text
-              id="hud-shelf-counter"
-              value="Slots: 0/10"
-              position="-0.20 -0.245 0.03"
-              align="center"
-              color="#b2f2bb"
-              scale="0.20 0.20 0.20"
-              visible="false"
-              font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-            ></a-text>
-            <a-plane
-              width="0.38"
-              height="0.10"
-              position="0.20 -0.24 0.022"
-              color="#3b3027"
-              opacity="0.74"
-              material="shader: flat; transparent: true; depthTest: false"
-            ></a-plane>
-            <!-- Timer row (hidden by default) -->
-            <a-entity
-              id="hud-timer-row"
-              position="0.20 -0.245 0.03"
-              visible="false"
-            >
-              <a-text
-                id="timer-label"
-                value="TIME"
-                position="-0.04 0 0"
-                align="right"
-                color="#adb5bd"
-                scale="0.16 0.16 0.16"
-                font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-              ></a-text>
-              <a-text
-                id="timer-text"
-                value="--"
-                position="0.02 0 0"
-                align="left"
-                color="#91f7ff"
-                scale="0.20 0.20 0.20"
-                font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-              ></a-text>
-            </a-entity>
-          </a-entity>
         </a-entity>
 
         <a-entity
@@ -283,6 +143,17 @@
         >
           <a-entity
             vr-button="label: SKIP; helper: Next level; action: skip-level; width: 0.65; height: 0.22; bgColor: #b7822f; hoverColor: #c99543"
+          ></a-entity>
+        </a-entity>
+        <a-entity
+          id="back-menu-button"
+          position="1.34 0.78 -1.6"
+          scale="0.72 0.72 0.72"
+          visible="false"
+          billboard
+        >
+          <a-entity
+            vr-button="label: MENU; helper: Back menu; action: back-menu; width: 0.65; height: 0.22; bgColor: #495057; hoverColor: #5c6770"
           ></a-entity>
         </a-entity>
 
@@ -446,14 +317,14 @@
         >
           <a-plane
             width="3.71"
-            height="2.86"
+            height="3.6"
             color="#d8c3a5"
             opacity="0.08"
             material="shader: flat; transparent: true; depthTest: false"
           ></a-plane>
           <a-plane
             width="3.55"
-            height="2.7"
+            height="3.44"
             color="#2f251d"
             opacity="1"
             material="shader: flat"
@@ -479,6 +350,22 @@
             position="0.82 0.25 0.01"
             align="left"
             color="#ff6b6b"
+            width="1.7"
+          ></a-text>
+          <a-text
+            id="lb-mix-easy-scores"
+            value="MIX EASY&#10;---"
+            position="-0.82 -0.52 0.01"
+            align="left"
+            color="#ffd43b"
+            width="1.7"
+          ></a-text>
+          <a-text
+            id="lb-mix-hard-scores"
+            value="MIX HARD&#10;---"
+            position="0.82 -0.52 0.01"
+            align="left"
+            color="#ff922b"
             width="1.7"
           ></a-text>
           <a-entity
@@ -635,7 +522,7 @@
             width="1.6"
           ></a-text>
           <a-text
-            value="Explore all 12 colors"
+            value="Explore all 22 colors"
             position="0 0.08 0.01"
             align="center"
             color="#e7f5ff"
@@ -687,5 +574,34 @@
         </a-entity>
       </a-entity>
     </a-scene>
+    <section
+      id="diegetic-hud"
+      class="game-hud"
+      data-ui-surface="dom"
+      hidden
+      aria-live="polite"
+    >
+      <div class="game-hud__edge"></div>
+      <header class="game-hud__topline">
+        <span id="hud-level" class="game-hud__level">Level 1</span>
+        <span id="hud-mode" class="game-hud__mode">EASY</span>
+      </header>
+      <div class="game-hud__body">
+        <strong id="hud-progress" class="game-hud__progress">0/3</strong>
+        <div class="game-hud__meta">
+          <span class="game-hud__label">PLACED</span>
+          <div class="game-hud__track" aria-hidden="true">
+            <span id="hud-progress-bar" class="game-hud__bar"></span>
+          </div>
+        </div>
+      </div>
+      <footer class="game-hud__footer">
+        <span id="hud-shelf-counter" class="game-hud__counter" hidden>Slots: 0/10</span>
+        <span id="hud-timer-row" class="game-hud__timer" data-ui-surface="dom" hidden>
+          <span class="game-hud__timer-label">TIME</span>
+          <span id="timer-text" class="game-hud__timer-value">--</span>
+        </span>
+      </footer>
+    </section>
   </body>
 </html>

@@ -70,6 +70,7 @@
     totalForLevel: 0,
     runStartedAt: 0,
     transitionTimer: null,
+    shelfFullTimer: null,
 
     init: function init() {
       this.resetMixingShelfReservations();
@@ -119,6 +120,10 @@
       if (this.transitionTimer) {
         clearTimeout(this.transitionTimer);
         this.transitionTimer = null;
+      }
+      if (this.shelfFullTimer) {
+        clearTimeout(this.shelfFullTimer);
+        this.shelfFullTimer = null;
       }
     },
 
@@ -344,7 +349,8 @@
     checkMixingGameOver: function checkMixingGameOver() {
       if (this.mixingShelfUsed >= 10 && this.placedCount < this.totalForLevel) {
         if (window.UIManager) UIManager.showTransientMessage("Shelf Full! Game Over in 3s...", 3000);
-        setTimeout(function () {
+        this.shelfFullTimer = setTimeout(function () {
+          this.shelfFullTimer = null;
           if (this.state === "PLAYING") this.onTimeUp();
         }.bind(this), 3000);
       }

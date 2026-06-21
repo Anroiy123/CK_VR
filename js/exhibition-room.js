@@ -6,7 +6,11 @@
   var SPECTATORS = [
     { position: "-3.2 0 1.15", scale: 1.02 },
     { position: "-2.25 0 1.78", scale: 0.94 },
-    { position: "-1.05 0 2.18", scale: 0.9, modelSrc: "assets/images/ishowspeed_fortnite_skin.glb" },
+    {
+      position: "-1.05 0 2.18",
+      scale: 0.9,
+      modelSrc: "assets/images/ishowspeed_fortnite_skin.glb",
+    },
     { position: "1.05 0 2.18", scale: 0.92, modelSrc: "assets/images/mrbeast_fortnite_skin.glb" },
     { position: "2.25 0 1.78", scale: 0.95 },
     { position: "3.2 0 1.15", scale: 1.03 },
@@ -17,20 +21,6 @@
   var SPECTATOR_MODEL_SRC = "assets/npc_character_-_proto_series.glb";
   var EXHIBITION_MODEL_SRC = "assets/Sketchfab_Scene.glb";
   var SPECTATOR_LOOK_TARGET = { x: 0, z: -1.45 };
-
-  function appendBox(parent, options) {
-    var box = document.createElement("a-box");
-    box.setAttribute("width", options.width);
-    box.setAttribute("height", options.height);
-    box.setAttribute("depth", options.depth);
-    box.setAttribute("position", options.position);
-    box.setAttribute("material", options.material);
-    if (options.rotation) {
-      box.setAttribute("rotation", options.rotation);
-    }
-    parent.appendChild(box);
-    return box;
-  }
 
   function appendCylinder(parent, options) {
     var cylinder = document.createElement("a-cylinder");
@@ -195,14 +185,6 @@
       this.onLevelComplete = this.startApplause.bind(this);
 
       createExhibitionModel(this.el);
-
-      appendBox(this.el, {
-        width: "2.16",
-        height: "0.09",
-        depth: "0.56",
-        position: "0 0.045 -1.76",
-        material: "color: #6f6255; roughness: 0.62; metalness: 0.05",
-      });
 
       SPECTATORS.forEach(function (spectator) {
         var spectatorEl = createSpectator(this.el, spectator);

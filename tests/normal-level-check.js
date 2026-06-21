@@ -184,17 +184,17 @@ function levelHexes(context, level) {
   wheelDef.prepareGameLevel.call(wheelInstance, 1);
   assert(capturedVisibleColors.length === 4, 'Level 1 should reveal 4 normal targets');
   assert(wheelInstance.tintRingEl.attributes.visible === false, 'Tint ring should be hidden on Level 1');
-  assert(wheelInstance.centerRingEl.attributes.visible === true, 'Center ring should be visible on Level 1');
+  assert(wheelInstance.centerRingEl.attributes.visible === false, 'Center ring should stay hidden on Level 1');
 
   wheelDef.prepareGameLevel.call(wheelInstance, 4);
   assert(capturedVisibleColors.length === 12, 'Level 4 should reveal 12 tint targets');
-  assert(wheelInstance.tintRingEl.attributes.visible === true, 'Tint ring should be visible on Level 4');
+  assert(wheelInstance.tintRingEl.attributes.visible === false, 'Tint ring should stay hidden on Level 4');
   assert(wheelInstance.centerRingEl.attributes.visible === false, 'Center ring should be hidden on Level 4');
 
   wheelDef.prepareGameLevel.call(wheelInstance, 5);
   assert(capturedVisibleColors.length === 25, 'Level 5 should reveal 25 normal targets');
-  assert(wheelInstance.tintRingEl.attributes.visible === true, 'Tint ring should be visible on Level 5');
-  assert(wheelInstance.centerRingEl.attributes.visible === true, 'Center ring should be visible on Level 5');
+  assert(wheelInstance.tintRingEl.attributes.visible === false, 'Tint ring should stay hidden on Level 5');
+  assert(wheelInstance.centerRingEl.attributes.visible === false, 'Center ring should stay hidden on Level 5');
 
   context.UIManager = {
     showGameHUD: function () {},

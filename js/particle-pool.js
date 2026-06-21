@@ -24,6 +24,8 @@
         color: 0xffffff,
         transparent: true,
         opacity: 0.9,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
       });
 
       this.mesh = new THREE.InstancedMesh(geometry, material, TOTAL_INSTANCES);
@@ -81,17 +83,18 @@
         this.init();
       }
 
-      var entry = null;
+      var entryIndex = -1;
       for (var i = 0; i < POOL_SIZE; i += 1) {
         if (!this.pool[i].active) {
-          entry = this.pool[i];
+          entryIndex = i;
           break;
         }
       }
-      if (!entry) {
+      if (entryIndex === -1) {
         return;
       }
 
+      var entry = this.pool[entryIndex];
       var origin = toVector3(position);
       entry.active = true;
       entry.startedAt = performance.now();
@@ -126,13 +129,13 @@
       var color = this.tempColor;
       color.set(colorHex || "#ffffff");
       for (var p = 0; p < PARTICLE_COUNT_PER_BURST; p += 1) {
-        var mainIdx = this.getInstanceIndex(i, p, 0);
+        var mainIdx = this.getInstanceIndex(entryIndex, p, 0);
         this.mesh.setColorAt(mainIdx, color);
         for (var t = 0; t < TRAIL_COUNT; t += 1) {
           var trailColor = color.clone();
           var dimFactor = 1.0 - (t + 1) * 0.15;
           trailColor.multiplyScalar(dimFactor);
-          this.mesh.setColorAt(this.getInstanceIndex(i, p, t + 1), trailColor);
+          this.mesh.setColorAt(this.getInstanceIndex(entryIndex, p, t + 1), trailColor);
         }
       }
       this.mesh.instanceColor.needsUpdate = true;

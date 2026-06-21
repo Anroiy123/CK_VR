@@ -43,8 +43,8 @@
     }) || null;
   }
 
-  const MIXING_STATION_DESKTOP_DROP_DISTANCE = 0.2;
-  const MIXING_STATION_WORLD_DROP_DISTANCE = 0.5;
+  const MIXING_STATION_DESKTOP_DROP_DISTANCE = APP_CONFIG.mixingStationDesktopDropDistance;
+  const MIXING_STATION_WORLD_DROP_DISTANCE = APP_CONFIG.mixingStationWorldDropDistance;
 
   AFRAME.registerComponent("snap-to-slot", {
     schema: {
@@ -173,11 +173,6 @@
         } else if (successAction === 'mixed') {
           this.returnToShelf();
           return;
-        } else if (successAction === 'destroyed') {
-          if (this.el.parentNode) {
-            this.el.parentNode.removeChild(this.el);
-          }
-          return;
         } else {
           this.snapFail();
           return;
@@ -235,6 +230,9 @@
 
       if (wheel) {
         wheel.occupyColor(slotColor, ballColor);
+        if (wheel.playSlotFeedback) {
+          wheel.playSlotFeedback(slot, ballColor, isCorrect ? "success" : "error");
+        }
       }
 
       if (isFreePlay) {
@@ -268,7 +266,7 @@
 
       this.el.dataset.locked = "true";
       this.el.classList.remove("grabbable", "interactive");
-      this.el.setAttribute("visible", false);
+      this.el.setAttribute("visible", slot.dataset.type === "Base");
       this.el.removeAttribute("ball-respawn");
 
       if (window.GameManager && window.GameManager.isMixingMode && window.GameManager.isMixingMode()) {
@@ -302,6 +300,10 @@
     snapFail: function snapFail() {
       if (window.SoundManager) {
         SoundManager.play("wrong");
+      }
+
+      if (window.ParticlePool) {
+        ParticlePool.burst(getWorldPosition(this.el), "#ff6b6b");
       }
 
       const current = this.el.object3D.position.clone();

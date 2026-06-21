@@ -18,6 +18,19 @@
 
     init: function init() {
       this.ready = true;
+      // Resume AudioContext on first user gesture so fallback tones work immediately
+      var self = this;
+      function resumeOnGesture() {
+        if (self.audioContext && self.audioContext.state === 'suspended') {
+          self.audioContext.resume();
+        }
+        document.removeEventListener('click', resumeOnGesture);
+        document.removeEventListener('keydown', resumeOnGesture);
+        document.removeEventListener('touchstart', resumeOnGesture);
+      }
+      document.addEventListener('click', resumeOnGesture);
+      document.addEventListener('keydown', resumeOnGesture);
+      document.addEventListener('touchstart', resumeOnGesture);
     },
 
     ensureSound: function ensureSound(name) {
@@ -107,6 +120,10 @@
 
       if (!this.audioContext) {
         this.audioContext = new AudioContext();
+      }
+
+      if (this.audioContext.state === 'suspended') {
+        this.audioContext.resume();
       }
 
       const oscillator = this.audioContext.createOscillator();

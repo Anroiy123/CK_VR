@@ -11,6 +11,9 @@
     },
 
     submit: function submit(time, mode) {
+      if (mode === "freeplay") {
+        return;
+      }
       const scores = this.getScores(mode);
       scores.push({ time: Number(time), date: new Date().toISOString() });
       scores.sort(function (left, right) {
@@ -25,20 +28,27 @@
     },
 
     renderToPanel: function renderToPanel() {
-      ["easy", "hard"].forEach(function (mode) {
-        const element = document.getElementById("lb-" + mode + "-scores");
+      var modeConfigs = [
+        { mode: "easy",     elId: "lb-easy-scores",     label: "EASY" },
+        { mode: "hard",     elId: "lb-hard-scores",     label: "HARD" },
+        { mode: "mix-easy", elId: "lb-mix-easy-scores", label: "MIX EASY" },
+        { mode: "mix-hard", elId: "lb-mix-hard-scores", label: "MIX HARD" },
+      ];
+
+      modeConfigs.forEach(function (cfg) {
+        var element = document.getElementById(cfg.elId);
         if (!element) {
           return;
         }
 
-        const scores = this.getScores(mode);
-        const lines = scores.length
+        var scores = this.getScores(cfg.mode);
+        var lines = scores.length
           ? scores.slice(0, 5).map(function (score, index) {
               return index + 1 + ". " + score.time.toFixed(1) + "s";
             })
           : ["---"];
 
-        element.setAttribute("value", mode.toUpperCase() + "\n" + lines.join("\n"));
+        element.setAttribute("value", cfg.label + "\n" + lines.join("\n"));
       }.bind(this));
     },
   };

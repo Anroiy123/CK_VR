@@ -4,8 +4,8 @@
   const STATE_EMPTY = 'EMPTY';
   const STATE_HOLDING = 'HOLDING_BALL1';
   const STATE_RESULT = 'RESULT_READY';
-  const MIXING_STATION_DESKTOP_DROP_DISTANCE = 0.2;
-  const MIXING_STATION_WORLD_DROP_DISTANCE = 0.5;
+  const MIXING_STATION_DESKTOP_DROP_DISTANCE = APP_CONFIG.mixingStationDesktopDropDistance;
+  const MIXING_STATION_WORLD_DROP_DISTANCE = APP_CONFIG.mixingStationWorldDropDistance;
 
   AFRAME.registerComponent('mixing-station', {
     schema: {
@@ -126,7 +126,7 @@
       if (!ballEl || !ballEl.classList || !ballEl.classList.contains('color-ball-entity')) return false;
       const ballData = ballEl.getAttribute('color-ball');
       if (!ballData) return false;
-      const isWaste = ballData.isWaste === 'true' || ballData.isWaste === true;
+      const isWaste = ballData.isWaste === true;
       if (isWaste) return false;
       if (this.state === STATE_EMPTY || this.state === STATE_HOLDING) return true;
       if (this.state === STATE_RESULT && ballData.colorHex === '#FFFFFF' && this.resultBallEl) {
@@ -185,7 +185,7 @@
       
       const colorHex = ballData.colorHex;
       const isWhite = colorHex === '#FFFFFF';
-      const isWaste = ballData.isWaste === 'true' || ballData.isWaste === true;
+      const isWaste = ballData.isWaste === true;
 
       if (isWaste) {
         event.detail.callback('rejected');

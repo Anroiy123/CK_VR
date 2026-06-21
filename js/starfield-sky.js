@@ -82,7 +82,6 @@
       });
       var mesh = new THREE.Mesh(geom, mat);
       this.el.setObject3D("starfield", mesh);
-      this.el.setAttribute("geometry", "skipCache: true");
     },
 
     tick: function tick(time) {

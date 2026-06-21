@@ -16,6 +16,7 @@
         hud: document.getElementById("diegetic-hud"),
         timer: document.getElementById("hud-timer-row"),
         skipLevel: document.getElementById("skip-level-button"),
+        backMenu: document.getElementById("back-menu-button"),
       };
 
       this.refs = {
@@ -29,6 +30,7 @@
         gameoverMode: document.getElementById("gameover-mode"),
         statusText: document.getElementById("status-text"),
         shelfCounter: document.getElementById("hud-shelf-counter"),
+        progressBar: document.getElementById("hud-progress-bar"),
       };
 
       this.world = {
@@ -120,9 +122,37 @@
 
     setVisible: function setVisible(name, visible) {
       if (this.panels[name]) {
-        this.panels[name].setAttribute("visible", visible);
+        this.setElementVisible(this.panels[name], visible);
         this.setPanelInteractivity(this.panels[name], visible);
       }
+    },
+
+    setElementVisible: function setElementVisible(el, visible) {
+      if (!el) {
+        return;
+      }
+
+      const isAFrameElement = el.tagName && el.tagName.toLowerCase().indexOf("a-") === 0;
+      if ((el.dataset && el.dataset.uiSurface === "dom") || !isAFrameElement) {
+        el.hidden = !visible;
+        return;
+      }
+
+      el.setAttribute("visible", visible);
+    },
+
+    setTextValue: function setTextValue(el, value) {
+      if (!el) {
+        return;
+      }
+
+      const isAFrameElement = el.tagName && el.tagName.toLowerCase().indexOf("a-") === 0;
+      if ((el.dataset && el.dataset.uiSurface === "dom") || !isAFrameElement) {
+        el.textContent = String(value);
+        return;
+      }
+
+      el.setAttribute("value", String(value));
     },
 
     setPanelInteractivity: function setPanelInteractivity(panelEl, enabled) {
@@ -189,7 +219,7 @@
       const isMix = window.GameManager && GameManager.isMixingMode && GameManager.isMixingMode();
       this.setWorldVisible("mixingStation", visible && isMix);
       if (!visible && this.refs.shelfCounter) {
-        this.refs.shelfCounter.setAttribute("visible", false);
+        this.setElementVisible(this.refs.shelfCounter, false);
       }
       this.setGameplayWorldInteractivity(visible);
     },
@@ -208,6 +238,7 @@
       this.setVisible("hud", true);
       this.setVisible("timer", mode === "hard" || mode === "mix-hard");
       this.setVisible("skipLevel", mode === "easy" || mode === "mix-easy");
+      this.setVisible("backMenu", true);
     },
 
     showFreePlay: function showFreePlay() {
@@ -244,31 +275,47 @@
     },
 
     updateHUD: function updateHUD(levelLabel, progressLabel, modeLabel) {
-      this.refs.hudLevel.setAttribute("value", String(levelLabel));
-      this.refs.hudProgress.setAttribute("value", String(progressLabel));
+      this.setTextValue(this.refs.hudLevel, levelLabel);
+      this.setTextValue(this.refs.hudProgress, progressLabel);
+      this.updateProgressBar(progressLabel);
       if (modeLabel && this.refs.hudMode) {
-        this.refs.hudMode.setAttribute("value", String(modeLabel));
+        this.setTextValue(this.refs.hudMode, modeLabel);
       }
+    },
+
+    updateProgressBar: function updateProgressBar(progressLabel) {
+      if (!this.refs.progressBar) {
+        return;
+      }
+
+      const parts = String(progressLabel).split("/");
+      const placed = Number(parts[0]);
+      const total = Number(parts[1]);
+      const percent = total > 0 ? Math.max(0, Math.min(100, (placed / total) * 100)) : 0;
+      this.refs.progressBar.style.width = percent + "%";
     },
 
     updateTimer: function updateTimer(value, urgent) {
       const displayValue = value === "--" ? "--" : String(value);
-      this.refs.timerText.setAttribute("value", displayValue);
-      this.refs.timerText.setAttribute("color", urgent ? "#ff1744" : "#91f7ff");
+      this.setTextValue(this.refs.timerText, displayValue);
+      if (this.refs.timerText.classList) {
+        this.refs.timerText.classList.toggle("is-urgent", !!urgent);
+      } else {
+        this.refs.timerText.setAttribute("color", urgent ? "#ff1744" : "#91f7ff");
+      }
     },
 
     updateShelfCounter: function updateShelfCounter(count) {
       if (!this.refs.shelfCounter) return;
       const isMixMode = window.GameManager && GameManager.isMixingMode && GameManager.isMixingMode();
-      this.refs.shelfCounter.setAttribute("visible", !!isMixMode);
+      this.setElementVisible(this.refs.shelfCounter, !!isMixMode);
       if (!isMixMode) return;
-      this.refs.shelfCounter.setAttribute("value", "Slots: " + count + "/10");
-      if (count >= 9) {
-        this.refs.shelfCounter.setAttribute("color", "#e03131");
-      } else if (count >= 8) {
-        this.refs.shelfCounter.setAttribute("color", "#ffd43b");
+      this.setTextValue(this.refs.shelfCounter, "Slots: " + count + "/10");
+      if (this.refs.shelfCounter.classList) {
+        this.refs.shelfCounter.classList.toggle("is-warning", count >= 8 && count < 9);
+        this.refs.shelfCounter.classList.toggle("is-danger", count >= 9);
       } else {
-        this.refs.shelfCounter.setAttribute("color", "#51cf66");
+        this.refs.shelfCounter.setAttribute("color", count >= 9 ? "#e03131" : count >= 8 ? "#ffd43b" : "#51cf66");
       }
     },
 

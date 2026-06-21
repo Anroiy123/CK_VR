@@ -20,7 +20,7 @@
 
       GameManager.spawnBalls(getAllColors(), "freeplay");
       UIManager.showFreePlay();
-      UIManager.updateHUD("Free Play", "12 colors", "");
+      UIManager.updateHUD("Free Play", "22 colors", "");
       Timer.clearDisplay();
       SoundManager.startBGM();
     },

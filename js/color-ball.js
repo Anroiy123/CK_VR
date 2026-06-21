@@ -3,6 +3,58 @@
     return;
   }
 
+  const BALL_RADIUS = 0.074;
+
+  function getBallMaterialAttributes(colorHex, isWaste) {
+    return {
+      color: colorHex,
+      metalness: isWaste ? 0.08 : 0.25,
+      roughness: isWaste ? 0.82 : 0.18,
+      emissive: colorHex,
+      emissiveIntensity: 0,
+    };
+  }
+
+  function getBallPhysicalMaterialOptions(colorHex, isWaste) {
+    return Object.assign(getBallMaterialAttributes(colorHex, isWaste), {
+      clearcoat: isWaste ? 0.05 : 0.72,
+      clearcoatRoughness: isWaste ? 0.7 : 0.12,
+      iridescence: isWaste ? 0 : 0.35,
+      iridescenceIOR: 1.25,
+      iridescenceThicknessRange: [180, 520],
+    });
+  }
+
+  function setHeldRenderPriority(el, enabled) {
+    el.object3D.traverse(function (node) {
+      if (node.isMesh && node.material) {
+        if (enabled) {
+          if (!node.userData.colorBallRenderState) {
+            node.userData.colorBallRenderState = {
+              renderOrder: node.renderOrder,
+              depthTest: node.material.depthTest,
+              depthWrite: node.material.depthWrite,
+            };
+          }
+          node.renderOrder = 1000;
+          node.material.depthTest = false;
+          node.material.depthWrite = false;
+          node.material.needsUpdate = true;
+          return;
+        }
+
+        const renderState = node.userData.colorBallRenderState;
+        if (renderState) {
+          node.renderOrder = renderState.renderOrder;
+          node.material.depthTest = renderState.depthTest;
+          node.material.depthWrite = renderState.depthWrite;
+          delete node.userData.colorBallRenderState;
+          node.material.needsUpdate = true;
+        }
+      }
+    });
+  }
+
   AFRAME.registerComponent("color-ball", {
     schema: {
       colorHex: { type: "string" },
@@ -19,42 +71,33 @@
 
       this.el.setAttribute("geometry", {
         primitive: "sphere",
-        radius: 0.068,
-        segmentsWidth: 24,
-        segmentsHeight: 18,
+        radius: BALL_RADIUS,
+        segmentsWidth: 48,
+        segmentsHeight: 24,
       });
-      this.el.setAttribute("material", {
-        color: this.data.colorHex,
-        metalness: 0.3,
-        roughness: 0.5,
-        emissive: this.data.colorHex,
-        emissiveIntensity: 0,
-      });
+      this.el.setAttribute("material", getBallMaterialAttributes(this.data.colorHex, this.data.isWaste));
+      this.el.setAttribute("shadow", "cast: true; receive: false");
+      this.createVisualAccents();
 
       var self = this;
       this.el.addEventListener("object3dset", function () {
         self.el.object3D.traverse(function (node) {
+          if (node.el && node.el !== self.el) {
+            return;
+          }
           if (node.isMesh && node.material) {
             var oldMat = node.material;
-            var newMat = new THREE.MeshPhysicalMaterial({
-              color: oldMat.color,
-              metalness: self.data.isWaste ? 0.1 : 0.45,
-              roughness: self.data.isWaste ? 0.9 : 0.28,
-              emissive: oldMat.emissive,
-              emissiveIntensity: oldMat.emissiveIntensity,
-              transparent: oldMat.transparent,
-              opacity: oldMat.opacity,
-              side: oldMat.side,
-              depthWrite: oldMat.depthWrite,
-              clearcoat: self.data.isWaste ? 0.0 : 0.4,
-              clearcoatRoughness: self.data.isWaste ? 0.8 : 0.15,
-              iridescence: self.data.isWaste ? 0.0 : 0.8,
-              iridescenceIOR: 1.3,
-              iridescenceThicknessRange: [300, 500],
-            });
+            var newMat = new THREE.MeshPhysicalMaterial(
+              Object.assign(getBallPhysicalMaterialOptions(self.data.colorHex, self.data.isWaste), {
+                color: oldMat.color,
+                emissive: oldMat.emissive,
+                transparent: oldMat.transparent,
+                opacity: oldMat.opacity,
+                side: oldMat.side,
+                depthWrite: oldMat.depthWrite,
+              }),
+            );
             node.material = newMat;
-            // Sync the A-Frame material component's internal reference so
-            // setAttribute("material", "emissiveIntensity", ...) updates the right object.
             var matComp = self.el.components && self.el.components.material;
             if (matComp) {
               matComp.material = newMat;
@@ -77,32 +120,75 @@
       this.el.addEventListener("grab-end", this.onGrabEnd.bind(this));
     },
 
+    createVisualAccents: function createVisualAccents() {
+      this.hoverRingEl = document.createElement("a-torus");
+      this.hoverRingEl.setAttribute("radius", "0.092");
+      this.hoverRingEl.setAttribute("radius-tubular", "0.0045");
+      this.hoverRingEl.setAttribute("segments-radial", "10");
+      this.hoverRingEl.setAttribute("segments-tubular", "40");
+      this.hoverRingEl.setAttribute("position", "0 0 0");
+      this.hoverRingEl.setAttribute("rotation", "90 0 0");
+      this.hoverRingEl.setAttribute(
+        "material",
+        "color: #fff3b0; opacity: 0.88; transparent: true; shader: flat; depthTest: true; depthWrite: false",
+      );
+      this.hoverRingEl.setAttribute("visible", false);
+      this.el.appendChild(this.hoverRingEl);
+
+      this.shineEl = document.createElement("a-sphere");
+      this.shineEl.setAttribute("radius", String(BALL_RADIUS * 0.22));
+      this.shineEl.setAttribute("position", "-0.028 0.038 0.052");
+      this.shineEl.setAttribute(
+        "material",
+        "color: #ffffff; opacity: 0.64; transparent: true; shader: flat; depthWrite: false",
+      );
+      this.el.appendChild(this.shineEl);
+    },
+
+    setHoverRingVisible: function setHoverRingVisible(isVisible) {
+      if (this.hoverRingEl) {
+        this.hoverRingEl.setAttribute("visible", isVisible);
+      }
+    },
+
     onEnter: function onEnter() {
-      if (this.el.dataset.locked === "true") {
+      if (this.el.dataset.held === "true") {
         return;
       }
-      this.el.setAttribute("material", "emissiveIntensity", 0.4);
+      this.setHoverRingVisible(true);
     },
 
     onLeave: function onLeave() {
-      if (this.el.dataset.selected === "true") {
+      if (this.el.dataset.held === "true") {
         return;
       }
-      this.el.setAttribute("material", "emissiveIntensity", 0);
+      this.setHoverRingVisible(false);
+    },
+
+    update: function update(oldData) {
+      if (!oldData || oldData.colorHex === this.data.colorHex) {
+        return;
+      }
+      var hex = this.data.colorHex;
+      var isWaste = this.data.isWaste;
+      this.el.dataset.colorHex = hex;
+      this.el.dataset.waste = String(isWaste);
+      this.el.object3D.traverse(function (node) {
+        if (node.isMesh && node.material) {
+          node.material.color.set(hex);
+          node.material.emissive.set(hex);
+          node.material.needsUpdate = true;
+        }
+      });
     },
 
     onGrabStart: function onGrabStart() {
       const tooltip = this.el.components["color-tooltip"];
       this.el.dataset.held = "true";
-      this.el.object3D.scale.set(1.06, 1.06, 1.06);
-      this.el.setAttribute("material", "emissiveIntensity", 0.55);
-      
-      this.el.object3D.traverse(function(node) {
-        if (node.isMesh && node.material) {
-          node.material.depthTest = false;
-        }
-      });
-      
+      this.setHoverRingVisible(false);
+      this.el.object3D.scale.set(1.08, 1.08, 1.08);
+      setHeldRenderPriority(this.el, true);
+
       if (tooltip) {
         tooltip.hideImmediate();
       }
@@ -111,28 +197,18 @@
     onGrabEnd: function onGrabEnd() {
       delete this.el.dataset.held;
       delete this.el.dataset.selected;
+      this.setHoverRingVisible(false);
       this.el.object3D.scale.set(1, 1, 1);
-      if (this.el.dataset.locked !== "true") {
-        this.el.setAttribute("material", "emissiveIntensity", 0);
-      }
-      
-      this.el.object3D.traverse(function(node) {
-        if (node.isMesh && node.material) {
-          node.material.depthTest = true;
-        }
-      });
+
+      setHeldRenderPriority(this.el, false);
     },
 
     setSelected: function setSelected(isSelected) {
       if (isSelected) {
         this.el.dataset.selected = "true";
-        this.el.setAttribute("material", "emissiveIntensity", 0.55);
         return;
       }
       delete this.el.dataset.selected;
-      if (this.el.dataset.held !== "true") {
-        this.el.setAttribute("material", "emissiveIntensity", 0);
-      }
     },
 
     removeBall: function removeBall() {

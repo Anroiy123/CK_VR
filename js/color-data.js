@@ -125,6 +125,8 @@
     wheelRadius: 0.78,
     slotDepthOffset: 0.08,
     placedBallDepthOffset: 0.18,
+    mixingStationDesktopDropDistance: 0.2,
+    mixingStationWorldDropDistance: 0.5,
     vrGrab: {
       holdOffset: { x: 0, y: -0.04, z: -0.52 },
     },

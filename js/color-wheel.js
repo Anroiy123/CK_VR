@@ -4,7 +4,6 @@
   }
 
   const SECTOR_SWEEP_DEGREES = 30.6;
-
   function getWheelAngleRadians(angleDeg) {
     return Math.PI / 2 - (angleDeg * Math.PI) / 180;
   }
@@ -73,13 +72,15 @@
             Object.assign({}, materialOptions, {
               emissive: new THREE.Color(options.color),
               emissiveIntensity: 0,
-              roughness: 0.5,
-              metalness: 0.1,
+              roughness: 0.34,
+              metalness: 0.06,
             }),
           );
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.z = options.zOffset || 0;
     mesh.renderOrder = options.renderOrder || 1;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
     sectorEl.setObject3D("mesh", mesh);
     sectorEl.__sectorMaterial = material;
     sectorEl.__sectorMesh = mesh;
@@ -167,7 +168,7 @@
       color: mixHexColors(fillColorHex, "#ffffff", tintByLayer[layerIndex] || 0),
       opacity: opacityByLayer[layerIndex] || 1,
       emissive: fillColorHex,
-      emissiveIntensity: isTint ? 0.18 : 0.15,
+      emissiveIntensity: isTint ? 0.24 : 0.2,
     };
   }
 
@@ -188,6 +189,22 @@
       }
     }
     layerEl.__sectorMaterial.needsUpdate = true;
+  }
+
+  function createTorus(options) {
+    const torus = document.createElement("a-torus");
+    torus.setAttribute("radius", options.radius);
+    torus.setAttribute("radius-tubular", options.tubeRadius);
+    torus.setAttribute("segments-radial", options.radialSegments || "16");
+    torus.setAttribute("segments-tubular", options.tubularSegments || "48");
+    torus.setAttribute("material", options.material);
+    if (options.position) {
+      torus.setAttribute("position", options.position);
+    }
+    if (options.visible !== undefined) {
+      torus.setAttribute("visible", options.visible);
+    }
+    return torus;
   }
 
   AFRAME.registerComponent("color-wheel", {
@@ -215,51 +232,69 @@
     },
 
     createRing: function createRing() {
+      const backplate = document.createElement("a-cylinder");
+      backplate.setAttribute("radius", this.data.radius + 0.105);
+      backplate.setAttribute("height", "0.055");
+      backplate.setAttribute("rotation", "90 0 0");
+      backplate.setAttribute("position", "0 0 -0.062");
+      backplate.setAttribute(
+        "material",
+        "color: #2c2218; roughness: 0.42; metalness: 0.18; emissive: #080604; emissiveIntensity: 0.05",
+      );
+      backplate.setAttribute("shadow", "cast: true; receive: true");
+      this.ringRoot.appendChild(backplate);
+
+      const backRim = createTorus({
+        radius: this.data.radius + 0.08,
+        tubeRadius: "0.035",
+        radialSegments: "18",
+        tubularSegments: "64",
+        material: "color: #3d2b18; roughness: 0.34; metalness: 0.34; emissive: #1d1208; emissiveIntensity: 0.06",
+        position: "0 0 -0.025",
+      });
+      backRim.setAttribute("shadow", "cast: true; receive: true");
+      this.ringRoot.appendChild(backRim);
+
+      const outerSegmentRadius = this.data.radius - 0.004;
+      const outerRingTubeRadius = 0.024;
       const outerRing = document.createElement("a-torus");
-      outerRing.setAttribute("radius", this.data.radius + 0.09);
-      outerRing.setAttribute("radius-tubular", "0.016");
+      outerRing.setAttribute("radius", outerSegmentRadius + outerRingTubeRadius);
+      outerRing.setAttribute("radius-tubular", outerRingTubeRadius);
       outerRing.setAttribute("segments-radial", "12");
       outerRing.setAttribute("segments-tubular", "24");
       outerRing.setAttribute(
         "material",
-        "color: #8a6f4b; opacity: 0.78; transparent: true; emissive: #5f4728; emissiveIntensity: 0.08",
+        "color: #b18a52; opacity: 0.96; transparent: true; roughness: 0.26; metalness: 0.26; emissive: #6b4a20; emissiveIntensity: 0.12",
       );
+      outerRing.setAttribute("position", "0 0 0.012");
+      outerRing.setAttribute("shadow", "cast: true; receive: true");
       this.ringRoot.appendChild(outerRing);
 
       const innerRing = document.createElement("a-torus");
       innerRing.setAttribute("radius", this.data.radius - 0.12);
-      innerRing.setAttribute("radius-tubular", "0.01");
-      innerRing.setAttribute("segments-radial", "10");
-      innerRing.setAttribute("segments-tubular", "24");
+      innerRing.setAttribute("radius-tubular", "0.012");
+      innerRing.setAttribute("segments-radial", "16");
+      innerRing.setAttribute("segments-tubular", "48");
       innerRing.setAttribute(
         "material",
-        "color: #b89762; opacity: 0; transparent: true; depthWrite: false",
+        "color: #f3d58f; opacity: 0; transparent: true; emissive: #d79c38; emissiveIntensity: 0.18; depthWrite: false",
       );
+      innerRing.setAttribute("position", "0 0 0.018");
+      innerRing.setAttribute("visible", false);
       this.ringRoot.appendChild(innerRing);
       this.centerRingEl = innerRing;
-
-      const haloRing = document.createElement("a-torus");
-      const haloRadius = this.data.radius + 0.02;
-      haloRing.setAttribute("radius", String(haloRadius));
-      haloRing.setAttribute("radius-tubular", "0.008");
-      haloRing.setAttribute("segments-radial", "16");
-      haloRing.setAttribute("segments-tubular", "24");
-      haloRing.setAttribute(
-        "material",
-        "color: #c8a96a; opacity: 0; transparent: true; depthWrite: false; visible: false",
-      );
-      haloRing.setAttribute("visible", false);
-      this.ringRoot.appendChild(haloRing);
 
       const tintRing = document.createElement("a-torus");
       tintRing.setAttribute("radius", "0.588");
       tintRing.setAttribute("radius-tubular", "0.015");
-      tintRing.setAttribute("segments-radial", "10");
-      tintRing.setAttribute("segments-tubular", "24");
+      tintRing.setAttribute("segments-radial", "16");
+      tintRing.setAttribute("segments-tubular", "48");
       tintRing.setAttribute(
         "material",
-        "color: #eadcc8; opacity: 0; transparent: true; depthWrite: false",
+        "color: #eadcc8; opacity: 0; transparent: true; emissive: #c8a96a; emissiveIntensity: 0.14; depthWrite: false",
       );
+      tintRing.setAttribute("position", "0 0 0.02");
+      tintRing.setAttribute("visible", false);
       this.ringRoot.appendChild(tintRing);
       this.tintRingEl = tintRing;
     },
@@ -313,7 +348,7 @@
 
         const slotPosition = getWheelSlotPosition(color.angle || 0, slotRadius);
         const slot = document.createElement("a-entity");
-        slot.id = "slot-" + (color.type === "Base" ? "center" : color.angle);
+        slot.id = "slot-" + (color.type === "Base" ? "center" : color.type.toLowerCase() + "-" + color.angle);
         slot.classList.add("color-slot", "interactive");
         slot.dataset.targetColor = color.hex;
         slot.dataset.targetName = color.name;
@@ -334,14 +369,14 @@
         const visual = document.createElement("a-cylinder");
         visual.classList.add("slot-visual");
         visual.setAttribute("radius", color.type === "Base" ? "0.14" : "0.052");
-        visual.setAttribute("height", "0.024");
+        visual.setAttribute("height", color.type === "Base" ? "0.032" : "0.026");
         visual.setAttribute("rotation", "90 0 0");
         visual.setAttribute("position", "0 0 -0.01");
         const baseMaterial =
           color.type === "Base"
             ? "color: #ffffff; opacity: 0.92; transparent: true; shader: flat; emissive: #ffffff; emissiveIntensity: 0.45; depthTest: false"
             : "color: #8a6f4b; opacity: 0.42; transparent: true; shader: flat";
-        visual.setAttribute("visible", color.type !== "Tint");
+        visual.setAttribute("visible", false);
         visual.setAttribute("material", baseMaterial);
         slot.appendChild(visual);
 
@@ -368,14 +403,8 @@
       const visibleColors = getColorsForLevel(level);
       this.updateVisibleSlots(visibleColors, false);
 
-      const hasTints = visibleColors.some(function (color) {
-        return color.type === "Tint";
-      });
-      const hasBase = visibleColors.some(function (color) {
-        return color.type === "Base";
-      });
-      if (this.tintRingEl) this.tintRingEl.setAttribute("visible", hasTints);
-      if (this.centerRingEl) this.centerRingEl.setAttribute("visible", hasBase);
+      if (this.tintRingEl) this.tintRingEl.setAttribute("visible", false);
+      if (this.centerRingEl) this.centerRingEl.setAttribute("visible", false);
     },
 
     prepareMixingLevel: function prepareMixingLevel(level) {
@@ -387,16 +416,8 @@
       });
       this.updateVisibleSlots(visibleColors, false);
 
-      const hasTints = visibleColors.some(function (color) {
-        return color.type === "Tint";
-      });
-      const hasBase = visibleColors.some(function (color) {
-        return color.type === "Base";
-      });
-      if (this.tintRingEl) {
-        this.tintRingEl.setAttribute("visible", hasTints);
-      }
-      if (this.centerRingEl) this.centerRingEl.setAttribute("visible", hasBase);
+      if (this.tintRingEl) this.tintRingEl.setAttribute("visible", false);
+      if (this.centerRingEl) this.centerRingEl.setAttribute("visible", false);
     },
 
     prepareFreePlay: function prepareFreePlay() {
@@ -456,7 +477,7 @@
             visual.setAttribute("visible", true);
             visual.setAttribute(
               "material",
-              "color: #ffffff; opacity: 1; transparent: true; shader: flat; emissive: #ffffff; emissiveIntensity: 0.2; depthTest: false",
+              "color: #ffffff; opacity: 1; transparent: true; shader: flat; emissive: #ffffff; emissiveIntensity: 0.45; depthTest: false",
             );
           } else {
             visual.setAttribute(
@@ -494,6 +515,32 @@
       }
       segmentLayers.forEach(function (segmentLayer, layerIndex) {
         applyLayerStyle(segmentLayer, getInactiveLayerStyle(layerIndex, isTint));
+      });
+    },
+
+    playSlotFeedback: function playSlotFeedback(slot, colorHex, stateName) {
+      if (!slot) {
+        return;
+      }
+
+      const color = stateName === "error" ? "#ff6b6b" : colorHex || slot.dataset.targetColor || "#ffd43b";
+      const segmentLayers = slot.__segmentLayers || [];
+      segmentLayers.forEach(function (segmentLayer) {
+        if (segmentLayer.__sectorMaterial && segmentLayer.__sectorMaterial.emissive) {
+          segmentLayer.__sectorMaterial.emissive.set(color);
+          segmentLayer.__sectorMaterial.emissiveIntensity = stateName === "error" ? 0.42 : 0.36;
+          segmentLayer.__sectorMaterial.needsUpdate = true;
+          setTimeout(function () {
+            if (slot.dataset.occupied === "true") {
+              segmentLayer.__sectorMaterial.emissive.set(slot.dataset.fillColorHex || slot.dataset.targetColor);
+              segmentLayer.__sectorMaterial.emissiveIntensity = 0.2;
+            } else {
+              segmentLayer.__sectorMaterial.emissive.setHex(0x000000);
+              segmentLayer.__sectorMaterial.emissiveIntensity = 0;
+            }
+            segmentLayer.__sectorMaterial.needsUpdate = true;
+          }, 420);
+        }
       });
     },
 
